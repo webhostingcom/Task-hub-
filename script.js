@@ -441,12 +441,15 @@ async function registerUser(event) {
                     method: "POST",
 
                     headers: {
-                        "Authorization":
-                            `Bearer ${SUPABASE_KEY}`,
+    "Authorization":
+        `Bearer ${signup.data.access_token}`,
 
-                        "Prefer":
-                            "return=minimal"
-                    },
+    "apikey":
+        SUPABASE_KEY,
+
+    "Prefer":
+        "return=minimal"
+},
 
                     body: JSON.stringify({
                         id: user.id,
