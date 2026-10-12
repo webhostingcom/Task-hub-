@@ -1,0 +1,258 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Login — Task Hub</title>
+
+    <link rel="stylesheet" href="style.css">
+
+    <style>
+        .auth-page {
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: #f6f7fb;
+            padding: 30px 20px;
+        }
+
+        .auth-box {
+            width: 100%;
+            max-width: 430px;
+            background: #ffffff;
+            padding: 40px;
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(20, 21, 45, 0.08);
+        }
+
+        .auth-logo {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        .auth-logo a {
+            text-decoration: none;
+            color: #171827;
+            font-size: 25px;
+            font-weight: 800;
+        }
+
+        .auth-logo span {
+            color: #5b5cf0;
+        }
+
+        .auth-box h1 {
+            text-align: center;
+            font-size: 30px;
+            margin-bottom: 8px;
+            color: #171827;
+        }
+
+        .auth-subtitle {
+            text-align: center;
+            color: #73758a;
+            margin-bottom: 30px;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-size: 14px;
+            font-weight: 600;
+            color: #171827;
+        }
+
+        .form-group input {
+            width: 100%;
+            padding: 14px 15px;
+            border: 1px solid #e7e8ef;
+            border-radius: 10px;
+            outline: none;
+            font-size: 15px;
+            box-sizing: border-box;
+            transition: 0.2s;
+        }
+
+        .form-group input:focus {
+            border-color: #5b5cf0;
+            box-shadow: 0 0 0 3px rgba(91, 92, 240, 0.1);
+        }
+
+        .password-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 8px;
+        }
+
+        .password-row label {
+            margin-bottom: 0;
+        }
+
+        .forgot-link {
+            color: #5b5cf0;
+            text-decoration: none;
+            font-size: 13px;
+            font-weight: 600;
+        }
+
+        .login-btn {
+            width: 100%;
+            border: none;
+            background: #5b5cf0;
+            color: white;
+            padding: 15px;
+            border-radius: 10px;
+            font-size: 16px;
+            font-weight: 700;
+            cursor: pointer;
+            margin-top: 5px;
+            transition: 0.2s;
+        }
+
+        .login-btn:hover {
+            background: #4748d8;
+            transform: translateY(-1px);
+        }
+
+        .auth-message {
+            display: none;
+            margin-bottom: 20px;
+            padding: 12px;
+            border-radius: 9px;
+            font-size: 14px;
+            text-align: center;
+        }
+
+        .auth-message.error {
+            display: block;
+            background: #fff0f0;
+            color: #c62828;
+        }
+
+        .auth-message.success {
+            display: block;
+            background: #effbf5;
+            color: #16865c;
+        }
+
+        .auth-bottom {
+            text-align: center;
+            margin-top: 25px;
+            color: #73758a;
+            font-size: 14px;
+        }
+
+        .auth-bottom a {
+            color: #5b5cf0;
+            font-weight: 700;
+            text-decoration: none;
+        }
+
+        .back-home {
+            display: block;
+            text-align: center;
+            margin-top: 20px;
+            color: #73758a;
+            text-decoration: none;
+            font-size: 14px;
+        }
+
+        @media (max-width: 500px) {
+            .auth-box {
+                padding: 30px 22px;
+            }
+
+            .auth-box h1 {
+                font-size: 26px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+    <main class="auth-page">
+
+        <div class="auth-box">
+
+            <div class="auth-logo">
+                <a href="index.html">
+                    Task<span>Hub</span>
+                </a>
+            </div>
+
+            <h1>Welcome back</h1>
+
+            <p class="auth-subtitle">
+                Login to continue to your Task Hub account.
+            </p>
+
+            <div id="authMessage" class="auth-message"></div>
+
+            <form id="loginForm">
+
+                <div class="form-group">
+                    <label for="email">Email address</label>
+
+                    <input
+                        type="email"
+                        id="email"
+                        name="email"
+                        placeholder="Enter your email"
+                        autocomplete="email"
+                        required
+                    >
+                </div>
+
+                <div class="form-group">
+
+                    <div class="password-row">
+                        <label for="password">Password</label>
+
+                        <a href="#" class="forgot-link">
+                            Forgot password?
+                        </a>
+                    </div>
+
+                    <input
+                        type="password"
+                        id="password"
+                        name="password"
+                        placeholder="Enter your password"
+                        autocomplete="current-password"
+                        required
+                    >
+
+                </div>
+
+                <button type="submit" class="login-btn">
+                    Login
+                </button>
+
+            </form>
+
+            <div class="auth-bottom">
+                Don't have an account?
+                <a href="register.html">Create one</a>
+            </div>
+
+            <a href="index.html" class="back-home">
+                ← Back to Task Hub
+            </a>
+
+        </div>
+
+    </main>
+
+    <script src="script.js"></script>
+
+
+</body>
+</html>
