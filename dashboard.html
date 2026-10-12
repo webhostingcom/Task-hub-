@@ -1,0 +1,777 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Dashboard — Task Hub</title>
+
+    <link rel="stylesheet" href="style.css">
+
+    <style>
+        .dashboard-page {
+            min-height: 100vh;
+            background: #f6f7fb;
+        }
+
+        .dashboard-header {
+            background: #ffffff;
+            border-bottom: 1px solid #e7e8ef;
+            padding: 16px 5%;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+
+        .dashboard-logo {
+            text-decoration: none;
+            color: #171827;
+            font-size: 24px;
+            font-weight: 800;
+        }
+
+        .dashboard-logo span {
+            color: #5b5cf0;
+        }
+
+        .dashboard-user {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .user-avatar {
+            width: 42px;
+            height: 42px;
+            border-radius: 50%;
+            background: #5b5cf0;
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+        }
+
+        .user-name {
+            font-weight: 700;
+            color: #171827;
+        }
+
+        .dashboard-container {
+            width: 90%;
+            max-width: 1200px;
+            margin: auto;
+            padding: 35px 0 60px;
+        }
+
+        .welcome-section {
+            margin-bottom: 30px;
+        }
+
+        .welcome-section h1 {
+            margin: 0 0 7px;
+            color: #171827;
+            font-size: 30px;
+        }
+
+        .welcome-section p {
+            margin: 0;
+            color: #73758a;
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 18px;
+            margin-bottom: 30px;
+        }
+
+        .stat-card {
+            background: #ffffff;
+            border: 1px solid #e7e8ef;
+            border-radius: 16px;
+            padding: 22px;
+        }
+
+        .stat-label {
+            color: #73758a;
+            font-size: 14px;
+            margin-bottom: 10px;
+        }
+
+        .stat-value {
+            color: #171827;
+            font-size: 25px;
+            font-weight: 800;
+        }
+
+        .dashboard-grid {
+            display: grid;
+            grid-template-columns: 2fr 1fr;
+            gap: 22px;
+        }
+
+        .dashboard-card {
+            background: #ffffff;
+            border: 1px solid #e7e8ef;
+            border-radius: 16px;
+            padding: 25px;
+            margin-bottom: 22px;
+        }
+
+        .dashboard-card h2 {
+            margin: 0 0 20px;
+            color: #171827;
+            font-size: 20px;
+        }
+
+        .task-item {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 15px;
+            padding: 17px 0;
+            border-bottom: 1px solid #e7e8ef;
+        }
+
+        .task-item:last-child {
+            border-bottom: none;
+        }
+
+        .task-title {
+            color: #171827;
+            font-weight: 700;
+            margin-bottom: 5px;
+        }
+
+        .task-category {
+            color: #73758a;
+            font-size: 13px;
+        }
+
+        .task-reward {
+            color: #19a974;
+            font-weight: 800;
+            white-space: nowrap;
+        }
+
+        .dashboard-btn {
+            display: inline-block;
+            text-decoration: none;
+            background: #5b5cf0;
+            color: white;
+            padding: 12px 18px;
+            border-radius: 9px;
+            font-weight: 700;
+            font-size: 14px;
+            border: none;
+            cursor: pointer;
+        }
+
+        .dashboard-btn:hover {
+            background: #4748d8;
+        }
+
+        .secondary-btn {
+            background: #f0f0ff;
+            color: #5b5cf0;
+        }
+
+        .secondary-btn:hover {
+            background: #e5e5ff;
+        }
+
+        .balance-card {
+            background: #5b5cf0;
+            color: white;
+            border: none;
+        }
+
+        .balance-card .balance-label {
+            opacity: 0.8;
+            font-size: 14px;
+        }
+
+        .balance-card .balance {
+            font-size: 34px;
+            font-weight: 800;
+            margin: 8px 0 20px;
+        }
+
+        .balance-actions {
+            display: flex;
+            gap: 10px;
+        }
+
+        .balance-actions a {
+            flex: 1;
+            text-align: center;
+            background: white;
+            color: #5b5cf0;
+            padding: 11px;
+            border-radius: 8px;
+            text-decoration: none;
+            font-weight: 700;
+            font-size: 13px;
+        }
+
+        .quick-links {
+            display: grid;
+            gap: 10px;
+        }
+
+        .quick-link {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 14px;
+            background: #f6f7fb;
+            border-radius: 10px;
+            text-decoration: none;
+            color: #171827;
+            font-weight: 600;
+        }
+
+        .quick-link span:last-child {
+            color: #73758a;
+        }
+
+        .logout-btn {
+            border: none;
+            background: #fff0f0;
+            color: #c62828;
+            padding: 11px 15px;
+            border-radius: 8px;
+            font-weight: 700;
+            cursor: pointer;
+            margin-left: 10px;
+        }
+
+        .loading {
+            color: #73758a;
+            padding: 20px 0;
+        }
+
+        @media (max-width: 900px) {
+            .stats-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+
+            .dashboard-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        @media (max-width: 600px) {
+            .dashboard-header {
+                padding: 14px 5%;
+            }
+
+            .dashboard-user {
+                gap: 7px;
+            }
+
+            .user-name {
+                display: none;
+            }
+
+            .logout-btn {
+                margin-left: 0;
+                padding: 9px 11px;
+            }
+
+            .dashboard-container {
+                width: 92%;
+                padding-top: 25px;
+            }
+
+            .welcome-section h1 {
+                font-size: 25px;
+            }
+
+            .stats-grid {
+                grid-template-columns: 1fr 1fr;
+                gap: 10px;
+            }
+
+            .stat-card {
+                padding: 17px;
+            }
+
+            .stat-value {
+                font-size: 20px;
+            }
+
+            .dashboard-card {
+                padding: 20px;
+            }
+
+            .task-item {
+                align-items: flex-start;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+<div class="dashboard-page">
+
+    <!-- HEADER -->
+    <header class="dashboard-header">
+
+        <a href="dashboard.html" class="dashboard-logo">
+            Task<span>Hub</span>
+        </a>
+
+        <div class="dashboard-user">
+
+            <div class="user-avatar" id="userAvatar">
+                U
+            </div>
+
+            <span class="user-name" id="headerUserName">
+                User
+            </span>
+
+            <button
+                class="logout-btn"
+                id="logoutBtn"
+                type="button"
+            >
+                Logout
+            </button>
+
+        </div>
+
+    </header>
+
+
+    <!-- MAIN -->
+    <main class="dashboard-container">
+
+        <section class="welcome-section">
+
+            <h1>
+                Welcome, <span id="welcomeName">User</span> 👋
+            </h1>
+
+            <p>
+                Complete tasks and start earning rewards.
+            </p>
+
+        </section>
+
+
+        <!-- STAT CARDS -->
+        <section class="stats-grid">
+
+            <div class="stat-card">
+
+                <div class="stat-label">
+                    Available Balance
+                </div>
+
+                <div class="stat-value" id="availableBalance">
+                    ₦0.00
+                </div>
+
+            </div>
+
+
+            <div class="stat-card">
+
+                <div class="stat-label">
+                    Total Earned
+                </div>
+
+                <div class="stat-value">
+                    ₦0.00
+                </div>
+
+            </div>
+
+
+            <div class="stat-card">
+
+                <div class="stat-label">
+                    Completed Tasks
+                </div>
+
+                <div class="stat-value">
+                    0
+                </div>
+
+            </div>
+
+
+            <div class="stat-card">
+
+                <div class="stat-label">
+                    Referral Earnings
+                </div>
+
+                <div class="stat-value">
+                    ₦0.00
+                </div>
+
+            </div>
+
+        </section>
+
+
+        <!-- CONTENT -->
+        <div class="dashboard-grid">
+
+
+            <!-- LEFT -->
+            <div>
+
+                <div class="dashboard-card balance-card">
+
+                    <div class="balance-label">
+                        Your available balance
+                    </div>
+
+                    <div class="balance" id="mainBalance">
+                        ₦0.00
+                    </div>
+
+                    <div class="balance-actions">
+
+                        <a href="tasks.html">
+                            Find Tasks
+                        </a>
+
+                        <a href="withdraw.html">
+                            Withdraw
+                        </a>
+
+                    </div>
+
+                </div>
+
+
+                <div class="dashboard-card">
+
+                    <h2>
+                        Available Tasks
+                    </h2>
+
+                    <div id="tasksPreview">
+
+                        <div class="task-item">
+
+                            <div>
+                                <div class="task-title">
+                                    No tasks available yet
+                                </div>
+
+                                <div class="task-category">
+                                    New tasks will appear here.
+                                </div>
+                            </div>
+
+                        </div>
+
+                    </div>
+
+                    <a
+                        href="tasks.html"
+                        class="dashboard-btn"
+                    >
+                        View All Tasks
+                    </a>
+
+                </div>
+
+            </div>
+
+
+            <!-- RIGHT -->
+            <aside>
+
+                <div class="dashboard-card">
+
+                    <h2>
+                        Quick Links
+                    </h2>
+
+                    <div class="quick-links">
+
+                        <a
+                            href="tasks.html"
+                            class="quick-link"
+                        >
+                            <span>Available Tasks</span>
+                            <span>→</span>
+                        </a>
+
+                        <a
+                            href="wallet.html"
+                            class="quick-link"
+                        >
+                            <span>Wallet</span>
+                            <span>→</span>
+                        </a>
+
+                        <a
+                            href="referrals.html"
+                            class="quick-link"
+                        >
+                            <span>Referrals</span>
+                            <span>→</span>
+                        </a>
+
+                        <a
+                            href="leaderboard.html"
+                            class="quick-link"
+                        >
+                            <span>Leaderboard</span>
+                            <span>→</span>
+                        </a>
+
+                        <a
+                            href="profile.html"
+                            class="quick-link"
+                        >
+                            <span>My Profile</span>
+                            <span>→</span>
+                        </a>
+
+                    </div>
+
+                </div>
+
+
+                <div class="dashboard-card">
+
+                    <h2>
+                        Your Account
+                    </h2>
+
+                    <p
+                        style="
+                            color:#73758a;
+                            font-size:14px;
+                            line-height:1.6;
+                        "
+                    >
+                        Keep your account information
+                        updated so you can receive
+                        your earnings without problems.
+                    </p>
+
+                    <a
+                        href="profile.html"
+                        class="dashboard-btn secondary-btn"
+                    >
+                        Edit Profile
+                    </a>
+
+                </div>
+
+            </aside>
+
+        </div>
+
+    </main>
+
+</div>
+
+
+<script src="script.js"></script>
+
+
+<script>
+
+document.addEventListener(
+    "DOMContentLoaded",
+    async function() {
+
+        // ---------------------------------------
+        // CHECK LOGIN
+        // ---------------------------------------
+
+        const token =
+            localStorage.getItem(
+                "taskhub_access_token"
+            );
+
+        const userId =
+            localStorage.getItem(
+                "taskhub_user_id"
+            );
+
+
+        if (!token || !userId) {
+
+            window.location.href =
+                "login.html";
+
+            return;
+        }
+
+
+        // ---------------------------------------
+        // LOAD PROFILE
+        // ---------------------------------------
+
+        try {
+
+            const response =
+                await fetch(
+                    `${SUPABASE_URL}/rest/v1/profiles?id=eq.${userId}&select=*`,
+                    {
+                        method: "GET",
+
+                        headers: {
+                            "apikey":
+                                SUPABASE_KEY,
+
+                            "Authorization":
+                                `Bearer ${token}`
+                        }
+                    }
+                );
+
+
+            if (!response.ok) {
+
+                throw new Error(
+                    "Unable to load profile."
+                );
+
+            }
+
+
+            const profiles =
+                await response.json();
+
+
+            if (!profiles.length) {
+
+                throw new Error(
+                    "Profile not found."
+                );
+
+            }
+
+
+            const profile =
+                profiles[0];
+
+
+            // -----------------------------------
+            // DISPLAY NAME
+            // -----------------------------------
+
+            const name =
+                profile.full_name ||
+                profile.username ||
+                "User";
+
+
+            document.getElementById(
+                "welcomeName"
+            ).textContent = name;
+
+
+            document.getElementById(
+                "headerUserName"
+            ).textContent = name;
+
+
+            // -----------------------------------
+            // AVATAR
+            // -----------------------------------
+
+            document.getElementById(
+                "userAvatar"
+            ).textContent =
+                name.charAt(0).toUpperCase();
+
+
+            // -----------------------------------
+            // BALANCE
+            // -----------------------------------
+
+            const balance =
+                Number(profile.balance || 0);
+
+
+            const formattedBalance =
+                new Intl.NumberFormat(
+                    "en-NG",
+                    {
+                        style: "currency",
+                        currency: "NGN"
+                    }
+                ).format(balance);
+
+
+            document.getElementById(
+                "availableBalance"
+            ).textContent =
+                formattedBalance;
+
+
+            document.getElementById(
+                "mainBalance"
+            ).textContent =
+                formattedBalance;
+
+
+        } catch (error) {
+
+            console.error(
+                "Dashboard error:",
+                error
+            );
+
+        }
+
+
+        // ---------------------------------------
+        // LOGOUT
+        // ---------------------------------------
+
+        const logoutBtn =
+            document.getElementById(
+                "logoutBtn"
+            );
+
+
+        logoutBtn.addEventListener(
+            "click",
+            function() {
+
+                if (
+                    typeof logoutUser ===
+                    "function"
+                ) {
+
+                    logoutUser();
+
+                } else {
+
+                    localStorage.clear();
+
+                    window.location.href =
+                        "login.html";
+
+                }
+
+            }
+        );
+
+    }
+);
+
+</script>
+
+</body>
+</html>
