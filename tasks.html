@@ -3,9 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-
   <title>Available Tasks | Task Hub</title>
-
   <link rel="stylesheet" href="style.css">
 
   <style>
@@ -18,7 +16,7 @@
       font-family: Arial, sans-serif;
     }
 
-    .tasks-header {
+    header {
       background: #101828;
       color: white;
       padding: 18px 6%;
@@ -29,416 +27,430 @@
       flex-wrap: wrap;
     }
 
-    .brand {
+    header a {
       color: white;
       text-decoration: none;
+    }
+
+    .brand {
       font-size: 23px;
       font-weight: 800;
     }
 
-    .back-link {
-      color: white;
-      text-decoration: none;
-      font-size: 14px;
-    }
-
-    .tasks-container {
+    main {
       width: 90%;
       max-width: 1100px;
       margin: 35px auto;
     }
 
-    .page-heading h1 {
-      margin-bottom: 8px;
-      font-size: clamp(26px, 5vw, 36px);
-    }
+    h1 { font-size: clamp(26px, 5vw, 36px); }
 
-    .page-heading p {
-      color: #667085;
-      line-height: 1.6;
-    }
+    .muted { color: #667085; line-height: 1.6; }
 
-    .task-toolbar {
+    .toolbar {
       display: flex;
       gap: 12px;
+      margin: 24px 0;
       flex-wrap: wrap;
-      margin: 25px 0;
     }
 
-    .task-toolbar input,
-    .task-toolbar select {
-      background: white;
+    input, select, textarea {
+      width: 100%;
+      padding: 12px;
       border: 1px solid #d0d5dd;
-      border-radius: 9px;
-      padding: 13px;
-      font-size: 15px;
+      border-radius: 8px;
+      font: inherit;
+      background: white;
+    }
+
+    .toolbar input, .toolbar select {
       flex: 1;
       min-width: 150px;
     }
 
-    .task-count {
-      color: #667085;
-      margin-bottom: 18px;
-      font-size: 14px;
-    }
-
-    .task-grid {
+    .grid {
       display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+      grid-template-columns: repeat(auto-fit, minmax(270px, 1fr));
       gap: 20px;
     }
 
-    .task-card {
+    .card {
       background: white;
       border: 1px solid #e4e7ec;
-      border-radius: 15px;
-      padding: 22px;
-      box-shadow: 0 4px 15px rgba(16, 24, 40, 0.04);
-      display: flex;
-      flex-direction: column;
-      min-height: 240px;
+      border-radius: 14px;
+      padding: 21px;
+      box-shadow: 0 4px 15px #10182808;
     }
 
-    .task-category {
+    .category {
       display: inline-block;
       background: #eef4ff;
       color: #2457c5;
       padding: 7px 10px;
       border-radius: 20px;
       font-size: 12px;
-      width: fit-content;
-      margin-bottom: 12px;
     }
 
-    .task-card h3 {
-      margin: 0 0 10px;
-      font-size: 20px;
-      overflow-wrap: anywhere;
-    }
+    .card h3 { margin-bottom: 8px; }
 
-    .task-description {
-      color: #667085;
-      line-height: 1.6;
-      font-size: 14px;
-      overflow-wrap: anywhere;
-    }
-
-    .task-bottom {
-      border-top: 1px solid #eaecf0;
-      margin-top: auto;
-      padding-top: 18px;
-    }
-
-    .task-reward {
+    .reward {
       color: #087443;
-      font-size: 21px;
+      font-size: 22px;
       font-weight: 800;
-      margin-bottom: 14px;
+      margin: 18px 0;
     }
 
-    .task-button {
-      display: block;
-      text-align: center;
-      width: 100%;
+    button, .button {
+      display: inline-block;
       border: none;
-      border-radius: 9px;
-      padding: 13px;
+      border-radius: 8px;
+      padding: 12px 15px;
       background: #3157d5;
       color: white;
       font-weight: 700;
       text-decoration: none;
       cursor: pointer;
-      font-size: 15px;
+      font-size: 14px;
     }
 
-    .task-button:hover {
-      background: #2446b8;
-    }
-
-    .task-button:disabled {
+    button:disabled {
       opacity: .6;
       cursor: not-allowed;
     }
 
-    .empty-state {
+    .full { width: 100%; text-align: center; }
+
+    .proof-form {
+      border-top: 1px solid #eaecf0;
+      margin-top: 18px;
+      padding-top: 16px;
+    }
+
+    .proof-form label {
+      display: block;
+      margin: 12px 0 6px;
+      font-size: 13px;
+      font-weight: 700;
+    }
+
+    .proof-form textarea {
+      min-height: 90px;
+      resize: vertical;
+    }
+
+    .status {
+      display: inline-block;
+      padding: 7px 10px;
+      border-radius: 20px;
+      font-size: 12px;
+      font-weight: 700;
+      text-transform: capitalize;
+    }
+
+    .pending { background: #fff7e6; color: #975a00; }
+    .approved { background: #ecfdf3; color: #087443; }
+    .rejected { background: #fff1f0; color: #b42318; }
+
+    .notice, .empty {
       background: white;
-      border: 1px dashed #cbd5e1;
-      padding: 35px 20px;
-      border-radius: 14px;
-      text-align: center;
-      color: #667085;
-      line-height: 1.7;
-      grid-column: 1 / -1;
+      padding: 20px;
+      border-radius: 12px;
+      line-height: 1.6;
+      margin: 16px 0;
     }
 
-    .notice {
-      padding: 14px;
-      border-radius: 9px;
-      margin: 15px 0;
-      display: none;
-      line-height: 1.5;
-    }
+    .error { color: #b42318; }
+    .success { color: #087443; }
 
-    .notice.error {
-      display: block;
-      background: #fff1f0;
-      color: #b42318;
-    }
-
-    .notice.info {
-      display: block;
-      background: #eef4ff;
-      color: #2457c5;
-    }
-
-    .notice.success {
-      display: block;
-      background: #ecfdf3;
-      color: #087443;
-    }
-
-    .task-footer {
+    footer {
       text-align: center;
       padding: 25px;
       color: #667085;
       font-size: 13px;
     }
-
-    @media (max-width: 480px) {
-      .tasks-container {
-        width: 92%;
-        margin-top: 25px;
-      }
-
-      .task-card {
-        padding: 18px;
-      }
-    }
   </style>
 </head>
 
 <body>
-
-  <header class="tasks-header">
-    <a href="dashboard.html" class="brand">Task Hub</a>
-    <a href="dashboard.html" class="back-link">← Back to Dashboard</a>
+  <header>
+    <a class="brand" href="dashboard.html">Task Hub</a>
+    <a href="dashboard.html">← Dashboard</a>
   </header>
 
-  <main class="tasks-container">
+  <main>
+    <h1>Available Tasks</h1>
+    <p class="muted">
+      Complete a task, provide your proof, and wait for an administrator to review it.
+      Rewards are credited only after approval.
+    </p>
 
-    <section class="page-heading">
-      <h1>Available Tasks</h1>
-      <p>Choose a task, read its instructions, and complete it to qualify for its reward.</p>
-    </section>
+    <div id="notice" class="notice" hidden></div>
 
-    <div id="pageNotice" class="notice"></div>
-
-    <div class="task-toolbar">
-      <input
-        type="search"
-        id="taskSearch"
-        placeholder="Search tasks..."
-        aria-label="Search tasks"
-      >
-
-      <select id="categoryFilter" aria-label="Filter by category">
+    <div class="toolbar">
+      <input id="search" type="search" placeholder="Search tasks...">
+      <select id="category">
         <option value="">All categories</option>
       </select>
     </div>
 
-    <p class="task-count" id="taskCount">Loading tasks...</p>
-
-    <section class="task-grid" id="taskGrid">
-      <div class="empty-state">Connecting to Task Hub...</div>
-    </section>
-
+    <p id="count" class="muted">Loading tasks...</p>
+    <section id="taskGrid" class="grid"></section>
   </main>
 
-  <footer class="task-footer">
-    Task Hub · Complete tasks honestly. Rewards are subject to verification.
-  </footer>
+  <footer>Task Hub · Honest work, verified rewards.</footer>
 
   <script src="script.js"></script>
 
   <script>
-    const taskGrid = document.getElementById("taskGrid");
-    const taskCount = document.getElementById("taskCount");
-    const pageNotice = document.getElementById("pageNotice");
-    const taskSearch = document.getElementById("taskSearch");
-    const categoryFilter = document.getElementById("categoryFilter");
+    const grid = document.getElementById("taskGrid");
+    const notice = document.getElementById("notice");
+    const count = document.getElementById("count");
+    const search = document.getElementById("search");
+    const category = document.getElementById("category");
 
-    let allTasks = [];
-
-    function showNotice(message, type = "info") {
-      pageNotice.textContent = message;
-      pageNotice.className = "notice " + type;
-    }
+    let tasks = [];
+    let submissions = [];
 
     function escapeHTML(value) {
-      return String(value ?? "").replace(/[&<>"']/g, character => ({
+      return String(value ?? "").replace(/[&<>"']/g, c => ({
         "&": "&amp;",
         "<": "&lt;",
         ">": "&gt;",
         '"': "&quot;",
         "'": "&#39;"
-      })[character]);
+      })[c]);
     }
 
-    function formatNaira(amount) {
-      return "₦" + Number(amount || 0).toLocaleString("en-NG", {
+    function money(value) {
+      return "₦" + Number(value || 0).toLocaleString("en-NG", {
         minimumFractionDigits: 2,
         maximumFractionDigits: 2
       });
     }
 
-    async function loadTasks() {
-      const token = localStorage.getItem("taskhub_access_token");
+    function showNotice(message, type = "") {
+      notice.hidden = false;
+      notice.className = "notice " + type;
+      notice.textContent = message;
+    }
 
-      if (!token) {
-        window.location.href = "login.html";
+    function session() {
+      return {
+        token: localStorage.getItem("taskhub_access_token"),
+        userId: localStorage.getItem("taskhub_user_id")
+      };
+    }
+
+    async function api(path, options = {}) {
+      const { token } = session();
+
+      const response = await fetch(`${SUPABASE_URL}/rest/v1/${path}`, {
+        ...options,
+        headers: {
+          "apikey": SUPABASE_KEY,
+          "Authorization": `Bearer ${token}`,
+          "Content-Type": "application/json",
+          ...(options.headers || {})
+        }
+      });
+
+      const text = await response.text();
+      let data = null;
+
+      if (text) {
+        try { data = JSON.parse(text); }
+        catch { data = text; }
+      }
+
+      if (!response.ok) {
+        throw new Error(
+          data?.message || data?.hint || "Request failed. Please try again."
+        );
+      }
+
+      return data;
+    }
+
+    async function loadData() {
+      const { token, userId } = session();
+
+      if (!token || !userId) {
+        location.href = "login.html";
         return;
       }
 
       try {
-        const response = await fetch(
-          `${SUPABASE_URL}/rest/v1/tasks?select=id,title,description,category,reward,instructions,task_link&status=eq.active&order=created_at.desc`,
-          {
-            headers: {
-              "apikey": SUPABASE_KEY,
-              "Authorization": `Bearer ${token}`
-            }
-          }
-        );
+        const [taskData, submissionData] = await Promise.all([
+          api("tasks?select=id,title,description,category,reward,instructions,task_link&status=eq.active&order=created_at.desc"),
+          api(`task_submissions?select=id,task_id,status,proof,created_at&user_id=eq.${encodeURIComponent(userId)}`)
+        ]);
 
-        if (response.status === 401 || response.status === 403) {
-          showNotice(
-            "Your session may have expired, or task access is not configured. Please log in again.",
-            "error"
-          );
-          taskGrid.innerHTML = "";
-          taskCount.textContent = "Tasks unavailable";
-          return;
-        }
+        tasks = taskData || [];
+        submissions = submissionData || [];
 
-        if (!response.ok) {
-          throw new Error("Could not load tasks from the database.");
-        }
-
-        allTasks = await response.json();
-
-        populateCategories();
+        fillCategories();
         renderTasks();
-
       } catch (error) {
-        taskGrid.innerHTML = "";
-        taskCount.textContent = "Unable to load tasks";
-        showNotice(
-          error.message || "A connection error occurred. Please try again.",
-          "error"
-        );
+        count.textContent = "Unable to load tasks";
+        grid.innerHTML = "";
+        showNotice(error.message, "error");
       }
     }
 
-    function populateCategories() {
-      const categories = [...new Set(
-        allTasks.map(task => task.category).filter(Boolean)
-      )].sort();
+    function fillCategories() {
+      const values = [...new Set(tasks.map(t => t.category).filter(Boolean))].sort();
 
-      categoryFilter.innerHTML =
+      category.innerHTML =
         '<option value="">All categories</option>' +
-        categories.map(category =>
-          `<option value="${escapeHTML(category)}">${escapeHTML(category)}</option>`
+        values.map(v =>
+          `<option value="${escapeHTML(v)}">${escapeHTML(v)}</option>`
         ).join("");
     }
 
     function renderTasks() {
-      const search = taskSearch.value.trim().toLowerCase();
-      const category = categoryFilter.value;
+      const term = search.value.trim().toLowerCase();
+      const selectedCategory = category.value;
 
-      const filteredTasks = allTasks.filter(task => {
-        const matchesSearch =
-          String(task.title || "").toLowerCase().includes(search) ||
-          String(task.description || "").toLowerCase().includes(search) ||
-          String(task.category || "").toLowerCase().includes(search);
+      const filtered = tasks.filter(task => {
+        const text = `${task.title} ${task.description} ${task.category}`.toLowerCase();
 
-        const matchesCategory = !category || task.category === category;
-
-        return matchesSearch && matchesCategory;
+        return text.includes(term) &&
+          (!selectedCategory || task.category === selectedCategory);
       });
 
-      taskCount.textContent =
-        `${filteredTasks.length} task${filteredTasks.length === 1 ? "" : "s"} found`;
+      count.textContent = `${filtered.length} task(s) found`;
 
-      if (filteredTasks.length === 0) {
-        taskGrid.innerHTML = `
-          <div class="empty-state">
-            <h3>No tasks available</h3>
-            <p>
-              ${allTasks.length === 0
-                ? "There are currently no active tasks. Please check back later."
-                : "No tasks match your search. Try another search or category."}
-            </p>
-          </div>
-        `;
+      if (!filtered.length) {
+        grid.innerHTML = `
+          <div class="empty">
+            ${tasks.length
+              ? "No tasks match your search."
+              : "There are no active tasks available right now."}
+          </div>`;
         return;
       }
 
-      taskGrid.innerHTML = filteredTasks.map(task => {
-        const hasLink = /^https?:\/\//i.test(task.task_link || "");
+      grid.innerHTML = filtered.map(task => {
+        const existing = submissions.find(
+          s => Number(s.task_id) === Number(task.id)
+        );
+
+        const validLink = /^https?:\/\//i.test(task.task_link || "");
+
+        let submissionSection = "";
+
+        if (existing) {
+          submissionSection = `
+            <div class="proof-form">
+              <p>Your submission status:</p>
+              <span class="status ${escapeHTML(existing.status)}">
+                ${escapeHTML(existing.status)}
+              </span>
+              ${existing.status === "pending"
+                ? "<p class='muted'>Your proof is awaiting review.</p>"
+                : existing.status === "approved"
+                  ? "<p class='success'>Your submission was approved.</p>"
+                  : "<p class='error'>Your submission was rejected. Contact support if you need help.</p>"}
+            </div>`;
+        } else {
+          submissionSection = `
+            <form class="proof-form" data-task-id="${Number(task.id)}">
+              <label for="proof-${Number(task.id)}">Proof of completion</label>
+              <textarea
+                id="proof-${Number(task.id)}"
+                name="proof"
+                maxlength="2000"
+                required
+                placeholder="Describe what you completed or paste your proof link."
+              ></textarea>
+              <p class="muted">
+                Submit a genuine proof. Never include passwords or sensitive personal information.
+              </p>
+              <button class="full" type="submit">Submit Proof</button>
+            </form>`;
+        }
 
         return `
-          <article class="task-card">
-            <span class="task-category">
-              ${escapeHTML(task.category || "Other")}
-            </span>
-
+          <article class="card">
+            <span class="category">${escapeHTML(task.category || "Other")}</span>
             <h3>${escapeHTML(task.title)}</h3>
-
-            <p class="task-description">
-              ${escapeHTML(task.description || "Read the task instructions before starting.")}
-            </p>
-
-            <div class="task-bottom">
-              <div class="task-reward">
-                ${formatNaira(task.reward)}
-              </div>
-
-              ${
-                hasLink
-                  ? `<a
-                       class="task-button"
-                       href="${escapeHTML(task.task_link)}"
-                       target="_blank"
-                       rel="noopener noreferrer"
-                     >Open Task</a>`
-                  : `<button
-                       class="task-button"
-                       type="button"
-                       onclick="showTaskInstructions(${Number(task.id)})"
-                     >View Instructions</button>`
-              }
-            </div>
-          </article>
-        `;
+            <p class="muted">${escapeHTML(task.description || "")}</p>
+            <div class="reward">${money(task.reward)}</div>
+            ${validLink
+              ? `<a class="button full" href="${escapeHTML(task.task_link)}" target="_blank" rel="noopener noreferrer">Open Task</a>`
+              : ""}
+            ${task.instructions
+              ? `<p class="muted"><strong>Instructions:</strong> ${escapeHTML(task.instructions)}</p>`
+              : ""}
+            ${submissionSection}
+          </article>`;
       }).join("");
+
+      grid.querySelectorAll("form[data-task-id]").forEach(form => {
+        form.addEventListener("submit", submitProof);
+      });
     }
 
-    function showTaskInstructions(taskId) {
-      const task = allTasks.find(item => Number(item.id) === Number(taskId));
+    async function submitProof(event) {
+      event.preventDefault();
 
-      if (!task) return;
+      const form = event.currentTarget;
+      const taskId = Number(form.dataset.taskId);
+      const proof = new FormData(form).get("proof").trim();
+      const button = form.querySelector("button");
 
-      const instructions = task.instructions || task.description ||
-        "No additional instructions have been added yet.";
+      if (!proof) {
+        showNotice("Please enter your proof before submitting.", "error");
+        return;
+      }
 
-      alert(`${task.title}\n\n${instructions}`);
+      if (proof.length > 2000) {
+        showNotice("Your proof is too long.", "error");
+        return;
+      }
+
+      const { userId } = session();
+
+      if (!userId) {
+        location.href = "login.html";
+        return;
+      }
+
+      button.disabled = true;
+      button.textContent = "Submitting...";
+
+      try {
+        await api("task_submissions", {
+          method: "POST",
+          headers: { "Prefer": "return=minimal" },
+          body: JSON.stringify({
+            user_id: userId,
+            task_id: taskId,
+            proof: proof,
+            status: "pending"
+          })
+        });
+
+        showNotice("Proof submitted successfully. It is now awaiting review.", "success");
+        await loadData();
+      } catch (error) {
+        showNotice(
+          error.message.includes("duplicate") ||
+          error.message.includes("unique")
+            ? "You have already submitted this task."
+            : error.message,
+          "error"
+        );
+
+        button.disabled = false;
+        button.textContent = "Submit Proof";
+      }
     }
 
-    taskSearch.addEventListener("input", renderTasks);
-    categoryFilter.addEventListener("change", renderTasks);
+    search.addEventListener("input", renderTasks);
+    category.addEventListener("change", renderTasks);
 
-    loadTasks();
+    loadData();
   </script>
-
 </body>
 </html>
