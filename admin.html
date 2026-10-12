@@ -1,0 +1,503 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Admin Dashboard | Task Hub</title>
+  <link rel="stylesheet" href="style.css">
+
+  <style>
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      background: #f4f6fa;
+      color: #182230;
+      font-family: Arial, sans-serif;
+    }
+
+    header {
+      background: #101828;
+      color: white;
+      padding: 20px 5%;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 12px;
+      flex-wrap: wrap;
+    }
+
+    header a {
+      color: white;
+      text-decoration: none;
+    }
+
+    .brand {
+      font-size: 22px;
+      font-weight: 800;
+    }
+
+    main {
+      width: 92%;
+      max-width: 1150px;
+      margin: 32px auto;
+    }
+
+    h1 { font-size: 30px; }
+
+    .muted {
+      color: #667085;
+      line-height: 1.6;
+    }
+
+    .stats {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+      gap: 15px;
+      margin: 24px 0;
+    }
+
+    .stat, .submission {
+      background: white;
+      border: 1px solid #e4e7ec;
+      border-radius: 12px;
+      padding: 20px;
+    }
+
+    .stat span {
+      color: #667085;
+      font-size: 14px;
+    }
+
+    .stat strong {
+      display: block;
+      margin-top: 10px;
+      font-size: 27px;
+    }
+
+    .toolbar {
+      display: flex;
+      gap: 12px;
+      margin: 20px 0;
+      flex-wrap: wrap;
+    }
+
+    input, select {
+      padding: 12px;
+      border: 1px solid #d0d5dd;
+      border-radius: 8px;
+      background: white;
+      font-size: 14px;
+    }
+
+    button {
+      border: 0;
+      border-radius: 8px;
+      padding: 11px 15px;
+      cursor: pointer;
+      font-weight: 700;
+      font-size: 14px;
+    }
+
+    button:disabled {
+      opacity: .6;
+      cursor: not-allowed;
+    }
+
+    .refresh {
+      background: #e9efff;
+      color: #2446b8;
+    }
+
+    .approve {
+      background: #087443;
+      color: white;
+    }
+
+    .reject {
+      background: #b42318;
+      color: white;
+    }
+
+    .status {
+      display: inline-block;
+      padding: 7px 10px;
+      border-radius: 20px;
+      font-size: 12px;
+      font-weight: 700;
+      text-transform: capitalize;
+    }
+
+    .pending { background: #fff4d6; color: #8a5300; }
+    .approved { background: #dcfae6; color: #087443; }
+    .rejected { background: #fee4e2; color: #b42318; }
+
+    .submission {
+      margin-bottom: 16px;
+      overflow-wrap: anywhere;
+    }
+
+    .submission h3 {
+      margin-top: 0;
+    }
+
+    .proof {
+      white-space: pre-wrap;
+      overflow-wrap: anywhere;
+      background: #f8fafc;
+      border-radius: 8px;
+      padding: 14px;
+      line-height: 1.6;
+    }
+
+    .actions {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+      margin-top: 15px;
+    }
+
+    .notice {
+      padding: 14px;
+      border-radius: 9px;
+      margin: 15px 0;
+      line-height: 1.5;
+      overflow-wrap: anywhere;
+    }
+
+    .error { background: #fee4e2; color: #b42318; }
+    .success { background: #dcfae6; color: #087443; }
+    .info { background: #e9efff; color: #2446b8; }
+
+    .empty {
+      background: white;
+      border-radius: 12px;
+      padding: 25px;
+      text-align: center;
+      color: #667085;
+    }
+
+    @media (max-width: 480px) {
+      h1 { font-size: 25px; }
+      .submission { padding: 16px; }
+    }
+  </style>
+</head>
+
+<body>
+  <header>
+    <a class="brand" href="dashboard.html">Task Hub Admin</a>
+    <a href="dashboard.html">User Dashboard</a>
+  </header>
+
+  <main>
+    <h1>Submission Reviews</h1>
+    <p class="muted">
+      Review the evidence submitted by users. Approve only genuine,
+      verified completions.
+    </p>
+
+    <div id="notice" hidden></div>
+
+    <section class="stats">
+      <div class="stat">
+        <span>Total submissions</span>
+        <strong id="totalCount">—</strong>
+      </div>
+
+      <div class="stat">
+        <span>Pending reviews</span>
+        <strong id="pendingCount">—</strong>
+      </div>
+
+      <div class="stat">
+        <span>Approved</span>
+        <strong id="approvedCount">—</strong>
+      </div>
+
+      <div class="stat">
+        <span>Rejected</span>
+        <strong id="rejectedCount">—</strong>
+      </div>
+    </section>
+
+    <div class="toolbar">
+      <select id="statusFilter">
+        <option value="">All statuses</option>
+        <option value="pending">Pending</option>
+        <option value="approved">Approved</option>
+        <option value="rejected">Rejected</option>
+      </select>
+
+      <button class="refresh" id="refreshButton" type="button">
+        Refresh submissions
+      </button>
+    </div>
+
+    <section id="submissions">
+      <div class="empty">Checking administrator access...</div>
+    </section>
+  </main>
+
+  <script src="script.js"></script>
+
+  <script>
+    const submissionsElement = document.getElementById("submissions");
+    const noticeElement = document.getElementById("notice");
+    const statusFilter = document.getElementById("statusFilter");
+
+    let submissions = [];
+
+    function escapeHTML(value) {
+      return String(value ?? "").replace(/[&<>"']/g, c => ({
+        "&": "&amp;",
+        "<": "&lt;",
+        ">": "&gt;",
+        '"': "&quot;",
+        "'": "&#39;"
+      })[c]);
+    }
+
+    function showNotice(message, type = "info") {
+      noticeElement.hidden = false;
+      noticeElement.className = "notice " + type;
+      noticeElement.textContent = message;
+    }
+
+    async function request(path, options = {}) {
+      const token = localStorage.getItem("taskhub_access_token");
+
+      if (!token) {
+        location.href = "login.html";
+        throw new Error("Please log in first.");
+      }
+
+      const response = await fetch(
+        `${SUPABASE_URL}/rest/v1/${path}`,
+        {
+          ...options,
+          headers: {
+            "apikey": SUPABASE_KEY,
+            "Authorization": `Bearer ${token}`,
+            "Content-Type": "application/json",
+            ...(options.headers || {})
+          }
+        }
+      );
+
+      const text = await response.text();
+      let data = null;
+
+      if (text) {
+        try {
+          data = JSON.parse(text);
+        } catch {
+          data = text;
+        }
+      }
+
+      if (!response.ok) {
+        throw new Error(
+          data?.message || data?.hint || "The request failed."
+        );
+      }
+
+      return data;
+    }
+
+    async function checkAdmin() {
+      const result = await request("rpc/is_taskhub_admin", {
+        method: "POST",
+        body: "{}"
+      });
+
+      if (result !== true) {
+        submissionsElement.innerHTML =
+          '<div class="empty">Administrator access is required for this page.</div>';
+        showNotice(
+          "This account is not registered as a Task Hub administrator.",
+          "error"
+        );
+        return false;
+      }
+
+      return true;
+    }
+
+    async function loadSubmissions() {
+      submissionsElement.innerHTML =
+        '<div class="empty">Loading submissions...</div>';
+
+      try {
+        const isAdmin = await checkAdmin();
+        if (!isAdmin) return;
+
+        submissions = await request(
+          "task_submissions?select=id,user_id,task_id,proof,status,created_at,reviewed_at,credited_at,tasks(title,reward)&order=created_at.desc"
+        );
+
+        updateStats();
+        renderSubmissions();
+
+      } catch (error) {
+        submissionsElement.innerHTML = "";
+        showNotice(error.message, "error");
+      }
+    }
+
+    function updateStats() {
+      document.getElementById("totalCount").textContent =
+        submissions.length;
+
+      document.getElementById("pendingCount").textContent =
+        submissions.filter(s => s.status === "pending").length;
+
+      document.getElementById("approvedCount").textContent =
+        submissions.filter(s => s.status === "approved").length;
+
+      document.getElementById("rejectedCount").textContent =
+        submissions.filter(s => s.status === "rejected").length;
+    }
+
+    function renderSubmissions() {
+      const selectedStatus = statusFilter.value;
+
+      const filtered = submissions.filter(s =>
+        !selectedStatus || s.status === selectedStatus
+      );
+
+      if (!filtered.length) {
+        submissionsElement.innerHTML =
+          '<div class="empty">No submissions found for this filter.</div>';
+        return;
+      }
+
+      submissionsElement.innerHTML = filtered.map(s => {
+        const task = Array.isArray(s.tasks) ? s.tasks[0] : s.tasks;
+        const title = task?.title || `Task #${s.task_id}`;
+
+        const date = s.created_at
+          ? new Date(s.created_at).toLocaleString()
+          : "Unknown";
+
+        return `
+          <article class="submission">
+            <h3>${escapeHTML(title)}</h3>
+
+            <p class="muted">
+              Submission #${Number(s.id)}<br>
+              User ID: ${escapeHTML(s.user_id)}<br>
+              Task ID: ${Number(s.task_id)}<br>
+              Submitted: ${escapeHTML(date)}
+            </p>
+
+            <p>
+              Reward:
+              <strong>₦${Number(task?.reward || 0).toLocaleString("en-NG", {
+                minimumFractionDigits: 2,
+                maximumFractionDigits: 2
+              })}</strong>
+            </p>
+
+            <p>
+              Status:
+              <span class="status ${escapeHTML(s.status)}">
+                ${escapeHTML(s.status)}
+              </span>
+            </p>
+
+            <h4>Submitted proof</h4>
+            <div class="proof">${escapeHTML(s.proof)}</div>
+
+            ${
+              s.status === "pending"
+              ? `
+                <div class="actions">
+                  <button class="approve"
+                    data-id="${Number(s.id)}"
+                    data-decision="approved">
+                    Approve & Credit Reward
+                  </button>
+
+                  <button class="reject"
+                    data-id="${Number(s.id)}"
+                    data-decision="rejected">
+                    Reject
+                  </button>
+                </div>
+              `
+              : `
+                <p class="muted">
+                  Reviewed: ${escapeHTML(
+                    s.reviewed_at
+                      ? new Date(s.reviewed_at).toLocaleString()
+                      : "—"
+                  )}
+                </p>
+                ${s.credited_at
+                  ? '<p class="success">Reward credited.</p>'
+                  : ""}
+              `
+            }
+          </article>
+        `;
+      }).join("");
+
+      submissionsElement.querySelectorAll("button[data-decision]")
+        .forEach(button => {
+          button.addEventListener("click", () => {
+            reviewSubmission(
+              Number(button.dataset.id),
+              button.dataset.decision,
+              button
+            );
+          });
+        });
+    }
+
+    async function reviewSubmission(id, decision, button) {
+      const message = decision === "approved"
+        ? "Approve this submission and credit its reward?"
+        : "Reject this submission?";
+
+      if (!confirm(message)) return;
+
+      button.disabled = true;
+      button.textContent = "Processing...";
+
+      try {
+        await request("rpc/review_task_submission", {
+          method: "POST",
+          body: JSON.stringify({
+            p_submission_id: id,
+            p_decision: decision
+          })
+        });
+
+        showNotice(
+          decision === "approved"
+            ? "Submission approved. The reward was processed."
+            : "Submission rejected.",
+          "success"
+        );
+
+        await loadSubmissions();
+
+      } catch (error) {
+        showNotice(error.message, "error");
+        button.disabled = false;
+        button.textContent = decision === "approved"
+          ? "Approve & Credit Reward"
+          : "Reject";
+      }
+    }
+
+    statusFilter.addEventListener("change", renderSubmissions);
+
+    document.getElementById("refreshButton")
+      .addEventListener("click", loadSubmissions);
+
+    loadSubmissions();
+  </script>
+</body>
+</html>
