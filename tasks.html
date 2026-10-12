@@ -1,0 +1,444 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  <title>Available Tasks | Task Hub</title>
+
+  <link rel="stylesheet" href="style.css">
+
+  <style>
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      background: #f5f7fb;
+      color: #172033;
+      font-family: Arial, sans-serif;
+    }
+
+    .tasks-header {
+      background: #101828;
+      color: white;
+      padding: 18px 6%;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 15px;
+      flex-wrap: wrap;
+    }
+
+    .brand {
+      color: white;
+      text-decoration: none;
+      font-size: 23px;
+      font-weight: 800;
+    }
+
+    .back-link {
+      color: white;
+      text-decoration: none;
+      font-size: 14px;
+    }
+
+    .tasks-container {
+      width: 90%;
+      max-width: 1100px;
+      margin: 35px auto;
+    }
+
+    .page-heading h1 {
+      margin-bottom: 8px;
+      font-size: clamp(26px, 5vw, 36px);
+    }
+
+    .page-heading p {
+      color: #667085;
+      line-height: 1.6;
+    }
+
+    .task-toolbar {
+      display: flex;
+      gap: 12px;
+      flex-wrap: wrap;
+      margin: 25px 0;
+    }
+
+    .task-toolbar input,
+    .task-toolbar select {
+      background: white;
+      border: 1px solid #d0d5dd;
+      border-radius: 9px;
+      padding: 13px;
+      font-size: 15px;
+      flex: 1;
+      min-width: 150px;
+    }
+
+    .task-count {
+      color: #667085;
+      margin-bottom: 18px;
+      font-size: 14px;
+    }
+
+    .task-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+      gap: 20px;
+    }
+
+    .task-card {
+      background: white;
+      border: 1px solid #e4e7ec;
+      border-radius: 15px;
+      padding: 22px;
+      box-shadow: 0 4px 15px rgba(16, 24, 40, 0.04);
+      display: flex;
+      flex-direction: column;
+      min-height: 240px;
+    }
+
+    .task-category {
+      display: inline-block;
+      background: #eef4ff;
+      color: #2457c5;
+      padding: 7px 10px;
+      border-radius: 20px;
+      font-size: 12px;
+      width: fit-content;
+      margin-bottom: 12px;
+    }
+
+    .task-card h3 {
+      margin: 0 0 10px;
+      font-size: 20px;
+      overflow-wrap: anywhere;
+    }
+
+    .task-description {
+      color: #667085;
+      line-height: 1.6;
+      font-size: 14px;
+      overflow-wrap: anywhere;
+    }
+
+    .task-bottom {
+      border-top: 1px solid #eaecf0;
+      margin-top: auto;
+      padding-top: 18px;
+    }
+
+    .task-reward {
+      color: #087443;
+      font-size: 21px;
+      font-weight: 800;
+      margin-bottom: 14px;
+    }
+
+    .task-button {
+      display: block;
+      text-align: center;
+      width: 100%;
+      border: none;
+      border-radius: 9px;
+      padding: 13px;
+      background: #3157d5;
+      color: white;
+      font-weight: 700;
+      text-decoration: none;
+      cursor: pointer;
+      font-size: 15px;
+    }
+
+    .task-button:hover {
+      background: #2446b8;
+    }
+
+    .task-button:disabled {
+      opacity: .6;
+      cursor: not-allowed;
+    }
+
+    .empty-state {
+      background: white;
+      border: 1px dashed #cbd5e1;
+      padding: 35px 20px;
+      border-radius: 14px;
+      text-align: center;
+      color: #667085;
+      line-height: 1.7;
+      grid-column: 1 / -1;
+    }
+
+    .notice {
+      padding: 14px;
+      border-radius: 9px;
+      margin: 15px 0;
+      display: none;
+      line-height: 1.5;
+    }
+
+    .notice.error {
+      display: block;
+      background: #fff1f0;
+      color: #b42318;
+    }
+
+    .notice.info {
+      display: block;
+      background: #eef4ff;
+      color: #2457c5;
+    }
+
+    .notice.success {
+      display: block;
+      background: #ecfdf3;
+      color: #087443;
+    }
+
+    .task-footer {
+      text-align: center;
+      padding: 25px;
+      color: #667085;
+      font-size: 13px;
+    }
+
+    @media (max-width: 480px) {
+      .tasks-container {
+        width: 92%;
+        margin-top: 25px;
+      }
+
+      .task-card {
+        padding: 18px;
+      }
+    }
+  </style>
+</head>
+
+<body>
+
+  <header class="tasks-header">
+    <a href="dashboard.html" class="brand">Task Hub</a>
+    <a href="dashboard.html" class="back-link">← Back to Dashboard</a>
+  </header>
+
+  <main class="tasks-container">
+
+    <section class="page-heading">
+      <h1>Available Tasks</h1>
+      <p>Choose a task, read its instructions, and complete it to qualify for its reward.</p>
+    </section>
+
+    <div id="pageNotice" class="notice"></div>
+
+    <div class="task-toolbar">
+      <input
+        type="search"
+        id="taskSearch"
+        placeholder="Search tasks..."
+        aria-label="Search tasks"
+      >
+
+      <select id="categoryFilter" aria-label="Filter by category">
+        <option value="">All categories</option>
+      </select>
+    </div>
+
+    <p class="task-count" id="taskCount">Loading tasks...</p>
+
+    <section class="task-grid" id="taskGrid">
+      <div class="empty-state">Connecting to Task Hub...</div>
+    </section>
+
+  </main>
+
+  <footer class="task-footer">
+    Task Hub · Complete tasks honestly. Rewards are subject to verification.
+  </footer>
+
+  <script src="script.js"></script>
+
+  <script>
+    const taskGrid = document.getElementById("taskGrid");
+    const taskCount = document.getElementById("taskCount");
+    const pageNotice = document.getElementById("pageNotice");
+    const taskSearch = document.getElementById("taskSearch");
+    const categoryFilter = document.getElementById("categoryFilter");
+
+    let allTasks = [];
+
+    function showNotice(message, type = "info") {
+      pageNotice.textContent = message;
+      pageNotice.className = "notice " + type;
+    }
+
+    function escapeHTML(value) {
+      return String(value ?? "").replace(/[&<>"']/g, character => ({
+        "&": "&amp;",
+        "<": "&lt;",
+        ">": "&gt;",
+        '"': "&quot;",
+        "'": "&#39;"
+      })[character]);
+    }
+
+    function formatNaira(amount) {
+      return "₦" + Number(amount || 0).toLocaleString("en-NG", {
+        minimumFractionDigits: 2,
+        maximumFractionDigits: 2
+      });
+    }
+
+    async function loadTasks() {
+      const token = localStorage.getItem("taskhub_access_token");
+
+      if (!token) {
+        window.location.href = "login.html";
+        return;
+      }
+
+      try {
+        const response = await fetch(
+          `${SUPABASE_URL}/rest/v1/tasks?select=id,title,description,category,reward,instructions,task_link&status=eq.active&order=created_at.desc`,
+          {
+            headers: {
+              "apikey": SUPABASE_KEY,
+              "Authorization": `Bearer ${token}`
+            }
+          }
+        );
+
+        if (response.status === 401 || response.status === 403) {
+          showNotice(
+            "Your session may have expired, or task access is not configured. Please log in again.",
+            "error"
+          );
+          taskGrid.innerHTML = "";
+          taskCount.textContent = "Tasks unavailable";
+          return;
+        }
+
+        if (!response.ok) {
+          throw new Error("Could not load tasks from the database.");
+        }
+
+        allTasks = await response.json();
+
+        populateCategories();
+        renderTasks();
+
+      } catch (error) {
+        taskGrid.innerHTML = "";
+        taskCount.textContent = "Unable to load tasks";
+        showNotice(
+          error.message || "A connection error occurred. Please try again.",
+          "error"
+        );
+      }
+    }
+
+    function populateCategories() {
+      const categories = [...new Set(
+        allTasks.map(task => task.category).filter(Boolean)
+      )].sort();
+
+      categoryFilter.innerHTML =
+        '<option value="">All categories</option>' +
+        categories.map(category =>
+          `<option value="${escapeHTML(category)}">${escapeHTML(category)}</option>`
+        ).join("");
+    }
+
+    function renderTasks() {
+      const search = taskSearch.value.trim().toLowerCase();
+      const category = categoryFilter.value;
+
+      const filteredTasks = allTasks.filter(task => {
+        const matchesSearch =
+          String(task.title || "").toLowerCase().includes(search) ||
+          String(task.description || "").toLowerCase().includes(search) ||
+          String(task.category || "").toLowerCase().includes(search);
+
+        const matchesCategory = !category || task.category === category;
+
+        return matchesSearch && matchesCategory;
+      });
+
+      taskCount.textContent =
+        `${filteredTasks.length} task${filteredTasks.length === 1 ? "" : "s"} found`;
+
+      if (filteredTasks.length === 0) {
+        taskGrid.innerHTML = `
+          <div class="empty-state">
+            <h3>No tasks available</h3>
+            <p>
+              ${allTasks.length === 0
+                ? "There are currently no active tasks. Please check back later."
+                : "No tasks match your search. Try another search or category."}
+            </p>
+          </div>
+        `;
+        return;
+      }
+
+      taskGrid.innerHTML = filteredTasks.map(task => {
+        const hasLink = /^https?:\/\//i.test(task.task_link || "");
+
+        return `
+          <article class="task-card">
+            <span class="task-category">
+              ${escapeHTML(task.category || "Other")}
+            </span>
+
+            <h3>${escapeHTML(task.title)}</h3>
+
+            <p class="task-description">
+              ${escapeHTML(task.description || "Read the task instructions before starting.")}
+            </p>
+
+            <div class="task-bottom">
+              <div class="task-reward">
+                ${formatNaira(task.reward)}
+              </div>
+
+              ${
+                hasLink
+                  ? `<a
+                       class="task-button"
+                       href="${escapeHTML(task.task_link)}"
+                       target="_blank"
+                       rel="noopener noreferrer"
+                     >Open Task</a>`
+                  : `<button
+                       class="task-button"
+                       type="button"
+                       onclick="showTaskInstructions(${Number(task.id)})"
+                     >View Instructions</button>`
+              }
+            </div>
+          </article>
+        `;
+      }).join("");
+    }
+
+    function showTaskInstructions(taskId) {
+      const task = allTasks.find(item => Number(item.id) === Number(taskId));
+
+      if (!task) return;
+
+      const instructions = task.instructions || task.description ||
+        "No additional instructions have been added yet.";
+
+      alert(`${task.title}\n\n${instructions}`);
+    }
+
+    taskSearch.addEventListener("input", renderTasks);
+    categoryFilter.addEventListener("change", renderTasks);
+
+    loadTasks();
+  </script>
+
+</body>
+</html>
