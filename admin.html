@@ -272,6 +272,39 @@ button:disabled {
     padding: 14px;
   }
 }
+
+.withdrawal-admin-card {
+  background: #fff;
+  padding: 18px;
+  margin: 12px 0;
+  border-radius: 12px;
+  border: 1px solid #e5e7eb;
+}
+
+.withdrawal-admin-card p {
+  margin: 6px 0;
+}
+
+.withdrawal-actions {
+  margin-top: 15px;
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.withdrawal-actions input {
+  width: 100%;
+  padding: 10px;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+}
+
+.withdrawal-actions button {
+  padding: 10px 15px;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+}
 </style>
 </head>
 
@@ -384,6 +417,76 @@ button:disabled {
       </div>
     </section>
 
+    <!-- SEND NOTIFICATION -->
+
+    <section class="panel">
+
+      <h2>Send Notification</h2>
+
+      <form id="notificationForm">
+
+        <label for="notificationUserId">
+          User ID
+        </label>
+
+        <input
+          id="notificationUserId"
+          type="text"
+          placeholder="Enter the user's UUID"
+          required
+        >
+
+        <label for="notificationTitle">
+          Notification Title
+        </label>
+
+        <input
+          id="notificationTitle"
+          type="text"
+          maxlength="150"
+          placeholder="e.g. Account Notice"
+          required
+        >
+
+        <label for="notificationMessage">
+          Message
+        </label>
+
+        <textarea
+          id="notificationMessage"
+          maxlength="1000"
+          placeholder="Write the notification message..."
+          required
+        ></textarea>
+
+        <label for="notificationType">
+          Notification Type
+        </label>
+
+        <select id="notificationType">
+          <option value="account">Account</option>
+          <option value="general">General</option>
+          <option value="task">Task</option>
+          <option value="withdrawal">Withdrawal</option>
+        </select>
+
+        <div class="actions">
+
+          <button
+            type="submit"
+            class="primary"
+            id="sendNotificationButton"
+          >
+            Send Notification
+          </button>
+
+        </div>
+
+        <p id="notificationAdminMessage"></p>
+
+      </form>
+
+    </section>
     <!-- SUBMISSIONS -->
 
     <section class="panel">
@@ -409,6 +512,16 @@ button:disabled {
     </section>
 
   </div>
+  
+<section class="admin-section">
+
+  <h2>Withdrawal Requests</h2>
+
+  <div id="withdrawalRequests">
+    Loading withdrawal requests...
+  </div>
+
+</section>
 </main>
 
 <script src="script.js"></script>
@@ -511,9 +624,10 @@ async function checkAdmin() {
     showMessage("Administrator access verified.");
 
     await Promise.all([
-      loadTasks(),
-      loadSubmissions()
-    ]);
+  loadTasks(),
+  loadSubmissions(),
+  loadWithdrawalRequests()
+]);
 
   } catch (error) {
     adminArea.classList.add("hidden");
@@ -875,6 +989,403 @@ async function reviewSubmission(id, decision) {
 }
 
 checkAdmin();
+async function loadWithdrawalRequests() {
+
+  const container =
+    document.getElementById("withdrawalRequests");
+
+  try {
+
+    const response = await fetch(
+      `${SUPABASE_URL}/rest/v1/withdrawal_requests?select=*&order=created_at.desc`,
+      {
+        headers: {
+          apikey: SUPABASE_KEY,
+          Authorization: `Bearer ${localStorage.getItem("taskhub_access_token")}`
+        }
+      }
+    );
+
+    if (!response.ok) {
+      throw new Error("Failed to load withdrawal requests");
+    }
+
+    const withdrawals = await response.json();
+
+    if (!withdrawals.length) {
+      container.innerHTML =
+        "<p>No withdrawal requests yet.</p>";
+      return;
+    }
+
+    container.innerHTML = withdrawals.map(item => {
+
+      const amount =
+        Number(item.amount || 0).toLocaleString("en-NG", {
+          minimumFractionDigits: 2,
+          maximumFractionDigits: 2
+        });
+
+      const date =
+        new Date(item.created_at).toLocaleString("en-NG");
+
+      return `
+        <div class="withdrawal-admin-card">
+
+          <div>
+            <strong>₦${amount}</strong>
+
+            <p>
+              Bank: ${escapeHTML(item.bank_name)}
+            </p>
+
+            <p>
+              Account:
+              ${escapeHTML(item.account_number)}
+            </p>
+
+            <p>
+              Account Name:
+              ${escapeHTML(item.account_name)}
+            </p>
+
+            <p>
+              Status:
+              <strong>${escapeHTML(item.status)}</strong>
+            </p>
+
+            <small>${date}</small>
+          </div>
+
+          ${
+            item.status === "pending"
+            ? `
+              <div class="withdrawal-actions">
+
+                <input
+                  type="text"
+                  id="note-${item.id}"
+                  placeholder="Admin note (optional)"
+                >
+
+                <button
+                  onclick="reviewWithdrawal(${item.id}, 'approved')"
+                >
+                  Approve
+                </button>
+
+                <button
+                  onclick="reviewWithdrawal(${item.id}, 'rejected')"
+                >
+                  Reject
+                </button>
+
+              </div>
+            `
+            : `
+              <p>
+                ${item.admin_note
+                  ? "Note: " + escapeHTML(item.admin_note)
+                  : "Already reviewed."}
+              </p>
+            `
+          }
+
+        </div>
+      `;
+
+    }).join("");
+
+  } catch (error) {
+
+    console.error(error);
+
+    container.innerHTML =
+      "<p>Unable to load withdrawal requests.</p>";
+  }
+}
+
+
+async function reviewWithdrawal(withdrawalId, decision) {
+
+  const token =
+    localStorage.getItem("taskhub_access_token");
+
+  const noteInput =
+    document.getElementById(`note-${withdrawalId}`);
+
+  const note =
+    noteInput ? noteInput.value.trim() : "";
+
+  const actionText =
+    decision === "approved"
+      ? "approve this withdrawal and start the Paystack payout?"
+      : "reject this withdrawal?";
+
+  if (!confirm(actionText)) {
+    return;
+  }
+
+  try {
+
+    /*
+      STEP 1:
+      Approve or reject the withdrawal.
+    */
+
+    const reviewResponse =
+      await fetch(
+        `${SUPABASE_URL}/rest/v1/rpc/review_withdrawal`,
+        {
+          method: "POST",
+
+          headers: {
+            apikey: SUPABASE_KEY,
+            Authorization:
+              `Bearer ${token}`,
+            "Content-Type":
+              "application/json"
+          },
+
+          body: JSON.stringify({
+            p_withdrawal_id:
+              withdrawalId,
+
+            p_decision:
+              decision,
+
+            p_admin_note:
+              note
+          })
+        }
+      );
+
+    const reviewText =
+      await reviewResponse.text();
+
+    let reviewResult = null;
+
+    try {
+      reviewResult =
+        reviewText
+          ? JSON.parse(reviewText)
+          : null;
+    } catch {
+      reviewResult = reviewText;
+    }
+
+    if (!reviewResponse.ok) {
+
+      throw new Error(
+        reviewResult?.message ||
+        reviewResult?.error ||
+        reviewResult?.details ||
+        "Withdrawal review failed"
+      );
+    }
+
+    /*
+      If rejected, we're finished.
+    */
+
+    if (decision !== "approved") {
+
+      alert(
+        "Withdrawal rejected successfully."
+      );
+
+      await loadWithdrawalRequests();
+
+      return;
+    }
+
+    /*
+      STEP 2:
+      Start the Paystack payout.
+    */
+
+    const payoutResponse =
+      await fetch(
+        `${SUPABASE_URL}/functions/v1/process-withdrawal`,
+        {
+          method: "POST",
+
+          headers: {
+            apikey: SUPABASE_KEY,
+            Authorization:
+              `Bearer ${token}`,
+            "Content-Type":
+              "application/json"
+          },
+
+          body: JSON.stringify({
+            withdrawal_id:
+              withdrawalId
+          })
+        }
+      );
+
+    const payoutText =
+      await payoutResponse.text();
+
+    let payoutResult = null;
+
+    try {
+      payoutResult =
+        payoutText
+          ? JSON.parse(payoutText)
+          : null;
+    } catch {
+      payoutResult = payoutText;
+    }
+
+    if (!payoutResponse.ok) {
+
+      throw new Error(
+        payoutResult?.error ||
+        payoutResult?.message ||
+        "Withdrawal approved, but Paystack payout could not be started."
+      );
+    }
+
+    /*
+      Payout successfully initiated.
+    */
+
+    alert(
+      "Withdrawal approved and Paystack payout initiated successfully."
+    );
+
+    await loadWithdrawalRequests();
+
+  } catch (error) {
+
+    console.error(
+      "Withdrawal processing error:",
+      error
+    );
+
+    alert(
+      error.message ||
+      "Unable to process withdrawal."
+    );
+
+    await loadWithdrawalRequests();
+  }
+}
+const notificationForm =
+  document.getElementById("notificationForm");
+
+if (notificationForm) {
+
+  notificationForm.addEventListener(
+    "submit",
+    async function(event) {
+
+      event.preventDefault();
+
+      const token =
+        localStorage.getItem(
+          "taskhub_access_token"
+        );
+
+      const userId =
+        document.getElementById(
+          "notificationUserId"
+        ).value.trim();
+
+      const title =
+        document.getElementById(
+          "notificationTitle"
+        ).value.trim();
+
+      const message =
+        document.getElementById(
+          "notificationMessage"
+        ).value.trim();
+
+      const type =
+        document.getElementById(
+          "notificationType"
+        ).value;
+
+      const button =
+        document.getElementById(
+          "sendNotificationButton"
+        );
+
+      const resultMessage =
+        document.getElementById(
+          "notificationAdminMessage"
+        );
+
+      if (!token) {
+        window.location.href = "login.html";
+        return;
+      }
+
+      if (!userId || !title || !message) {
+        resultMessage.textContent =
+          "Please fill in all notification fields.";
+
+        resultMessage.className = "error";
+
+        return;
+      }
+
+      button.disabled = true;
+      button.textContent = "Sending...";
+
+      resultMessage.textContent = "";
+
+      try {
+
+        const result =
+          await api(
+            "rpc/admin_create_notification",
+            {
+              method: "POST",
+              body: JSON.stringify({
+                p_user_id: userId,
+                p_title: title,
+                p_message: message,
+                p_type: type
+              })
+            }
+          );
+
+        resultMessage.textContent =
+          "Notification sent successfully.";
+
+        resultMessage.className = "ok";
+
+        notificationForm.reset();
+
+      } catch (error) {
+
+        console.error(
+          "Notification error:",
+          error
+        );
+
+        resultMessage.textContent =
+          error.message ||
+          "Unable to send notification.";
+
+        resultMessage.className = "error";
+
+      } finally {
+
+        button.disabled = false;
+        button.textContent =
+          "Send Notification";
+
+      }
+
+    }
+  );
+
+}
 </script>
 
 </body>

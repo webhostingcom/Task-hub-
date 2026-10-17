@@ -441,15 +441,12 @@ async function registerUser(event) {
                     method: "POST",
 
                     headers: {
-    "Authorization":
-        `Bearer ${signup.data.access_token}`,
+                        "Authorization":
+                            `Bearer ${SUPABASE_KEY}`,
 
-    "apikey":
-        SUPABASE_KEY,
-
-    "Prefer":
-        "return=minimal"
-},
+                        "Prefer":
+                            "return=minimal"
+                    },
 
                     body: JSON.stringify({
                         id: user.id,
@@ -457,8 +454,10 @@ async function registerUser(event) {
                         username: username,
                         phone: phone,
                         balance: 0,
-                        referral_code:
-                            createReferralCode(username)
+                        referral_code: createReferralCode(username),
+referred_by: (
+    document.getElementById("referralCode")?.value || ""
+).trim().toUpperCase() || null
                     })
                 }
             );

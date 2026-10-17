@@ -1,0 +1,272 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Wallet - Task Hub</title>
+
+  <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: Arial, sans-serif;
+      background: #f5f7fb;
+      color: #111827;
+    }
+
+    .header {
+      background: #111827;
+      color: white;
+      padding: 18px 20px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .header h2 {
+      font-size: 20px;
+    }
+
+    .back-btn {
+      color: white;
+      text-decoration: none;
+      font-size: 14px;
+    }
+
+    .container {
+      max-width: 700px;
+      margin: 25px auto;
+      padding: 0 16px;
+    }
+
+    .balance-card {
+      background: #111827;
+      color: white;
+      border-radius: 16px;
+      padding: 25px;
+      margin-bottom: 25px;
+    }
+
+    .balance-label {
+      font-size: 14px;
+      opacity: 0.75;
+      margin-bottom: 8px;
+    }
+
+    .balance {
+      font-size: 32px;
+      font-weight: bold;
+    }
+
+    .section-title {
+      margin-bottom: 15px;
+      font-size: 20px;
+    }
+
+    .transaction {
+      background: white;
+      border-radius: 12px;
+      padding: 16px;
+      margin-bottom: 10px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+    }
+
+    .transaction-left {
+      max-width: 70%;
+    }
+
+    .description {
+      font-weight: 600;
+      margin-bottom: 5px;
+    }
+
+    .date {
+      font-size: 12px;
+      color: #6b7280;
+    }
+
+    .amount {
+      font-weight: bold;
+    }
+
+    .positive {
+      color: #16a34a;
+    }
+
+    .negative {
+      color: #dc2626;
+    }
+
+    .empty {
+      background: white;
+      padding: 25px;
+      text-align: center;
+      border-radius: 12px;
+      color: #6b7280;
+    }
+
+    .loading {
+      text-align: center;
+      padding: 20px;
+      color: #6b7280;
+    }
+  </style>
+</head>
+
+<body>
+
+  <div class="header">
+    <h2>My Wallet</h2>
+    <a href="dashboard.html" class="back-btn">← Dashboard</a>
+  </div>
+
+  <div class="container">
+
+    <div class="balance-card">
+      <div class="balance-label">Available Balance</div>
+      <div class="balance" id="balance">₦0.00</div>
+      
+      <a href="withdraw.html" class="withdraw-btn">Withdraw Funds</a>
+    </div>
+
+    <h2 class="section-title">Transaction History</h2>
+
+    <div id="transactions">
+      <div class="loading">Loading transactions...</div>
+    </div>
+
+  </div>
+
+  <script src="script.js"></script>
+
+  <script>
+    async function loadWallet() {
+      const accessToken = localStorage.getItem("taskhub_access_token");
+      const userId = localStorage.getItem("taskhub_user_id");
+
+      if (!accessToken || !userId) {
+        window.location.href = "login.html";
+        return;
+      }
+
+      try {
+        // Get balance
+        const profileResponse = await fetch(
+          `${SUPABASE_URL}/rest/v1/profiles?id=eq.${userId}&select=balance`,
+          {
+            headers: {
+              apikey: SUPABASE_KEY,
+              Authorization: `Bearer ${accessToken}`
+            }
+          }
+        );
+
+        const profiles = await profileResponse.json();
+
+        if (profiles.length > 0) {
+          const balance = Number(profiles[0].balance || 0);
+
+          document.getElementById("balance").textContent =
+            "₦" + balance.toLocaleString("en-NG", {
+              minimumFractionDigits: 2,
+              maximumFractionDigits: 2
+            });
+        }
+
+        // Get transactions
+        const transactionResponse = await fetch(
+          `${SUPABASE_URL}/rest/v1/wallet_transactions?user_id=eq.${userId}&select=*&order=created_at.desc`,
+          {
+            headers: {
+              apikey: SUPABASE_KEY,
+              Authorization: `Bearer ${accessToken}`
+            }
+          }
+        );
+
+        if (!transactionResponse.ok) {
+          throw new Error("Could not load transactions");
+        }
+
+        const transactions = await transactionResponse.json();
+
+        const container = document.getElementById("transactions");
+
+        if (!transactions.length) {
+          container.innerHTML = `
+            <div class="empty">
+              No transactions yet.
+            </div>
+          `;
+          return;
+        }
+
+        container.innerHTML = transactions.map(transaction => {
+
+          const amount = Number(transaction.amount || 0);
+
+          const isNegative = transaction.type === "withdrawal";
+
+          const sign = isNegative ? "-" : "+";
+
+          const amountClass = isNegative ? "negative" : "positive";
+
+          const date = new Date(transaction.created_at);
+
+          return `
+            <div class="transaction">
+
+              <div class="transaction-left">
+
+                <div class="description">
+                  ${escapeHtml(transaction.description || transaction.type)}
+                </div>
+
+                <div class="date">
+                  ${date.toLocaleString("en-NG")}
+                </div>
+
+              </div>
+
+              <div class="amount ${amountClass}">
+                ${sign}₦${amount.toLocaleString("en-NG", {
+                  minimumFractionDigits: 2,
+                  maximumFractionDigits: 2
+                })}
+              </div>
+
+            </div>
+          `;
+
+        }).join("");
+
+      } catch (error) {
+
+        console.error(error);
+
+        document.getElementById("transactions").innerHTML = `
+          <div class="empty">
+            Unable to load wallet information.
+          </div>
+        `;
+      }
+    }
+
+    function escapeHtml(text) {
+      const div = document.createElement("div");
+      div.textContent = text;
+      return div.innerHTML;
+    }
+
+    loadWallet();
+  </script>
+
+</body>
+</html>

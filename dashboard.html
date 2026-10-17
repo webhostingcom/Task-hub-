@@ -9,6 +9,24 @@
     <link rel="stylesheet" href="style.css">
 
     <style>
+    .notification-count {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 20px;
+    height: 20px;
+    padding: 0 5px;
+    margin-left: 6px;
+    background: #e53935;
+    color: white;
+    border-radius: 50%;
+    font-size: 11px;
+    font-weight: bold;
+}
+
+.notification-count:empty {
+    display: none;
+}
         .dashboard-page {
             min-height: 100vh;
             background: #f6f7fb;
@@ -236,8 +254,12 @@
         }
 
         .quick-link span:last-child {
-            color: #73758a;
-        }
+    color: #73758a;
+}
+
+.notification-count {
+    color: white !important;
+}
 
         .logout-btn {
             border: none;
@@ -451,8 +473,7 @@
                         </a>
 
                     </div>
-
-                </div>
+<div id="agentDashboardButton" style="margin-top:15px;"> </div>
 
 
                 <div class="dashboard-card">
@@ -533,7 +554,13 @@
                             <span>Leaderboard</span>
                             <span>→</span>
                         </a>
-
+                        <a
+    href="notifications.html"
+    class="quick-link"
+>
+    <span>🔔 Notifications</span>
+    <span id="notificationCount" class="notification-count"></span>
+</a>
                         <a
                             href="profile.html"
                             class="quick-link"
@@ -734,7 +761,57 @@ document.addEventListener(
 
         }
 
+        // ---------------------------------------
+        // NOTIFICATION COUNT
+        // ---------------------------------------
 
+        async function loadNotificationCount() {
+
+            const notificationCount =
+                document.getElementById(
+                    "notificationCount"
+                );
+
+            if (!notificationCount) return;
+
+            try {
+
+                const result =
+                    await supabaseRequest(
+                        "/rest/v1/rpc/get_unread_notification_count",
+                        {
+                            method: "POST",
+                            token: token,
+                            body: {}
+                        }
+                    );
+
+                if (!result.ok) {
+                    console.error(
+                        "Unable to load notification count."
+                    );
+                    return;
+                }
+
+                const count =
+                    Number(result.data || 0);
+
+                notificationCount.textContent =
+                    count > 99 ? "99+" : (
+                        count > 0 ? count : ""
+                    );
+
+            } catch (error) {
+
+                console.error(
+                    "Notification count error:",
+                    error
+                );
+
+            }
+        }
+
+        await loadNotificationCount();
         // ---------------------------------------
         // LOGOUT
         // ---------------------------------------
