@@ -230,10 +230,10 @@
           <div class="field">
             <label for="email">Email address</label>
             <input id="email" type="email" readonly>
-            <p class="hint">
-              Email changes require verification through Supabase.
-              Use the email-change process once it is configured.
-            </p>
+            <p<p class="hint">
+  Email address changes are managed through your account
+  security settings.
+</p>
           </div>
 
           <div class="field">
@@ -241,9 +241,9 @@
             <input id="phone" type="tel" maxlength="20"
                    autocomplete="tel" required>
             <p class="hint">
-              A phone-number change must be verified by SMS before
-              the new number can be saved.
-            </p>
+  Phone-number changes are currently locked until SMS
+  verification is enabled.
+</p>
           </div>
 
           <div class="field">
@@ -403,11 +403,10 @@
         */
         if (phone !== originalPhone) {
           showMessage(
-            "Your phone number has not been changed. SMS verification " +
-            "must be configured before a new number can be saved. " +
-            "Your other profile details have not been saved either.",
-            "error"
-          );
+  "Phone-number changes are currently locked until SMS " +
+  "verification is enabled.",
+  "error"
+);
           return;
         }
 

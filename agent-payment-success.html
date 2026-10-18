@@ -1,0 +1,183 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Task Hub | Agent Payment</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+
+  <header class="site-header">
+    <div class="container header-inner">
+      <a href="index.html" class="logo">Task Hub</a>
+
+      <nav class="nav-links">
+        <a href="dashboard.html">Dashboard</a>
+        <a href="agent-dashboard.html">Agent Dashboard</a>
+      </nav>
+    </div>
+  </header>
+
+  <main class="container" style="max-width: 650px; padding-top: 70px; padding-bottom: 70px;">
+    <section class="card" style="text-align:center;">
+
+      <div id="statusIcon" style="font-size:48px; margin-bottom:15px;">⏳</div>
+
+      <h1 id="statusTitle">Confirming your payment...</h1>
+
+      <p id="statusMessage" style="margin-top:12px; color:#666;">
+        Please wait while we verify your Agent Program payment.
+      </p>
+
+      <div id="actions" style="display:none; margin-top:25px;">
+        <a href="agent-dashboard.html"
+           class="btn btn-primary"
+           style="display:inline-block; margin:5px;">
+          Agent Dashboard
+        </a>
+
+        <a href="dashboard.html"
+           class="btn"
+           style="display:inline-block; margin:5px;">
+          Main Dashboard
+        </a>
+      </div>
+
+    </section>
+  </main>
+
+  <script>
+    const SUPABASE_URL =
+      "https://bcogfxghqrffrnfetqbo.supabase.co";
+
+    const SUPABASE_KEY =
+      "sb_publishable_cX6B4WgoF6bwz1Br5kIj4g_p4RsBRJP";
+
+    const statusIcon = document.getElementById("statusIcon");
+    const statusTitle = document.getElementById("statusTitle");
+    const statusMessage = document.getElementById("statusMessage");
+    const actions = document.getElementById("actions");
+
+    function clearSessionAndRedirect() {
+      localStorage.removeItem("taskhub_access_token");
+      localStorage.removeItem("taskhub_refresh_token");
+      localStorage.removeItem("taskhub_user_id");
+      localStorage.removeItem("taskhub_email");
+
+      setTimeout(() => {
+        window.location.href = "login.html";
+      }, 1200);
+    }
+
+    function showSuccess(message) {
+      statusIcon.textContent = "✅";
+      statusTitle.textContent = "Agent payment successful";
+      statusMessage.textContent =
+        message ||
+        "Your Agent Program payment has been verified and your agent account is active.";
+      actions.style.display = "block";
+    }
+
+    function showError(message) {
+      statusIcon.textContent = "❌";
+      statusTitle.textContent = "Payment verification failed";
+      statusMessage.textContent =
+        message ||
+        "We could not verify this payment. Please contact Task Hub support if the payment was completed.";
+    }
+
+    async function verifyPayment() {
+      const token = localStorage.getItem("taskhub_access_token");
+
+      if (!token) {
+        showError("Your session has expired. Redirecting you to login...");
+        clearSessionAndRedirect();
+        return;
+      }
+
+      const params = new URLSearchParams(window.location.search);
+
+      const reference =
+        params.get("reference") ||
+        params.get("trxref");
+
+      if (!reference) {
+        showError(
+          "No payment reference was found. Please return to the Agent Program page."
+        );
+        return;
+      }
+
+      try {
+        const response = await fetch(
+          `${SUPABASE_URL}/functions/v1/verify-agent-payment`,
+          {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+              "apikey": SUPABASE_KEY,
+              "Authorization": `Bearer ${token}`
+            },
+            body: JSON.stringify({
+              reference: reference
+            })
+          }
+        );
+
+        if (response.status === 401 || response.status === 403) {
+          showError("Your session has expired. Redirecting you to login...");
+          clearSessionAndRedirect();
+          return;
+        }
+
+        let data = {};
+
+        try {
+          data = await response.json();
+        } catch {
+          data = {};
+        }
+
+        if (!response.ok) {
+          showError(
+            data.message ||
+            data.error ||
+            "The payment could not be verified."
+          );
+          return;
+        }
+
+        if (
+          data.success === false ||
+          data.status === "failed" ||
+          data.payment_status === "failed"
+        ) {
+          showError(
+            data.message ||
+            data.error ||
+            "The payment verification was unsuccessful."
+          );
+          return;
+        }
+
+        showSuccess(
+          data.message ||
+          "Your payment has been verified and your Agent Program access is now active."
+        );
+
+      } catch (error) {
+        console.error("Agent payment verification error:", error);
+
+        showError(
+          "We could not complete payment verification right now. Please try again or contact support if you were charged."
+        );
+      }
+    }
+
+    verifyPayment();
+  </script>
+
+</body>
+</html>

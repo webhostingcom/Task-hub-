@@ -1,375 +1,809 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Task Hub | Agent Management</title>
-  <link rel="stylesheet" href="style.css">
+    <meta charset="UTF-8">
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0"
+    >
+
+    <title>Task Hub | Agent Management</title>
+
+    <link rel="stylesheet" href="style.css">
 </head>
 
 <body>
 
 <header class="topbar">
-  <div class="logo">Task Hub Admin</div>
-  <a href="admin.html" class="btn">Admin Dashboard</a>
+    <div class="logo">Task Hub Admin</div>
+
+    <div style="display:flex;gap:10px;flex-wrap:wrap;">
+        <a href="admin.html" class="btn">
+            Admin Dashboard
+        </a>
+
+        <a href="dashboard.html" class="btn">
+            User Dashboard
+        </a>
+    </div>
 </header>
 
 <main class="container">
 
-  <section class="page-header">
-    <h1>Agent Management</h1>
-    <p>Manage Agent applications, accounts and verified activities.</p>
-  </section>
+    <section class="page-header">
+        <h1>Agent Management</h1>
 
-<section class="panel">
-    <h2>Create Agent Activity</h2>
+        <p>
+            Manage Agent applications, accounts and verified activities.
+        </p>
+    </section>
 
-    <form id="activityForm">
 
-        <label>Agent User ID</label>
-        <input
-            type="text"
-            id="agentId"
-            placeholder="Enter Agent user ID"
-            required
-        >
+    <!-- ADMIN MESSAGE -->
+    <div
+        id="adminMessage"
+        class="message"
+    ></div>
 
-        <label>Activity Type</label>
-        <input
-            type="text"
-            id="activityType"
-            placeholder="e.g. Verified acquisition"
-            required
-        >
 
-        <label>Description</label>
-        <textarea
-            id="activityDescription"
-            placeholder="Describe the verified work..."
-            required
-        ></textarea>
+    <!-- CREATE AGENT ACTIVITY -->
+    <section class="panel">
 
-        <label>Referred User ID (optional)</label>
-        <input
-            type="text"
-            id="referredUserId"
-            placeholder="Optional user UUID"
-        >
+        <h2>Create Agent Activity</h2>
 
-        <label>Commission (optional)</label>
-        <input
-            type="number"
-            id="commission"
-            min="0"
-            step="0.01"
-            placeholder="Leave empty to use role commission"
-        >
+        <p>
+            Create a verified-work record for an active Agent.
+            Activities remain pending until an admin verifies them.
+        </p>
 
-        <button type="submit" class="button primary">
-            Create Activity
-        </button>
+        <form id="activityForm">
 
-        <p id="activityMessage"></p>
+            <label for="agentId">
+                Agent User ID
+            </label>
 
-    </form>
-</section>
+            <input
+                type="text"
+                id="agentId"
+                placeholder="Enter Agent user ID"
+                required
+            >
 
-  <div id="adminMessage" class="message"></div>
 
-  <section class="card">
-    <h2>Agent Applications</h2>
-    <div id="applicationsList">
-      Loading...
-    </div>
-  </section>
+            <label for="activityType">
+                Activity Type
+            </label>
 
-  <section class="card">
-    <h2>Agent Activities</h2>
-    <div id="activitiesList">
-      Loading...
-    </div>
-  </section>
+            <input
+                type="text"
+                id="activityType"
+                placeholder="e.g. Verified acquisition"
+                required
+            >
+
+
+            <label for="activityDescription">
+                Description
+            </label>
+
+            <textarea
+                id="activityDescription"
+                placeholder="Describe the verified work..."
+                required
+            ></textarea>
+
+
+            <label for="referredUserId">
+                Referred User ID (optional)
+            </label>
+
+            <input
+                type="text"
+                id="referredUserId"
+                placeholder="Optional user UUID"
+            >
+
+
+            <label for="commission">
+                Commission (optional)
+            </label>
+
+            <input
+                type="number"
+                id="commission"
+                min="0"
+                step="0.01"
+                placeholder="Leave empty to use role commission"
+            >
+
+
+            <button
+                type="submit"
+                class="button primary"
+            >
+                Create Activity
+            </button>
+
+            <p id="activityMessage"></p>
+
+        </form>
+
+    </section>
+
+
+    <!-- APPLICATIONS -->
+    <section class="card">
+
+        <h2>Agent Applications</h2>
+
+        <div id="applicationsList">
+            Loading...
+        </div>
+
+    </section>
+
+
+    <!-- ACTIVITIES -->
+    <section class="card">
+
+        <h2>Agent Activities</h2>
+
+        <div id="activitiesList">
+            Loading...
+        </div>
+
+    </section>
 
 </main>
+
 
 <script src="script.js"></script>
 
 <script>
 
-const token = localStorage.getItem("taskhub_access_token");
+const token =
+    localStorage.getItem("taskhub_access_token");
+
+
+/* ---------------------------------
+   AUTH CHECK
+--------------------------------- */
 
 if (!token) {
-  window.location.href = "login.html";
+    window.location.href = "login.html";
 }
+
 
 const headers = {
-  "apikey": SUPABASE_KEY,
-  "Authorization": "Bearer " + token,
-  "Content-Type": "application/json"
+    "apikey": SUPABASE_KEY,
+    "Authorization": "Bearer " + token,
+    "Content-Type": "application/json"
 };
 
-function showMessage(text) {
-  document.getElementById("adminMessage").textContent = text;
+
+/* ---------------------------------
+   HELPERS
+--------------------------------- */
+
+function showMessage(text, type = "error") {
+
+    const element =
+        document.getElementById("adminMessage");
+
+    element.textContent = text;
+
+    element.className =
+        type === "success"
+            ? "message success"
+            : "message error";
 }
 
+
 function money(amount) {
-  return "₦" + Number(amount || 0).toLocaleString("en-NG");
+
+    return "₦" +
+        Number(amount || 0)
+            .toLocaleString("en-NG");
 }
+
+
+/* ---------------------------------
+   LOAD APPLICATIONS
+--------------------------------- */
 
 async function loadApplications() {
 
-  const container = document.getElementById("applicationsList");
+    const container =
+        document.getElementById("applicationsList");
 
-  try {
+    try {
 
-    const response = await fetch(
-      `${SUPABASE_URL}/rest/v1/taskhub_agent_applications?select=*,taskhub_agent_roles(name,fee),profiles(full_name,username,email)&order=applied_at.desc`,
-      { headers }
-    );
+        const response = await fetch(
+            `${SUPABASE_URL}/rest/v1/taskhub_agent_applications` +
+            `?select=*,taskhub_agent_roles(name,fee,commission,minimum_withdrawal),profiles(full_name,username)` +
+            `&order=applied_at.desc`,
+            {
+                headers
+            }
+        );
 
-    if (!response.ok) {
-      throw new Error("Unable to load applications.");
+
+        if (!response.ok) {
+
+            const error =
+                await response.json()
+                    .catch(() => ({}));
+
+            throw new Error(
+                error.message ||
+                "Unable to load Agent applications."
+            );
+        }
+
+
+        const applications =
+            await response.json();
+
+
+        if (
+            !Array.isArray(applications) ||
+            applications.length === 0
+        ) {
+
+            container.innerHTML =
+                "<p>No Agent applications found.</p>";
+
+            return;
+        }
+
+
+        container.innerHTML =
+            applications.map(app => {
+
+                const role =
+                    app.taskhub_agent_roles || {};
+
+                const profile =
+                    app.profiles || {};
+
+
+                return `
+
+                    <div
+                        class="card"
+                        style="margin-bottom:15px;"
+                    >
+
+                        <h3>
+                            ${escapeHtml(
+                                role.name || "Agent"
+                            )}
+                        </h3>
+
+
+                        <p>
+                            <strong>User ID:</strong>
+                            ${escapeHtml(
+                                app.user_id || "N/A"
+                            )}
+                        </p>
+
+
+                        <p>
+                            <strong>Name:</strong>
+                            ${escapeHtml(
+                                profile.full_name || "N/A"
+                            )}
+                        </p>
+
+
+                        <p>
+                            <strong>Username:</strong>
+                            ${escapeHtml(
+                                profile.username || "N/A"
+                            )}
+                        </p>
+
+
+                        <p>
+                            <strong>Agent Fee:</strong>
+                            ${money(role.fee)}
+                        </p>
+
+
+                        <p>
+                            <strong>Commission:</strong>
+                            ${money(role.commission)}
+                        </p>
+
+
+                        <p>
+                            <strong>Minimum Withdrawal:</strong>
+                            ${money(
+                                role.minimum_withdrawal
+                            )}
+                        </p>
+
+
+                        <p>
+                            <strong>Payment:</strong>
+                            ${escapeHtml(
+                                app.payment_status || "N/A"
+                            )}
+                        </p>
+
+
+                        <p>
+                            <strong>Application:</strong>
+                            ${escapeHtml(
+                                app.status || "N/A"
+                            )}
+                        </p>
+
+
+                        <p>
+                            <strong>Applied:</strong>
+                            ${
+                                app.applied_at
+                                    ? new Date(
+                                        app.applied_at
+                                    ).toLocaleString(
+                                        "en-NG"
+                                    )
+                                    : "N/A"
+                            }
+                        </p>
+
+
+                        ${
+                            app.payment_reference
+                                ? `
+                                    <p>
+                                        <strong>
+                                            Payment Reference:
+                                        </strong>
+                                        ${escapeHtml(
+                                            app.payment_reference
+                                        )}
+                                    </p>
+                                `
+                                : ""
+                        }
+
+                    </div>
+
+                `;
+
+            }).join("");
+
+
+    } catch (error) {
+
+        console.error(error);
+
+        container.innerHTML = "";
+
+        showMessage(
+            error.message ||
+            "Unable to load applications."
+        );
     }
-
-    const applications = await response.json();
-
-    if (!applications.length) {
-      container.innerHTML = "<p>No Agent applications found.</p>";
-      return;
-    }
-
-    container.innerHTML = applications.map(app => {
-
-      const role = app.taskhub_agent_roles || {};
-      const profile = app.profiles || {};
-
-      return `
-        <div class="card" style="margin-bottom:15px;">
-
-          <h3>${escapeHtml(role.name || "Agent")}</h3>
-
-          <p>
-            <strong>Name:</strong>
-            ${escapeHtml(profile.full_name || "N/A")}
-          </p>
-
-          <p>
-            <strong>Username:</strong>
-            ${escapeHtml(profile.username || "N/A")}
-          </p>
-
-          <p>
-            <strong>Fee:</strong>
-            ${money(role.fee)}
-          </p>
-
-          <p>
-            <strong>Payment:</strong>
-            ${escapeHtml(app.payment_status)}
-          </p>
-
-          <p>
-            <strong>Application:</strong>
-            ${escapeHtml(app.status)}
-          </p>
-
-          <p>
-            <strong>Applied:</strong>
-            ${new Date(app.applied_at).toLocaleString("en-NG")}
-          </p>
-
-        </div>
-      `;
-
-    }).join("");
-
-  } catch (error) {
-    container.innerHTML = "";
-    showMessage(error.message);
-  }
 }
 
+
+/* ---------------------------------
+   LOAD ACTIVITIES
+--------------------------------- */
 
 async function loadActivities() {
 
-  const container = document.getElementById("activitiesList");
+    const container =
+        document.getElementById("activitiesList");
 
-  try {
-
-    const response = await fetch(
-      `${SUPABASE_URL}/rest/v1/taskhub_agent_activity?select=*&order=created_at.desc`,
-      { headers }
-    );
-
-    if (!response.ok) {
-      throw new Error("Unable to load Agent activities.");
-    }
-
-    const activities = await response.json();
-
-    if (!activities.length) {
-      container.innerHTML = "<p>No Agent activities found.</p>";
-      return;
-    }
-
-    container.innerHTML = activities.map(activity => `
-
-      <div class="card" style="margin-bottom:15px;">
-
-        <h3>${escapeHtml(activity.activity_type)}</h3>
-
-        <p>
-          <strong>Agent ID:</strong>
-          ${escapeHtml(activity.agent_id)}
-        </p>
-
-        <p>
-          <strong>Description:</strong>
-          ${escapeHtml(activity.description || "N/A")}
-        </p>
-
-        <p>
-          <strong>Commission:</strong>
-          ${money(activity.commission)}
-        </p>
-
-        <p>
-          <strong>Status:</strong>
-          ${escapeHtml(activity.status)}
-        </p>
-
-        <p>
-          <strong>Date:</strong>
-          ${new Date(activity.created_at).toLocaleString("en-NG")}
-        </p>
-
-        <div style="display:flex;gap:10px;flex-wrap:wrap;">
-
-          <button
-            class="btn"
-            onclick="reviewActivity(${activity.id}, 'verified')">
-            Verify & Credit
-          </button>
-
-          <button
-            class="btn"
-            onclick="reviewActivity(${activity.id}, 'rejected')">
-            Reject
-          </button>
-
-        </div>
-
-      </div>
-
-    `).join("");
-
-  } catch (error) {
-    container.innerHTML = "";
-    showMessage(error.message);
-  }
-}
-
-
-async function reviewActivity(id, status) {
-
-  const confirmed = confirm(
-    status === "verified"
-      ? "Verify this activity and credit the Agent commission?"
-      : "Reject this Agent activity?"
-  );
-
-  if (!confirmed) return;
-
-  try {
-
-    const response = await fetch(
-      `${SUPABASE_URL}/rest/v1/rpc/review_agent_activity`,
-      {
-        method: "POST",
-        headers,
-        body: JSON.stringify({
-          p_activity_id: id,
-          p_status: status,
-          p_admin_note: null
-        })
-      }
-    );
-
-    const result = await response.json();
-
-    if (!response.ok) {
-      throw new Error(
-        result.message ||
-        result.hint ||
-        result.details ||
-        "Unable to review activity."
-      );
-    }
-
-    showMessage(
-      status === "verified"
-        ? "Activity verified and commission credited."
-        : "Activity rejected."
-    );
-
-    loadActivities();
-
-  } catch (error) {
-    showMessage(error.message);
-  }
-}
-
-
-loadApplications();
-loadActivities();
-
-document.getElementById("activityForm").addEventListener("submit", async (e) => {
-    e.preventDefault();
-
-    const agentId = document.getElementById("agentId").value.trim();
-    const activityType = document.getElementById("activityType").value.trim();
-    const description = document.getElementById("activityDescription").value.trim();
-    const referredUserId = document.getElementById("referredUserId").value.trim();
-    const commissionValue = document.getElementById("commission").value.trim();
-    const message = document.getElementById("activityMessage");
-
-    message.textContent = "Creating activity...";
 
     try {
-        const result = await supabaseRequest(
-            "/rest/v1/rpc/create_agent_activity",
+
+        const response = await fetch(
+            `${SUPABASE_URL}/rest/v1/taskhub_agent_activity` +
+            `?select=*` +
+            `&order=created_at.desc`,
+            {
+                headers
+            }
+        );
+
+
+        if (!response.ok) {
+
+            const error =
+                await response.json()
+                    .catch(() => ({}));
+
+            throw new Error(
+                error.message ||
+                "Unable to load Agent activities."
+            );
+        }
+
+
+        const activities =
+            await response.json();
+
+
+        if (
+            !Array.isArray(activities) ||
+            activities.length === 0
+        ) {
+
+            container.innerHTML =
+                "<p>No Agent activities found.</p>";
+
+            return;
+        }
+
+
+        container.innerHTML =
+            activities.map(activity => `
+
+                <div
+                    class="card"
+                    style="margin-bottom:15px;"
+                >
+
+                    <h3>
+                        ${escapeHtml(
+                            activity.activity_type
+                        )}
+                    </h3>
+
+
+                    <p>
+                        <strong>Activity ID:</strong>
+                        ${escapeHtml(
+                            activity.id
+                        )}
+                    </p>
+
+
+                    <p>
+                        <strong>Agent ID:</strong>
+                        ${escapeHtml(
+                            activity.agent_id
+                        )}
+                    </p>
+
+
+                    ${
+                        activity.referred_user_id
+                            ? `
+                                <p>
+                                    <strong>
+                                        Referred User:
+                                    </strong>
+                                    ${escapeHtml(
+                                        activity.referred_user_id
+                                    )}
+                                </p>
+                            `
+                            : ""
+                    }
+
+
+                    <p>
+                        <strong>Description:</strong>
+                        ${escapeHtml(
+                            activity.description || "N/A"
+                        )}
+                    </p>
+
+
+                    <p>
+                        <strong>Commission:</strong>
+                        ${money(
+                            activity.commission
+                        )}
+                    </p>
+
+
+                    <p>
+                        <strong>Status:</strong>
+                        ${escapeHtml(
+                            activity.status
+                        )}
+                    </p>
+
+
+                    <p>
+                        <strong>Date:</strong>
+                        ${
+                            activity.created_at
+                                ? new Date(
+                                    activity.created_at
+                                ).toLocaleString(
+                                    "en-NG"
+                                )
+                                : "N/A"
+                        }
+                    </p>
+
+
+                    <div
+                        style="
+                            display:flex;
+                            gap:10px;
+                            flex-wrap:wrap;
+                            margin-top:10px;
+                        "
+                    >
+
+                        ${
+                            activity.status === "pending"
+                                ? `
+                                    <button
+                                        class="btn"
+                                        onclick="
+                                            reviewActivity(
+                                                ${activity.id},
+                                                'verified'
+                                            )
+                                        "
+                                    >
+                                        Verify & Credit
+                                    </button>
+
+
+                                    <button
+                                        class="btn"
+                                        onclick="
+                                            reviewActivity(
+                                                ${activity.id},
+                                                'rejected'
+                                            )
+                                        "
+                                    >
+                                        Reject
+                                    </button>
+                                `
+                                : `
+                                    <span>
+                                        Activity already
+                                        ${escapeHtml(
+                                            activity.status
+                                        )}.
+                                    </span>
+                                `
+                        }
+
+                    </div>
+
+                </div>
+
+            `).join("");
+
+
+    } catch (error) {
+
+        console.error(error);
+
+        container.innerHTML = "";
+
+        showMessage(
+            error.message ||
+            "Unable to load activities."
+        );
+    }
+}
+
+
+/* ---------------------------------
+   REVIEW ACTIVITY
+--------------------------------- */
+
+async function reviewActivity(
+    id,
+    status
+) {
+
+    const confirmed =
+        confirm(
+            status === "verified"
+                ? "Verify this activity and credit the Agent commission?"
+                : "Reject this Agent activity?"
+        );
+
+
+    if (!confirmed) {
+        return;
+    }
+
+
+    try {
+
+        const response = await fetch(
+            `${SUPABASE_URL}/rest/v1/rpc/review_agent_activity`,
             {
                 method: "POST",
+
+                headers,
+
                 body: JSON.stringify({
-                    p_agent_id: agentId,
-                    p_activity_type: activityType,
-                    p_description: description,
-                    p_referred_user_id: referredUserId || null,
-                    p_commission: commissionValue === ""
-                        ? null
-                        : Number(commissionValue)
+                    p_activity_id: id,
+                    p_status: status,
+                    p_admin_note: null
                 })
             }
         );
 
-        if (!result.success) {
-            throw new Error("Activity could not be created.");
+
+        const result =
+            await response.json()
+                .catch(() => ({}));
+
+
+        if (!response.ok) {
+
+            throw new Error(
+                result.message ||
+                result.hint ||
+                result.details ||
+                "Unable to review activity."
+            );
         }
 
-        message.textContent =
-            "Activity created successfully and is now pending verification.";
 
-        document.getElementById("activityForm").reset();
+        showMessage(
+            status === "verified"
+                ? "Activity verified and commission credited."
+                : "Activity rejected.",
+            "success"
+        );
 
-        if (typeof loadActivities === "function") {
-            loadActivities();
-        }
+
+        await loadActivities();
 
     } catch (error) {
+
         console.error(error);
-        message.textContent = error.message || "Failed to create activity.";
+
+        showMessage(
+            error.message ||
+            "Unable to review activity."
+        );
     }
-});
+}
+
+
+/* ---------------------------------
+   CREATE ACTIVITY
+--------------------------------- */
+
+document
+    .getElementById("activityForm")
+    .addEventListener(
+        "submit",
+        async function(event) {
+
+            event.preventDefault();
+
+
+            const agentId =
+                document
+                    .getElementById("agentId")
+                    .value
+                    .trim();
+
+
+            const activityType =
+                document
+                    .getElementById("activityType")
+                    .value
+                    .trim();
+
+
+            const description =
+                document
+                    .getElementById("activityDescription")
+                    .value
+                    .trim();
+
+
+            const referredUserId =
+                document
+                    .getElementById("referredUserId")
+                    .value
+                    .trim();
+
+
+            const commissionValue =
+                document
+                    .getElementById("commission")
+                    .value
+                    .trim();
+
+
+            const message =
+                document
+                    .getElementById("activityMessage");
+
+
+            message.textContent =
+                "Creating activity...";
+
+
+            try {
+
+                const result =
+                    await supabaseRequest(
+                        "/rest/v1/rpc/create_agent_activity",
+                        {
+                            method: "POST",
+
+                            body: JSON.stringify({
+                                p_agent_id:
+                                    agentId,
+
+                                p_activity_type:
+                                    activityType,
+
+                                p_description:
+                                    description,
+
+                                p_referred_user_id:
+                                    referredUserId ||
+                                    null,
+
+                                p_commission:
+                                    commissionValue === ""
+                                        ? null
+                                        : Number(
+                                            commissionValue
+                                        )
+                            })
+                        }
+                    );
+
+
+                if (
+                    !result ||
+                    result.success !== true
+                ) {
+
+                    throw new Error(
+                        "Activity could not be created."
+                    );
+                }
+
+
+                message.textContent =
+                    "Activity created successfully and is now pending verification.";
+
+
+                document
+                    .getElementById("activityForm")
+                    .reset();
+
+
+                await loadActivities();
+
+
+            } catch (error) {
+
+                console.error(error);
+
+                message.textContent =
+                    error.message ||
+                    "Failed to create activity.";
+            }
+        }
+    );
+
+
+/* ---------------------------------
+   INITIAL LOAD
+--------------------------------- */
+
+loadApplications();
+loadActivities();
 
 </script>
 

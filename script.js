@@ -2,8 +2,8 @@
 // TASK HUB - SUPABASE + WEBSITE JAVASCRIPT
 // ==========================================
 
-// Supabase
-const SUPABASE_URL = "https://bcogfxghqrffrnfetqbo.supabase.co";
+const SUPABASE_URL =
+    "https://bcogfxghqrffrnfetqbo.supabase.co";
 
 const SUPABASE_KEY =
     "sb_publishable_cX6B4WgoF6bwz1Br5kIj4g_p4RsBRJP";
@@ -14,14 +14,28 @@ const SUPABASE_KEY =
 // ==========================================
 
 async function supabaseRequest(path, options = {}) {
-    const response = await fetch(`${SUPABASE_URL}${path}`, {
-        ...options,
-        headers: {
-            "apikey": SUPABASE_KEY,
-            "Content-Type": "application/json",
-            ...(options.headers || {})
+
+    const accessToken =
+        localStorage.getItem("taskhub_access_token");
+
+    const headers = {
+        "apikey": SUPABASE_KEY,
+        "Content-Type": "application/json",
+        ...(options.headers || {})
+    };
+
+    if (!headers["Authorization"] && accessToken) {
+        headers["Authorization"] =
+            `Bearer ${accessToken}`;
+    }
+
+    const response = await fetch(
+        `${SUPABASE_URL}${path}`,
+        {
+            ...options,
+            headers
         }
-    });
+    );
 
     const text = await response.text();
 
@@ -42,15 +56,43 @@ async function supabaseRequest(path, options = {}) {
 
 
 // ==========================================
-// MOBILE MENU
+// HTML ESCAPING
+// ==========================================
+
+function escapeHtml(value) {
+
+    return String(value ?? "")
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;")
+        .replace(/"/g, "&quot;")
+        .replace(/'/g, "&#039;");
+}
+
+
+// ==========================================
+// MOBILE MENU / FAQ / GENERAL UI
 // ==========================================
 
 document.addEventListener("DOMContentLoaded", () => {
 
-    const menuBtn = document.getElementById("menuBtn");
-    const mobileMenu = document.getElementById("mobileMenu");
+    const menuBtn =
+        document.getElementById("menuBtn");
+
+    const mobileMenu =
+        document.getElementById("mobileMenu");
+
+
+    // ------------------------------------------
+    // MOBILE MENU
+    // ------------------------------------------
 
     if (menuBtn && mobileMenu) {
+
+        menuBtn.setAttribute(
+            "aria-expanded",
+            "false"
+        );
 
         menuBtn.addEventListener("click", () => {
 
@@ -63,28 +105,32 @@ document.addEventListener("DOMContentLoaded", () => {
                 "aria-expanded",
                 opened ? "true" : "false"
             );
+
         });
 
-        mobileMenu.querySelectorAll("a").forEach(link => {
 
-            link.addEventListener("click", () => {
+        mobileMenu.querySelectorAll("a")
+            .forEach(link => {
 
-                mobileMenu.classList.remove("active");
+                link.addEventListener("click", () => {
 
-                menuBtn.setAttribute(
-                    "aria-expanded",
-                    "false"
-                );
+                    mobileMenu.classList.remove("active");
+
+                    menuBtn.setAttribute(
+                        "aria-expanded",
+                        "false"
+                    );
+
+                });
 
             });
 
-        });
     }
 
 
-    // ==========================================
+    // ------------------------------------------
     // FAQ
-    // ==========================================
+    // ------------------------------------------
 
     const faqQuestions =
         document.querySelectorAll(".faq-question");
@@ -114,9 +160,9 @@ document.addEventListener("DOMContentLoaded", () => {
     });
 
 
-    // ==========================================
+    // ------------------------------------------
     // HEADER SCROLL
-    // ==========================================
+    // ------------------------------------------
 
     const header =
         document.querySelector(".header");
@@ -136,9 +182,9 @@ document.addEventListener("DOMContentLoaded", () => {
     }
 
 
-    // ==========================================
+    // ------------------------------------------
     // SMOOTH SCROLL
-    // ==========================================
+    // ------------------------------------------
 
     document.querySelectorAll('a[href^="#"]')
         .forEach(link => {
@@ -166,9 +212,9 @@ document.addEventListener("DOMContentLoaded", () => {
         });
 
 
-    // ==========================================
+    // ------------------------------------------
     // REGISTER
-    // ==========================================
+    // ------------------------------------------
 
     const registerForm =
         document.getElementById("registerForm");
@@ -180,12 +226,14 @@ document.addEventListener("DOMContentLoaded", () => {
             registerUser
         );
 
+        loadReferralCode();
+
     }
 
 
-    // ==========================================
+    // ------------------------------------------
     // LOGIN
-    // ==========================================
+    // ------------------------------------------
 
     const loginForm =
         document.getElementById("loginForm");
@@ -200,9 +248,9 @@ document.addEventListener("DOMContentLoaded", () => {
     }
 
 
-    // ==========================================
+    // ------------------------------------------
     // CLOSE MOBILE MENU OUTSIDE
-    // ==========================================
+    // ------------------------------------------
 
     document.addEventListener("click", event => {
 
@@ -235,6 +283,37 @@ document.addEventListener("DOMContentLoaded", () => {
 
 
 // ==========================================
+// LOAD REFERRAL CODE FROM URL
+// ==========================================
+
+function loadReferralCode() {
+
+    const field =
+        document.getElementById("referralCode");
+
+    if (!field) return;
+
+    const params =
+        new URLSearchParams(window.location.search);
+
+    const referral =
+        (
+            params.get("ref") ||
+            params.get("referral") ||
+            params.get("referral_code") ||
+            ""
+        )
+        .trim()
+        .toUpperCase();
+
+    if (referral) {
+        field.value = referral;
+    }
+
+}
+
+
+// ==========================================
 // REGISTER USER
 // ==========================================
 
@@ -248,26 +327,34 @@ async function registerUser(event) {
         document.getElementById("authMessage");
 
     const name =
-        document.getElementById("name").value.trim();
+        document.getElementById("name")
+            .value
+            .trim();
 
     const username =
-        document.getElementById("username").value
+        document.getElementById("username")
+            .value
             .trim()
             .toLowerCase();
 
     const email =
-        document.getElementById("email").value
+        document.getElementById("email")
+            .value
             .trim()
             .toLowerCase();
 
     const phone =
-        document.getElementById("phone").value.trim();
+        document.getElementById("phone")
+            .value
+            .trim();
 
     const password =
-        document.getElementById("password").value;
+        document.getElementById("password")
+            .value;
 
     const confirmPassword =
-        document.getElementById("confirmPassword").value;
+        document.getElementById("confirmPassword")
+            .value;
 
     const terms =
         document.getElementById("terms");
@@ -313,11 +400,11 @@ async function registerUser(event) {
     }
 
 
-    if (password.length < 6) {
+    if (password.length < 8) {
 
         showMessage(
             message,
-            "Password must contain at least 6 characters.",
+            "Password must contain at least 8 characters.",
             "error"
         );
 
@@ -354,10 +441,13 @@ async function registerUser(event) {
     // ------------------------------------------
 
     const button =
-        form.querySelector("button[type='submit']");
+        form.querySelector(
+            "button[type='submit']"
+        );
 
     const originalText =
         button ? button.textContent : "";
+
 
     if (button) {
 
@@ -372,7 +462,20 @@ async function registerUser(event) {
     try {
 
         // --------------------------------------
-        // CREATE SUPABASE AUTH ACCOUNT
+        // REFERRAL
+        // --------------------------------------
+
+        const referralCode =
+            (
+                document.getElementById("referralCode")
+                    ?.value || ""
+            )
+            .trim()
+            .toUpperCase() || null;
+
+
+        // --------------------------------------
+        // CREATE AUTH ACCOUNT
         // --------------------------------------
 
         const signup =
@@ -387,8 +490,8 @@ async function registerUser(event) {
                     },
 
                     body: JSON.stringify({
-                        email: email,
-                        password: password
+                        email,
+                        password
                     })
                 }
             );
@@ -400,11 +503,13 @@ async function registerUser(event) {
                 "Unable to create account.";
 
             if (signup.data?.msg) {
-                errorMessage = signup.data.msg;
+                errorMessage =
+                    signup.data.msg;
             }
 
             if (signup.data?.message) {
-                errorMessage = signup.data.message;
+                errorMessage =
+                    signup.data.message;
             }
 
             if (signup.data?.error_description) {
@@ -431,8 +536,57 @@ async function registerUser(event) {
 
 
         // --------------------------------------
+        // GET NEW SESSION IF SUPABASE RETURNED ONE
+        // --------------------------------------
+
+        const signupAccessToken =
+            signup.data?.access_token || null;
+
+        if (signupAccessToken) {
+
+            localStorage.setItem(
+                "taskhub_access_token",
+                signupAccessToken
+            );
+
+            if (signup.data?.refresh_token) {
+
+                localStorage.setItem(
+                    "taskhub_refresh_token",
+                    signup.data.refresh_token
+                );
+
+            }
+
+            localStorage.setItem(
+                "taskhub_user_id",
+                user.id
+            );
+
+            localStorage.setItem(
+                "taskhub_email",
+                user.email || email
+            );
+
+        }
+
+
+        // --------------------------------------
         // CREATE PROFILE
         // --------------------------------------
+
+        const profileHeaders = {
+            "Prefer": "return=minimal"
+        };
+
+
+        if (signupAccessToken) {
+
+            profileHeaders.Authorization =
+                `Bearer ${signupAccessToken}`;
+
+        }
+
 
         const profile =
             await supabaseRequest(
@@ -440,24 +594,18 @@ async function registerUser(event) {
                 {
                     method: "POST",
 
-                    headers: {
-                        "Authorization":
-                            `Bearer ${SUPABASE_KEY}`,
-
-                        "Prefer":
-                            "return=minimal"
-                    },
+                    headers: profileHeaders,
 
                     body: JSON.stringify({
                         id: user.id,
                         full_name: name,
-                        username: username,
-                        phone: phone,
+                        username,
+                        phone,
                         balance: 0,
-                        referral_code: createReferralCode(username),
-referred_by: (
-    document.getElementById("referralCode")?.value || ""
-).trim().toUpperCase() || null
+                        referral_code:
+                            createReferralCode(username),
+                        referred_by:
+                            referralCode
                     })
                 }
             );
@@ -470,11 +618,31 @@ referred_by: (
                 profile.data
             );
 
-            showMessage(
-                message,
-                "Your account was created, but your profile could not be completed. Please contact support.",
-                "error"
-            );
+
+            // If Supabase requires email verification
+            // before an authenticated profile insert,
+            // do not pretend registration is complete.
+
+            if (
+                profile.status === 401 ||
+                profile.status === 403
+            ) {
+
+                showMessage(
+                    message,
+                    "Your account was created, but your profile will be completed after email verification. Please verify your email, then log in.",
+                    "error"
+                );
+
+            } else {
+
+                showMessage(
+                    message,
+                    "Your account was created, but your profile could not be completed. Please contact support.",
+                    "error"
+                );
+
+            }
 
             return;
         }
@@ -494,7 +662,22 @@ referred_by: (
         form.reset();
 
 
-        // Wait before going to login
+        // Restore referral code if needed
+        // for display/state after reset.
+
+        if (referralCode) {
+
+            const referralField =
+                document.getElementById("referralCode");
+
+            if (referralField) {
+                referralField.value =
+                    referralCode;
+            }
+
+        }
+
+
         setTimeout(() => {
 
             window.location.href =
@@ -547,12 +730,14 @@ async function loginUser(event) {
         document.getElementById("authMessage");
 
     const email =
-        document.getElementById("email").value
+        document.getElementById("email")
+            .value
             .trim()
             .toLowerCase();
 
     const password =
-        document.getElementById("password").value;
+        document.getElementById("password")
+            .value;
 
 
     if (!email || !password) {
@@ -568,7 +753,9 @@ async function loginUser(event) {
 
 
     const button =
-        form.querySelector("button[type='submit']");
+        form.querySelector(
+            "button[type='submit']"
+        );
 
     const originalText =
         button ? button.textContent : "";
@@ -598,8 +785,8 @@ async function loginUser(event) {
                     },
 
                     body: JSON.stringify({
-                        email: email,
-                        password: password
+                        email,
+                        password
                     })
                 }
             );
@@ -611,11 +798,13 @@ async function loginUser(event) {
                 "Invalid email or password.";
 
             if (login.data?.msg) {
-                errorMessage = login.data.msg;
+                errorMessage =
+                    login.data.msg;
             }
 
             if (login.data?.message) {
-                errorMessage = login.data.message;
+                errorMessage =
+                    login.data.message;
             }
 
             if (login.data?.error_description) {
@@ -624,6 +813,18 @@ async function loginUser(event) {
             }
 
             throw new Error(errorMessage);
+        }
+
+
+        if (
+            !login.data?.access_token ||
+            !login.data?.user?.id
+        ) {
+
+            throw new Error(
+                "Login succeeded, but no valid session was returned."
+            );
+
         }
 
 
@@ -638,7 +839,7 @@ async function loginUser(event) {
 
         localStorage.setItem(
             "taskhub_refresh_token",
-            login.data.refresh_token
+            login.data.refresh_token || ""
         );
 
         localStorage.setItem(
@@ -648,7 +849,7 @@ async function loginUser(event) {
 
         localStorage.setItem(
             "taskhub_email",
-            login.data.user.email
+            login.data.user.email || email
         );
 
 
@@ -698,7 +899,7 @@ async function loginUser(event) {
 
 
 // ==========================================
-// REFERRAL CODE
+// REFERRAL CODE GENERATOR
 // ==========================================
 
 function createReferralCode(username) {
@@ -723,7 +924,11 @@ function createReferralCode(username) {
 // MESSAGE DISPLAY
 // ==========================================
 
-function showMessage(element, text, type) {
+function showMessage(
+    element,
+    text,
+    type
+) {
 
     if (!element) return;
 
@@ -829,3 +1034,124 @@ function requireLogin() {
     return true;
 
 }
+
+
+// ==========================================
+// AGENT DASHBOARD BUTTON
+// ==========================================
+
+async function loadAgentButton() {
+
+    const container =
+        document.getElementById(
+            "agentDashboardButton"
+        );
+
+    if (!container) return;
+
+
+    const userId =
+        localStorage.getItem(
+            "taskhub_user_id"
+        );
+
+    const token =
+        localStorage.getItem(
+            "taskhub_access_token"
+        );
+
+
+    if (!userId || !token) {
+
+        container.innerHTML = `
+            <a
+                href="agent.html"
+                class="dashboard-btn"
+                style="display:block;text-align:center;background:white;color:#5b5cf0;"
+            >
+                Become an Agent
+            </a>
+        `;
+
+        return;
+
+    }
+
+
+    try {
+
+        const agents =
+            await supabaseRequest(
+                "/rest/v1/taskhub_agents" +
+                "?select=id,status" +
+                "&user_id=eq." +
+                encodeURIComponent(userId) +
+                "&status=eq.active" +
+                "&limit=1"
+            );
+
+
+        if (
+            agents.ok &&
+            Array.isArray(agents.data) &&
+            agents.data.length > 0
+        ) {
+
+            container.innerHTML = `
+                <a
+                    href="agent-dashboard.html"
+                    class="dashboard-btn"
+                    style="display:block;text-align:center;background:white;color:#5b5cf0;"
+                >
+                    Agent Dashboard
+                </a>
+            `;
+
+        } else {
+
+            container.innerHTML = `
+                <a
+                    href="agent.html"
+                    class="dashboard-btn"
+                    style="display:block;text-align:center;background:white;color:#5b5cf0;"
+                >
+                    Become an Agent
+                </a>
+            `;
+
+        }
+
+    } catch (error) {
+
+        console.error(
+            "Agent button error:",
+            error
+        );
+
+        container.innerHTML = `
+            <a
+                href="agent.html"
+                class="dashboard-btn"
+                style="display:block;text-align:center;background:white;color:#5b5cf0;"
+            >
+                Become an Agent
+            </a>
+        `;
+
+    }
+
+}
+
+
+// ==========================================
+// AUTO-LOAD AGENT BUTTON
+// ==========================================
+
+document.addEventListener(
+    "DOMContentLoaded",
+    () => {
+
+        loadAgentButton();
+
+    }
+);

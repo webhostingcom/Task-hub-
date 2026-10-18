@@ -1,0 +1,325 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Task Hub | Payment Status</title>
+  <link rel="stylesheet" href="style.css">
+
+  <style>
+    .payment-page {
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 25px 18px;
+      background: #f7f7fb;
+    }
+
+    .payment-card {
+      width: 100%;
+      max-width: 480px;
+      background: #fff;
+      border-radius: 16px;
+      padding: 32px;
+      text-align: center;
+      box-shadow: 0 10px 35px rgba(0, 0, 0, 0.08);
+    }
+
+    .status-icon {
+      width: 64px;
+      height: 64px;
+      margin: 0 auto 20px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: #ececff;
+      color: #5b5cf0;
+      font-size: 30px;
+      font-weight: 800;
+    }
+
+    .payment-card h1 {
+      margin: 0 0 10px;
+      color: #17172b;
+      font-size: 27px;
+    }
+
+    .payment-card p {
+      margin: 0;
+      color: #686879;
+      line-height: 1.6;
+    }
+
+    .message {
+      margin-top: 20px;
+      padding: 14px;
+      border-radius: 9px;
+      font-size: 14px;
+      line-height: 1.5;
+    }
+
+    .message.success {
+      background: #eaf8ef;
+      color: #176b38;
+    }
+
+    .message.error {
+      background: #fff0f0;
+      color: #a32929;
+    }
+
+    .message.info {
+      background: #f1f1ff;
+      color: #3334a4;
+    }
+
+    .actions {
+      display: none;
+      margin-top: 24px;
+      gap: 10px;
+      flex-direction: column;
+    }
+
+    .action-btn {
+      display: block;
+      padding: 13px;
+      border-radius: 9px;
+      background: #5b5cf0;
+      color: #fff;
+      text-decoration: none;
+      font-weight: 700;
+    }
+
+    .action-btn.secondary {
+      background: #ededf3;
+      color: #333344;
+    }
+  </style>
+</head>
+
+<body>
+
+  <main class="payment-page">
+    <section class="payment-card">
+
+      <div id="statusIcon" class="status-icon">
+        ...
+      </div>
+
+      <h1 id="statusTitle">
+        Verifying Payment
+      </h1>
+
+      <p id="statusText">
+        Please wait while we securely verify your payment.
+      </p>
+
+      <div id="message" class="message info">
+        Do not close this page while verification is in progress.
+      </div>
+
+      <div id="actions" class="actions">
+        <a
+          href="dashboard.html"
+          class="action-btn"
+        >
+          Go to Dashboard
+        </a>
+
+        <a
+          href="plans.html"
+          class="action-btn secondary"
+        >
+          View Plans
+        </a>
+      </div>
+
+    </section>
+  </main>
+
+  <script>
+    const SUPABASE_URL =
+      "https://bcogfxghqrffrnfetqbo.supabase.co";
+
+    const SUPABASE_KEY =
+      "sb_publishable_cX6B4WgoF6bwz1Br5kIj4g_p4RsBRJP";
+
+    const statusIcon =
+      document.getElementById("statusIcon");
+
+    const statusTitle =
+      document.getElementById("statusTitle");
+
+    const statusText =
+      document.getElementById("statusText");
+
+    const message =
+      document.getElementById("message");
+
+    const actions =
+      document.getElementById("actions");
+
+    function getToken() {
+      return localStorage.getItem(
+        "taskhub_access_token"
+      );
+    }
+
+    function clearSession() {
+      localStorage.removeItem("taskhub_access_token");
+      localStorage.removeItem("taskhub_refresh_token");
+      localStorage.removeItem("taskhub_user_id");
+      localStorage.removeItem("taskhub_email");
+    }
+
+    function showSuccess(text) {
+      statusIcon.textContent = "✓";
+      statusIcon.style.background = "#eaf8ef";
+      statusIcon.style.color = "#176b38";
+
+      statusTitle.textContent =
+        "Payment Successful";
+
+      statusText.textContent =
+        "Your Task Hub plan has been activated.";
+
+      message.className =
+        "message success";
+
+      message.textContent = text;
+
+      actions.style.display = "flex";
+    }
+
+    function showError(text) {
+      statusIcon.textContent = "!";
+      statusIcon.style.background = "#fff0f0";
+      statusIcon.style.color = "#a32929";
+
+      statusTitle.textContent =
+        "Payment Verification Failed";
+
+      statusText.textContent =
+        "We could not confirm this payment.";
+
+      message.className =
+        "message error";
+
+      message.textContent = text;
+
+      actions.style.display = "flex";
+    }
+
+    function showInfo(text) {
+      message.className =
+        "message info";
+
+      message.textContent = text;
+    }
+
+    async function verifyPayment() {
+      const token = getToken();
+
+      if (!token) {
+        showError(
+          "Your Task Hub session is missing. Please log in and check your plan/payment status."
+        );
+        return;
+      }
+
+      const params =
+        new URLSearchParams(
+          window.location.search
+        );
+
+      const reference =
+        params.get("reference") ||
+        params.get("trxref");
+
+      if (!reference) {
+        showError(
+          "No payment reference was found. Please return to your plans page."
+        );
+        return;
+      }
+
+      try {
+        showInfo(
+          "Payment reference found. Confirming the transaction..."
+        );
+
+        const response = await fetch(
+          SUPABASE_URL +
+          "/functions/v1/verify-plan-payment",
+          {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+              "apikey": SUPABASE_KEY,
+              "Authorization":
+                "Bearer " + token
+            },
+            body: JSON.stringify({
+              reference: reference
+            })
+          }
+        );
+
+        if (
+          response.status === 401 ||
+          response.status === 403
+        ) {
+          clearSession();
+
+          showError(
+            "Your session has expired. Please log in again and check your payment status."
+          );
+
+          return;
+        }
+
+        const data =
+          await response.json().catch(() => ({}));
+
+        if (!response.ok) {
+          throw new Error(
+            data.message ||
+            data.error ||
+            "Payment could not be verified."
+          );
+        }
+
+        if (
+          data.success === false ||
+          data.status === "failed"
+        ) {
+          throw new Error(
+            data.message ||
+            "The payment was not confirmed."
+          );
+        }
+
+        showSuccess(
+          "Your payment has been verified successfully. Your plan is now active."
+        );
+
+      } catch (error) {
+        console.error(
+          "Plan payment verification error:",
+          error
+        );
+
+        showError(
+          error.message ||
+          "We could not verify the payment. If money was deducted, please do not pay again immediately."
+        );
+      }
+    }
+
+    verifyPayment();
+  </script>
+
+</body>
+</html>

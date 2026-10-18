@@ -1,0 +1,733 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  <title>Task Hub | Agent Dashboard</title>
+
+  <link rel="stylesheet" href="style.css">
+
+  <style>
+    .agent-hero {
+      margin-top: 28px;
+      padding: 28px;
+      border-radius: 16px;
+      background: linear-gradient(135deg, #5b5cf0, #4748d8);
+      color: #fff;
+    }
+
+    .agent-hero h1 {
+      margin: 0 0 8px;
+    }
+
+    .agent-hero p {
+      margin: 0;
+      opacity: .9;
+    }
+
+    .agent-status {
+      display: inline-block;
+      margin-top: 16px;
+      padding: 7px 12px;
+      border-radius: 20px;
+      background: rgba(255,255,255,.18);
+      font-size: 13px;
+      font-weight: 700;
+    }
+
+    .agent-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 18px;
+      margin-top: 22px;
+    }
+
+    .agent-stat {
+      padding: 22px;
+      border: 1px solid #eeeef2;
+      border-radius: 14px;
+      background: #fff;
+    }
+
+    .agent-stat span {
+      display: block;
+      color: #777;
+      font-size: 13px;
+      margin-bottom: 8px;
+    }
+
+    .agent-stat strong {
+      display: block;
+      font-size: 24px;
+    }
+
+    .agent-info {
+      margin-top: 22px;
+      padding: 22px;
+      border: 1px solid #eeeef2;
+      border-radius: 14px;
+      background: #fff;
+    }
+
+    .agent-info h2 {
+      margin-top: 0;
+    }
+
+    .info-row {
+      display: flex;
+      justify-content: space-between;
+      gap: 20px;
+      padding: 11px 0;
+      border-bottom: 1px solid #eeeef2;
+    }
+
+    .info-row:last-child {
+      border-bottom: 0;
+    }
+
+    .info-label {
+      color: #777;
+    }
+
+    .info-value {
+      font-weight: 700;
+      text-align: right;
+    }
+
+    .activity-list {
+      margin-top: 18px;
+    }
+
+    .activity-item {
+      padding: 16px 0;
+      border-bottom: 1px solid #eeeef2;
+    }
+
+    .activity-item:last-child {
+      border-bottom: 0;
+    }
+
+    .activity-top {
+      display: flex;
+      justify-content: space-between;
+      gap: 15px;
+    }
+
+    .activity-title {
+      font-weight: 700;
+    }
+
+    .activity-date {
+      color: #777;
+      font-size: 12px;
+      white-space: nowrap;
+    }
+
+    .activity-description {
+      margin-top: 7px;
+      color: #666;
+      font-size: 14px;
+    }
+
+    .activity-status {
+      display: inline-block;
+      margin-top: 9px;
+      padding: 5px 9px;
+      border-radius: 7px;
+      font-size: 12px;
+      font-weight: 700;
+      background: #f1f1f5;
+    }
+
+    .activity-status.verified {
+      color: #087443;
+      background: #e8f8ef;
+    }
+
+    .activity-status.pending {
+      color: #8a6100;
+      background: #fff5d6;
+    }
+
+    .activity-status.rejected {
+      color: #a32121;
+      background: #ffe9e9;
+    }
+
+    .commission {
+      margin-top: 8px;
+      font-weight: 700;
+    }
+
+    .dashboard-actions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin-top: 22px;
+    }
+
+    .dashboard-actions a {
+      text-decoration: none;
+    }
+
+    .notice-box {
+      margin-top: 22px;
+      padding: 16px;
+      border-radius: 12px;
+      background: #f5f5ff;
+      color: #4545a5;
+      font-size: 14px;
+    }
+
+    .empty-state {
+      padding: 25px 10px;
+      text-align: center;
+      color: #777;
+    }
+
+    @media (max-width: 700px) {
+      .agent-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .info-row {
+        flex-direction: column;
+        gap: 4px;
+      }
+
+      .info-value {
+        text-align: left;
+      }
+
+      .activity-top {
+        flex-direction: column;
+        gap: 5px;
+      }
+
+      .activity-date {
+        white-space: normal;
+      }
+    }
+  </style>
+</head>
+
+<body>
+
+  <header class="site-header">
+    <div class="container header-inner">
+
+      <a href="index.html" class="logo">
+        Task Hub
+      </a>
+
+      <nav class="nav-links">
+        <a href="dashboard.html">Dashboard</a>
+        <a href="tasks.html">Tasks</a>
+        <a href="wallet.html">Wallet</a>
+        <a href="profile.html">Profile</a>
+      </nav>
+
+    </div>
+  </header>
+
+  <main class="container">
+
+    <div id="pageNotice"></div>
+
+    <section class="agent-hero">
+
+      <h1 id="welcomeTitle">
+        Agent Dashboard
+      </h1>
+
+      <p id="roleDescription">
+        Manage your Task Hub Agent Program account.
+      </p>
+
+      <span class="agent-status" id="agentStatus">
+        Loading...
+      </span>
+
+    </section>
+
+    <div class="dashboard-actions">
+
+      <a href="withdraw.html"
+         class="btn btn-primary">
+        Withdraw Funds
+      </a>
+
+      <a href="wallet.html"
+         class="btn">
+        View Wallet
+      </a>
+
+      <a href="dashboard.html"
+         class="btn">
+        Main Dashboard
+      </a>
+
+    </div>
+
+    <section class="agent-grid">
+
+      <div class="agent-stat">
+        <span>Wallet Balance</span>
+        <strong id="walletBalance">₦0</strong>
+      </div>
+
+      <div class="agent-stat">
+        <span>Verified Commissions</span>
+        <strong id="verifiedCommission">₦0</strong>
+      </div>
+
+      <div class="agent-stat">
+        <span>Pending Activities</span>
+        <strong id="pendingActivities">0</strong>
+      </div>
+
+      <div class="agent-stat">
+        <span>Total Activities</span>
+        <strong id="totalActivities">0</strong>
+      </div>
+
+    </section>
+
+    <section class="agent-info">
+
+      <h2>Agent Information</h2>
+
+      <div class="info-row">
+        <span class="info-label">Agent Role</span>
+        <span class="info-value" id="roleName">Loading...</span>
+      </div>
+
+      <div class="info-row">
+        <span class="info-label">Commission per Verified Activity</span>
+        <span class="info-value" id="roleCommission">₦0</span>
+      </div>
+
+      <div class="info-row">
+        <span class="info-label">Minimum Withdrawal</span>
+        <span class="info-value" id="minimumWithdrawal">₦0</span>
+      </div>
+
+      <div class="info-row">
+        <span class="info-label">Program Fee</span>
+        <span class="info-value" id="roleFee">₦0</span>
+      </div>
+
+      <div class="info-row">
+        <span class="info-label">Agent Since</span>
+        <span class="info-value" id="startedAt">Loading...</span>
+      </div>
+
+    </section>
+
+    <section class="agent-info">
+
+      <h2>Agent Activity</h2>
+
+      <div class="notice-box">
+        Eligible Agent activities are recorded and verified by
+        Task Hub. Commissions are credited only after eligible
+        activity has been verified. Agent participation does not
+        guarantee earnings.
+      </div>
+
+      <div id="activityList" class="activity-list">
+        <div class="empty-state">
+          Loading activities...
+        </div>
+      </div>
+
+    </section>
+
+  </main>
+
+  <script>
+
+    const SUPABASE_URL =
+      "https://bcogfxghqrffrnfetqbo.supabase.co";
+
+    const SUPABASE_KEY =
+      "sb_publishable_cX6B4WgoF6bwz1Br5kIj4g_p4RsBRJP";
+
+    const token =
+      localStorage.getItem("taskhub_access_token");
+
+    const userId =
+      localStorage.getItem("taskhub_user_id");
+
+    const pageNotice =
+      document.getElementById("pageNotice");
+
+    function escapeHtml(value) {
+      return String(value ?? "")
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;")
+        .replace(/"/g, "&quot;")
+        .replace(/'/g, "&#039;");
+    }
+
+    function money(value) {
+      return "₦" + Number(value || 0).toLocaleString("en-NG", {
+        minimumFractionDigits: 0,
+        maximumFractionDigits: 2
+      });
+    }
+
+    function formatDate(value) {
+      if (!value) return "—";
+
+      const date = new Date(value);
+
+      if (Number.isNaN(date.getTime())) {
+        return "—";
+      }
+
+      return date.toLocaleDateString("en-NG", {
+        day: "numeric",
+        month: "short",
+        year: "numeric"
+      });
+    }
+
+    function showNotice(message, type = "error") {
+
+      pageNotice.innerHTML = `
+        <div style="
+          margin-top:20px;
+          padding:14px 16px;
+          border-radius:10px;
+          background:${type === "success" ? "#e8f8ef" : "#ffe9e9"};
+          color:${type === "success" ? "#087443" : "#a32121"};
+          font-size:14px;
+        ">
+          ${escapeHtml(message)}
+        </div>
+      `;
+    }
+
+    function clearSessionAndRedirect() {
+
+      localStorage.removeItem("taskhub_access_token");
+      localStorage.removeItem("taskhub_refresh_token");
+      localStorage.removeItem("taskhub_user_id");
+      localStorage.removeItem("taskhub_email");
+
+      setTimeout(() => {
+        window.location.href = "login.html";
+      }, 1000);
+    }
+
+    async function apiRequest(path, options = {}) {
+
+      const response = await fetch(
+        `${SUPABASE_URL}${path}`,
+        {
+          ...options,
+
+          headers: {
+            "apikey": SUPABASE_KEY,
+            "Authorization": `Bearer ${token}`,
+            "Content-Type": "application/json",
+            ...(options.headers || {})
+          }
+        }
+      );
+
+      if (response.status === 401 || response.status === 403) {
+        clearSessionAndRedirect();
+        throw new Error("Session expired.");
+      }
+
+      if (!response.ok) {
+
+        let errorText = "Request failed.";
+
+        try {
+          const errorData = await response.json();
+
+          errorText =
+            errorData.message ||
+            errorData.error_description ||
+            errorData.error ||
+            errorText;
+
+        } catch {}
+
+        throw new Error(errorText);
+      }
+
+      if (response.status === 204) {
+        return null;
+      }
+
+      return response.json();
+    }
+
+    async function loadAgent() {
+
+      const agents = await apiRequest(
+        `/rest/v1/taskhub_agents` +
+        `?select=id,status,role_id,started_at` +
+        `&user_id=eq.${encodeURIComponent(userId)}` +
+        `&status=eq.active` +
+        `&limit=1`
+      );
+
+      if (!agents || !agents.length) {
+
+        showNotice(
+          "You do not currently have an active Agent Program account."
+        );
+
+        document.getElementById("agentStatus").textContent =
+          "Not Active";
+
+        return null;
+      }
+
+      return agents[0];
+    }
+
+    async function loadRole(roleId) {
+
+      const roles = await apiRequest(
+        `/rest/v1/taskhub_agent_roles` +
+        `?select=id,name,fee,commission,description,minimum_withdrawal` +
+        `&id=eq.${encodeURIComponent(roleId)}` +
+        `&limit=1`
+      );
+
+      if (!roles || !roles.length) {
+        throw new Error("Agent role information could not be found.");
+      }
+
+      return roles[0];
+    }
+
+    async function loadProfile() {
+
+      const profiles = await apiRequest(
+        `/rest/v1/profiles` +
+        `?select=balance,full_name,username` +
+        `&id=eq.${encodeURIComponent(userId)}` +
+        `&limit=1`
+      );
+
+      return profiles && profiles.length
+        ? profiles[0]
+        : null;
+    }
+
+    async function loadActivities(agentId) {
+
+      return apiRequest(
+        `/rest/v1/taskhub_agent_activity` +
+        `?select=id,activity_type,referred_user_id,description,commission,status,created_at,verified_at` +
+        `&agent_id=eq.${encodeURIComponent(agentId)}` +
+        `&order=created_at.desc`
+      );
+    }
+
+    async function loadCommissionTransactions() {
+
+      return apiRequest(
+        `/rest/v1/wallet_transactions` +
+        `?select=id,amount,description,reference_id,created_at` +
+        `&user_id=eq.${encodeURIComponent(userId)}` +
+        `&type=eq.agent_commission` +
+        `&order=created_at.desc`
+      );
+    }
+
+    function renderActivities(activities) {
+
+      const container =
+        document.getElementById("activityList");
+
+      if (!activities || !activities.length) {
+
+        container.innerHTML = `
+          <div class="empty-state">
+            No Agent activities have been recorded yet.
+          </div>
+        `;
+
+        return;
+      }
+
+      container.innerHTML =
+        activities.map(activity => {
+
+          const status =
+            String(activity.status || "").toLowerCase();
+
+          const statusClass =
+            status === "verified"
+              ? "verified"
+              : status === "rejected"
+                ? "rejected"
+                : "pending";
+
+          const statusText =
+            status
+              ? status.charAt(0).toUpperCase() + status.slice(1)
+              : "Pending";
+
+          return `
+            <div class="activity-item">
+
+              <div class="activity-top">
+
+                <div class="activity-title">
+                  ${escapeHtml(
+                    activity.activity_type || "Agent Activity"
+                  )}
+                </div>
+
+                <div class="activity-date">
+                  ${formatDate(activity.created_at)}
+                </div>
+
+              </div>
+
+              <div class="activity-description">
+                ${escapeHtml(
+                  activity.description ||
+                  "No additional description."
+                )}
+              </div>
+
+              <span class="activity-status ${statusClass}">
+                ${escapeHtml(statusText)}
+              </span>
+
+              ${
+                status === "verified"
+                  ? `
+                    <div class="commission">
+                      Commission: ${money(activity.commission)}
+                    </div>
+                  `
+                  : ""
+              }
+
+            </div>
+          `;
+
+        }).join("");
+    }
+
+    async function loadDashboard() {
+
+      if (!token || !userId) {
+
+        showNotice(
+          "Your session has expired. Redirecting you to login..."
+        );
+
+        clearSessionAndRedirect();
+        return;
+      }
+
+      try {
+
+        const agent = await loadAgent();
+
+        if (!agent) {
+          return;
+        }
+
+        const [
+          role,
+          profile,
+          activities,
+          commissionTransactions
+        ] = await Promise.all([
+          loadRole(agent.role_id),
+          loadProfile(),
+          loadActivities(agent.id),
+          loadCommissionTransactions()
+        ]);
+
+        document.getElementById("agentStatus").textContent =
+          "Active";
+
+        document.getElementById("roleName").textContent =
+          role.name || "Agent";
+
+        document.getElementById("roleDescription").textContent =
+          role.description ||
+          "Manage your Task Hub Agent Program account.";
+
+        document.getElementById("roleCommission").textContent =
+          money(role.commission);
+
+        document.getElementById("minimumWithdrawal").textContent =
+          money(role.minimum_withdrawal);
+
+        document.getElementById("roleFee").textContent =
+          money(role.fee);
+
+        document.getElementById("startedAt").textContent =
+          formatDate(agent.started_at);
+
+        document.getElementById("walletBalance").textContent =
+          money(profile ? profile.balance : 0);
+
+        const verifiedActivities =
+          (activities || []).filter(
+            item => item.status === "verified"
+          );
+
+        const pendingActivities =
+          (activities || []).filter(
+            item => item.status === "pending"
+          );
+
+        const transactionTotal =
+          (commissionTransactions || []).reduce(
+            (total, transaction) =>
+              total + Number(transaction.amount || 0),
+            0
+          );
+
+        document.getElementById("verifiedCommission").textContent =
+          money(transactionTotal);
+
+        document.getElementById("pendingActivities").textContent =
+          pendingActivities.length;
+
+        document.getElementById("totalActivities").textContent =
+          activities.length;
+
+        renderActivities(activities);
+
+      } catch (error) {
+
+        console.error(
+          "Agent dashboard error:",
+          error
+        );
+
+        if (error.message !== "Session expired.") {
+
+          showNotice(
+            error.message ||
+            "Unable to load your Agent Dashboard."
+          );
+        }
+      }
+    }
+
+    loadDashboard();
+
+  </script>
+
+</body>
+</html>

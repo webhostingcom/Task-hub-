@@ -1,0 +1,546 @@
+<!DOCTYPE html><html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">  <title>Task Hub | Security</title>  <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: Arial, sans-serif;
+      background: #f6f7fb;
+      color: #222;
+      min-height: 100vh;
+    }
+
+    .header {
+      background: #111;
+      color: white;
+      padding: 16px 20px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .header h1 {
+      font-size: 20px;
+    }
+
+    .back-link {
+      color: white;
+      text-decoration: none;
+      font-size: 14px;
+    }
+
+    .container {
+      width: 92%;
+      max-width: 650px;
+      margin: 30px auto;
+    }
+
+    .card {
+      background: white;
+      border-radius: 14px;
+      padding: 22px;
+      margin-bottom: 20px;
+      box-shadow: 0 5px 20px rgba(0, 0, 0, 0.06);
+    }
+
+    .card h2 {
+      font-size: 21px;
+      margin-bottom: 8px;
+    }
+
+    .subtitle {
+      color: #777;
+      font-size: 14px;
+      line-height: 1.5;
+      margin-bottom: 20px;
+    }
+
+    label {
+      display: block;
+      margin: 16px 0 7px;
+      font-weight: 700;
+      font-size: 14px;
+    }
+
+    input {
+      width: 100%;
+      padding: 13px;
+      border: 1px solid #ddd;
+      border-radius: 9px;
+      font-size: 15px;
+      outline: none;
+    }
+
+    input:focus {
+      border-color: #5b5cf0;
+    }
+
+    button {
+      width: 100%;
+      margin-top: 20px;
+      padding: 14px;
+      border: none;
+      border-radius: 9px;
+      background: #5b5cf0;
+      color: white;
+      font-size: 15px;
+      font-weight: 700;
+      cursor: pointer;
+    }
+
+    button:disabled {
+      opacity: 0.6;
+      cursor: not-allowed;
+    }
+
+    .message {
+      display: none;
+      margin-top: 15px;
+      padding: 12px;
+      border-radius: 8px;
+      font-size: 14px;
+      line-height: 1.4;
+    }
+
+    .message.success {
+      display: block;
+      background: #e9f8ee;
+      color: #176b35;
+    }
+
+    .message.error {
+      display: block;
+      background: #ffecec;
+      color: #a51d1d;
+    }
+
+    .security-item {
+      padding: 16px 0;
+      border-bottom: 1px solid #eee;
+    }
+
+    .security-item:last-child {
+      border-bottom: none;
+    }
+
+    .security-item strong {
+      display: block;
+      margin-bottom: 5px;
+    }
+
+    .security-item p {
+      color: #777;
+      font-size: 13px;
+      line-height: 1.5;
+    }
+
+    .warning {
+      background: #fff8e6;
+      color: #775900;
+      padding: 13px;
+      border-radius: 9px;
+      font-size: 13px;
+      line-height: 1.5;
+      margin-top: 15px;
+    }
+  </style></head><body>  <header class="header">
+    <h1>Task Hub</h1><a
+  href="profile.html"
+  class="back-link"
+>
+  ← Profile
+</a>
+
+  </header>  <main class="container"><section class="card">
+
+  <h2>Account Security</h2>
+
+  <p class="subtitle">
+    Manage your account password and review basic
+    security information.
+  </p>
+
+
+  <div class="security-item">
+    <strong>Password</strong>
+
+    <p>
+      If you need to change your password, use the
+      password reset process.
+    </p>
+
+    <a
+      href="forgot-password.html"
+      style="
+        display:inline-block;
+        margin-top:10px;
+        color:#5b5cf0;
+        font-weight:700;
+        text-decoration:none;
+        font-size:14px;
+      "
+    >
+      Reset Password
+    </a>
+  </div>
+
+
+  <div class="security-item">
+    <strong>Email Security</strong>
+
+    <p>
+      Keep access to your registered email address.
+      Password recovery depends on access to that email.
+    </p>
+  </div>
+
+
+  <div class="security-item">
+    <strong>Phone Security</strong>
+
+    <p>
+      Phone-number changes are currently locked until
+      SMS verification is enabled.
+    </p>
+  </div>
+
+
+  <div class="warning">
+    Never share your Task Hub password or verification
+    codes with another person.
+  </div>
+
+</section>
+
+
+<section class="card">
+
+  <h2>Change Password</h2>
+
+  <p class="subtitle">
+    Enter a new password below. Your new password must
+    contain at least 8 characters.
+  </p>
+
+
+  <form id="passwordForm">
+
+    <label for="newPassword">
+      New Password
+    </label>
+
+    <input
+      type="password"
+      id="newPassword"
+      minlength="8"
+      autocomplete="new-password"
+      required
+    >
+
+
+    <label for="confirmPassword">
+      Confirm New Password
+    </label>
+
+    <input
+      type="password"
+      id="confirmPassword"
+      minlength="8"
+      autocomplete="new-password"
+      required
+    >
+
+
+    <div
+      id="message"
+      class="message"
+    ></div>
+
+
+    <button
+      type="submit"
+      id="changeButton"
+    >
+      Change Password
+    </button>
+
+  </form>
+
+</section>
+
+  </main>  <script>
+
+    // ==========================================
+    // SUPABASE
+    // ==========================================
+
+    const SUPABASE_URL =
+      "https://bcogfxghqrffrnfetqbo.supabase.co";
+
+    const SUPABASE_KEY =
+      "sb_publishable_cX6B4WgoF6bwz1Br5kIj4g_p4RsBRJP";
+
+
+    const accessToken =
+      localStorage.getItem(
+        "taskhub_access_token"
+      );
+
+    const userId =
+      localStorage.getItem(
+        "taskhub_user_id"
+      );
+
+
+    // ==========================================
+    // AUTH
+    // ==========================================
+
+    if (!accessToken || !userId) {
+      window.location.href = "login.html";
+    }
+
+
+    // ==========================================
+    // ELEMENTS
+    // ==========================================
+
+    const form =
+      document.getElementById(
+        "passwordForm"
+      );
+
+    const newPassword =
+      document.getElementById(
+        "newPassword"
+      );
+
+    const confirmPassword =
+      document.getElementById(
+        "confirmPassword"
+      );
+
+    const message =
+      document.getElementById(
+        "message"
+      );
+
+    const changeButton =
+      document.getElementById(
+        "changeButton"
+      );
+
+
+    // ==========================================
+    // SESSION CLEANUP
+    // ==========================================
+
+    function clearSession() {
+
+      localStorage.removeItem(
+        "taskhub_access_token"
+      );
+
+      localStorage.removeItem(
+        "taskhub_refresh_token"
+      );
+
+      localStorage.removeItem(
+        "taskhub_user_id"
+      );
+
+      localStorage.removeItem(
+        "taskhub_email"
+      );
+
+    }
+
+
+    // ==========================================
+    // MESSAGE
+    // ==========================================
+
+    function showMessage(
+      text,
+      type
+    ) {
+
+      message.className =
+        `message ${type}`;
+
+      message.textContent =
+        text;
+
+    }
+
+
+    // ==========================================
+    // CHANGE PASSWORD
+    // ==========================================
+
+    form.addEventListener(
+      "submit",
+      async event => {
+
+        event.preventDefault();
+
+
+        const password =
+          newPassword.value;
+
+        const confirmation =
+          confirmPassword.value;
+
+
+        if (password.length < 8) {
+
+          showMessage(
+            "Password must contain at least 8 characters.",
+            "error"
+          );
+
+          return;
+
+        }
+
+
+        if (password !== confirmation) {
+
+          showMessage(
+            "Passwords do not match.",
+            "error"
+          );
+
+          return;
+
+        }
+
+
+        changeButton.disabled =
+          true;
+
+        changeButton.textContent =
+          "Updating password...";
+
+
+        try {
+
+          const response =
+            await fetch(
+              `${SUPABASE_URL}/auth/v1/user`,
+              {
+                method: "PUT",
+
+                headers: {
+                  apikey:
+                    SUPABASE_KEY,
+
+                  Authorization:
+                    `Bearer ${accessToken}`,
+
+                  "Content-Type":
+                    "application/json"
+                },
+
+                body:
+                  JSON.stringify({
+                    password
+                  })
+              }
+            );
+
+
+          const text =
+            await response.text();
+
+
+          let data = null;
+
+
+          try {
+
+            data =
+              text
+                ? JSON.parse(text)
+                : null;
+
+          } catch {
+
+            data =
+              text;
+
+          }
+
+
+          if (
+            response.status === 401 ||
+            response.status === 403
+          ) {
+
+            clearSession();
+
+            window.location.href =
+              "login.html";
+
+            return;
+
+          }
+
+
+          if (!response.ok) {
+
+            throw new Error(
+              data?.message ||
+              data?.msg ||
+              data?.error_description ||
+              "Unable to change password."
+            );
+
+          }
+
+
+          showMessage(
+            "Password changed successfully.",
+            "success"
+          );
+
+
+          form.reset();
+
+
+        } catch (error) {
+
+          console.error(
+            "Password change error:",
+            error
+          );
+
+
+          showMessage(
+            error.message ||
+            "Unable to change password.",
+            "error"
+          );
+
+        } finally {
+
+          changeButton.disabled =
+            false;
+
+          changeButton.textContent =
+            "Change Password";
+
+        }
+
+      }
+    );
+
+</script>
+  
+  </body>
+</html>

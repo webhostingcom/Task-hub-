@@ -1,0 +1,513 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Task Hub | Agent Program</title>
+  <link rel="stylesheet" href="style.css">
+
+  <style>
+    .agent-page {
+      min-height: 100vh;
+      background: #f7f7fb;
+      padding: 30px 18px 60px;
+    }
+
+    .agent-container {
+      width: 100%;
+      max-width: 1050px;
+      margin: 0 auto;
+    }
+
+    .agent-header {
+      text-align: center;
+      margin-bottom: 35px;
+    }
+
+    .agent-header h1 {
+      margin: 0 0 10px;
+      color: #17172b;
+      font-size: 32px;
+    }
+
+    .agent-header p {
+      max-width: 700px;
+      margin: 0 auto;
+      color: #686879;
+      line-height: 1.6;
+    }
+
+    .message {
+      display: none;
+      max-width: 700px;
+      margin: 0 auto 25px;
+      padding: 13px 15px;
+      border-radius: 9px;
+      font-size: 14px;
+      line-height: 1.5;
+      text-align: center;
+    }
+
+    .message.error {
+      display: block;
+      background: #fff0f0;
+      color: #a32929;
+    }
+
+    .message.success {
+      display: block;
+      background: #eaf8ef;
+      color: #176b38;
+    }
+
+    .agent-status {
+      display: none;
+      margin: 0 auto 28px;
+      max-width: 700px;
+      padding: 16px 18px;
+      border-radius: 12px;
+      background: #ececff;
+      color: #3334a4;
+      text-align: center;
+      font-weight: 700;
+    }
+
+    .roles-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 20px;
+    }
+
+    .role-card {
+      background: #fff;
+      border: 1px solid #e3e3eb;
+      border-radius: 16px;
+      padding: 25px 21px;
+      box-shadow: 0 8px 25px rgba(0, 0, 0, 0.05);
+    }
+
+    .role-card.featured {
+      border: 2px solid #5b5cf0;
+    }
+
+    .role-card h2 {
+      margin: 0 0 9px;
+      color: #1c1c2d;
+      font-size: 22px;
+    }
+
+    .role-description {
+      min-height: 65px;
+      color: #686879;
+      line-height: 1.5;
+      font-size: 14px;
+    }
+
+    .fee {
+      margin: 20px 0 5px;
+      color: #17172b;
+      font-size: 28px;
+      font-weight: 800;
+    }
+
+    .commission {
+      padding: 12px;
+      margin: 18px 0;
+      border-radius: 9px;
+      background: #f1f1ff;
+      color: #3f40b5;
+      font-weight: 700;
+      text-align: center;
+    }
+
+    .requirements {
+      margin: 18px 0;
+      padding-left: 20px;
+      color: #555565;
+      font-size: 14px;
+      line-height: 1.55;
+    }
+
+    .requirements li {
+      margin-bottom: 8px;
+    }
+
+    .agent-btn {
+      display: block;
+      width: 100%;
+      box-sizing: border-box;
+      padding: 12px;
+      border: 0;
+      border-radius: 9px;
+      background: #5b5cf0;
+      color: #fff;
+      text-align: center;
+      text-decoration: none;
+      font-weight: 700;
+      cursor: pointer;
+    }
+
+    .agent-btn:hover {
+      background: #4748d8;
+    }
+
+    .agent-btn:disabled {
+      opacity: 0.65;
+      cursor: not-allowed;
+    }
+
+    .note {
+      max-width: 760px;
+      margin: 30px auto 0;
+      padding: 17px;
+      border-radius: 10px;
+      background: #fff;
+      color: #656576;
+      font-size: 13px;
+      line-height: 1.6;
+      border: 1px solid #e3e3eb;
+    }
+
+    .back-link {
+      display: block;
+      margin-top: 28px;
+      text-align: center;
+      color: #5b5cf0;
+      text-decoration: none;
+      font-weight: 700;
+      font-size: 14px;
+    }
+
+    @media (max-width: 800px) {
+      .roles-grid {
+        grid-template-columns: 1fr;
+        max-width: 470px;
+        margin: 0 auto;
+      }
+
+      .agent-header h1 {
+        font-size: 28px;
+      }
+    }
+  </style>
+</head>
+
+<body>
+
+  <main class="agent-page">
+    <div class="agent-container">
+
+      <header class="agent-header">
+        <h1>Task Hub Agent Program</h1>
+        <p>
+          Join an Agent program to participate in eligible
+          verified Task Hub activities and earn commissions
+          when qualifying work is completed and verified.
+        </p>
+      </header>
+
+      <div id="message" class="message"></div>
+
+      <div id="agentStatus" class="agent-status"></div>
+
+      <section id="rolesGrid" class="roles-grid">
+        <p style="text-align:center;">
+          Loading Agent roles...
+        </p>
+      </section>
+
+      <div class="note">
+        <strong>Important:</strong>
+        Agent commissions are not guaranteed. Commissions
+        are earned only from eligible activities that are
+        properly completed and verified by Task Hub.
+        Paying an Agent program fee does not guarantee
+        earnings.
+      </div>
+
+      <a
+        href="dashboard.html"
+        class="back-link"
+      >
+        Back to Dashboard
+      </a>
+
+    </div>
+  </main>
+
+  <script>
+    const SUPABASE_URL =
+      "https://bcogfxghqrffrnfetqbo.supabase.co";
+
+    const SUPABASE_KEY =
+      "sb_publishable_cX6B4WgoF6bwz1Br5kIj4g_p4RsBRJP";
+
+    const rolesGrid =
+      document.getElementById("rolesGrid");
+
+    const message =
+      document.getElementById("message");
+
+    const agentStatus =
+      document.getElementById("agentStatus");
+
+    function getToken() {
+      return localStorage.getItem(
+        "taskhub_access_token"
+      );
+    }
+
+    function clearSession() {
+      localStorage.removeItem("taskhub_access_token");
+      localStorage.removeItem("taskhub_refresh_token");
+      localStorage.removeItem("taskhub_user_id");
+      localStorage.removeItem("taskhub_email");
+
+      window.location.href = "login.html";
+    }
+
+    function showMessage(text, type) {
+      message.textContent = text;
+      message.className =
+        "message " + type;
+    }
+
+    function formatNaira(amount) {
+      return "₦" +
+        Number(amount || 0).toLocaleString("en-NG");
+    }
+
+    function escapeHtml(value) {
+      return String(value ?? "")
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;")
+        .replace(/"/g, "&quot;")
+        .replace(/'/g, "&#039;");
+    }
+
+    async function apiRequest(path) {
+      const token = getToken();
+
+      if (!token) {
+        window.location.href = "login.html";
+        return null;
+      }
+
+      const response = await fetch(
+        SUPABASE_URL + path,
+        {
+          headers: {
+            "apikey": SUPABASE_KEY,
+            "Authorization": "Bearer " + token
+          }
+        }
+      );
+
+      if (
+        response.status === 401 ||
+        response.status === 403
+      ) {
+        clearSession();
+        return null;
+      }
+
+      return response;
+    }
+
+    async function loadActiveAgent() {
+      try {
+        const response = await apiRequest(
+          "/rest/v1/taskhub_agents" +
+          "?select=id,status,role_id" +
+          "&status=eq.active" +
+          "&limit=1"
+        );
+
+        if (!response) return false;
+
+        if (!response.ok) {
+          return false;
+        }
+
+        const agents =
+          await response.json();
+
+        if (
+          Array.isArray(agents) &&
+          agents.length > 0
+        ) {
+          agentStatus.textContent =
+            "You already have an active Agent account.";
+
+          agentStatus.style.display =
+            "block";
+
+          return true;
+        }
+
+      } catch (error) {
+        console.error(
+          "Agent status error:",
+          error
+        );
+      }
+
+      return false;
+    }
+
+    function roleCard(role) {
+      const name =
+        String(role.name || "");
+
+      const lowerName =
+        name.toLowerCase();
+
+      const featured =
+        lowerName === "operations agent";
+
+      return `
+        <article class="role-card ${
+          featured ? "featured" : ""
+        }">
+
+          <h2>
+            ${escapeHtml(name)}
+          </h2>
+
+          <p class="role-description">
+            ${escapeHtml(
+              role.description ||
+              "Task Hub Agent role."
+            )}
+          </p>
+
+          <div class="fee">
+            ${formatNaira(role.fee)}
+          </div>
+
+          <div class="commission">
+            Commission:
+            ${formatNaira(role.commission)}
+            per verified eligible activity
+          </div>
+
+          <ul class="requirements">
+            <li>
+              Minimum withdrawal:
+              ${formatNaira(
+                role.minimum_withdrawal
+              )}
+            </li>
+
+            ${
+              role.requirements
+                ? `
+                  <li>
+                    ${escapeHtml(
+                      role.requirements
+                    )}
+                  </li>
+                `
+                : ""
+            }
+          </ul>
+
+          <a
+            href="agent-payment.html?role_id=${encodeURIComponent(
+              role.id
+            )}"
+            class="agent-btn"
+          >
+            Apply for ${escapeHtml(name)}
+          </a>
+
+        </article>
+      `;
+    }
+
+    async function loadRoles() {
+      try {
+        const response =
+          await apiRequest(
+            "/rest/v1/taskhub_agent_roles" +
+            "?select=*" +
+            "&is_active=eq.true" +
+            "&order=fee.asc"
+          );
+
+        if (!response) return;
+
+        if (!response.ok) {
+          const error =
+            await response.json()
+              .catch(() => ({}));
+
+          throw new Error(
+            error.message ||
+            "Unable to load Agent roles."
+          );
+        }
+
+        const roles =
+          await response.json();
+
+        if (
+          !Array.isArray(roles) ||
+          roles.length === 0
+        ) {
+          rolesGrid.innerHTML =
+            `
+              <p>
+                No Agent roles are currently available.
+              </p>
+            `;
+
+          return;
+        }
+
+        rolesGrid.innerHTML =
+          roles
+            .map(roleCard)
+            .join("");
+
+      } catch (error) {
+        console.error(error);
+
+        rolesGrid.innerHTML = "";
+
+        showMessage(
+          error.message ||
+          "Unable to load Agent roles.",
+          "error"
+        );
+      }
+    }
+
+    async function init() {
+      const token = getToken();
+
+      if (!token) {
+        window.location.href =
+          "login.html";
+        return;
+      }
+
+      const active =
+        await loadActiveAgent();
+
+      if (active) {
+        showMessage(
+          "Your Agent account is already active.",
+          "success"
+        );
+      }
+
+      await loadRoles();
+    }
+
+    init();
+  </script>
+
+</body>
+</html>

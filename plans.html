@@ -1,0 +1,491 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Task Hub | Plans</title>
+  <link rel="stylesheet" href="style.css">
+
+  <style>
+    .plans-page {
+      min-height: 100vh;
+      background: #f7f7fb;
+      padding: 35px 18px 60px;
+    }
+
+    .plans-container {
+      width: 100%;
+      max-width: 1050px;
+      margin: 0 auto;
+    }
+
+    .plans-header {
+      text-align: center;
+      margin-bottom: 35px;
+    }
+
+    .plans-header h1 {
+      margin: 0 0 10px;
+      color: #17172b;
+      font-size: 32px;
+    }
+
+    .plans-header p {
+      margin: 0 auto;
+      max-width: 650px;
+      color: #686879;
+      line-height: 1.6;
+    }
+
+    .current-plan {
+      display: none;
+      margin: 0 auto 28px;
+      max-width: 650px;
+      padding: 14px 18px;
+      border-radius: 10px;
+      background: #ececff;
+      color: #3334a4;
+      text-align: center;
+      font-weight: 700;
+    }
+
+    .plans-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 20px;
+    }
+
+    .plan-card {
+      position: relative;
+      background: #fff;
+      border: 1px solid #e3e3eb;
+      border-radius: 16px;
+      padding: 28px 22px;
+      box-shadow: 0 8px 25px rgba(0, 0, 0, 0.05);
+    }
+
+    .plan-card.featured {
+      border: 2px solid #5b5cf0;
+    }
+
+    .popular {
+      position: absolute;
+      top: -12px;
+      left: 50%;
+      transform: translateX(-50%);
+      background: #5b5cf0;
+      color: #fff;
+      padding: 5px 13px;
+      border-radius: 20px;
+      font-size: 12px;
+      font-weight: 700;
+      white-space: nowrap;
+    }
+
+    .plan-card h2 {
+      margin: 0 0 8px;
+      color: #1c1c2d;
+      font-size: 24px;
+    }
+
+    .plan-description {
+      min-height: 48px;
+      color: #727283;
+      line-height: 1.5;
+      font-size: 14px;
+    }
+
+    .price {
+      margin: 22px 0 4px;
+      color: #17172b;
+      font-size: 32px;
+      font-weight: 800;
+    }
+
+    .price-period {
+      color: #777787;
+      font-size: 13px;
+    }
+
+    .reward {
+      margin: 22px 0;
+      padding: 13px;
+      border-radius: 9px;
+      background: #f1f1ff;
+      color: #3f40b5;
+      font-weight: 700;
+      text-align: center;
+    }
+
+    .features {
+      list-style: none;
+      padding: 0;
+      margin: 20px 0 25px;
+    }
+
+    .features li {
+      margin-bottom: 12px;
+      color: #555565;
+      font-size: 14px;
+      line-height: 1.45;
+    }
+
+    .plan-btn {
+      display: block;
+      width: 100%;
+      box-sizing: border-box;
+      padding: 12px;
+      border: 0;
+      border-radius: 9px;
+      background: #5b5cf0;
+      color: #fff;
+      text-align: center;
+      text-decoration: none;
+      font-weight: 700;
+      cursor: pointer;
+    }
+
+    .plan-btn:hover {
+      background: #4748d8;
+    }
+
+    .plan-btn.free {
+      background: #ededf3;
+      color: #333344;
+    }
+
+    .plan-btn:disabled {
+      opacity: 0.65;
+      cursor: not-allowed;
+    }
+
+    .message {
+      display: none;
+      max-width: 650px;
+      margin: 0 auto 25px;
+      padding: 13px 16px;
+      border-radius: 9px;
+      text-align: center;
+      font-size: 14px;
+    }
+
+    .message.error {
+      display: block;
+      background: #fff0f0;
+      color: #a32929;
+    }
+
+    .message.success {
+      display: block;
+      background: #eaf8ef;
+      color: #176b38;
+    }
+
+    .back-link {
+      display: block;
+      margin-top: 30px;
+      text-align: center;
+      color: #5b5cf0;
+      text-decoration: none;
+      font-weight: 700;
+    }
+
+    @media (max-width: 800px) {
+      .plans-grid {
+        grid-template-columns: 1fr;
+        max-width: 470px;
+        margin: 0 auto;
+      }
+
+      .plans-header h1 {
+        font-size: 27px;
+      }
+    }
+  </style>
+</head>
+
+<body>
+
+  <main class="plans-page">
+    <div class="plans-container">
+
+      <header class="plans-header">
+        <h1>Choose Your Plan</h1>
+        <p>
+          Upgrade your Task Hub plan to unlock higher rewards
+          on eligible approved tasks.
+        </p>
+      </header>
+
+      <div id="currentPlan" class="current-plan"></div>
+      <div id="message" class="message"></div>
+
+      <section id="plansGrid" class="plans-grid">
+        <p style="text-align:center;">Loading plans...</p>
+      </section>
+
+      <a href="dashboard.html" class="back-link">
+        Back to Dashboard
+      </a>
+
+    </div>
+  </main>
+
+  <script>
+    const SUPABASE_URL =
+      "https://bcogfxghqrffrnfetqbo.supabase.co";
+
+    const SUPABASE_KEY =
+      "sb_publishable_cX6B4WgoF6bwz1Br5kIj4g_p4RsBRJP";
+
+    const plansGrid = document.getElementById("plansGrid");
+    const currentPlanBox =
+      document.getElementById("currentPlan");
+    const messageBox =
+      document.getElementById("message");
+
+    function getToken() {
+      return localStorage.getItem("taskhub_access_token");
+    }
+
+    function showMessage(text, type) {
+      messageBox.textContent = text;
+      messageBox.className = "message " + type;
+    }
+
+    function clearSession() {
+      localStorage.removeItem("taskhub_access_token");
+      localStorage.removeItem("taskhub_refresh_token");
+      localStorage.removeItem("taskhub_user_id");
+      localStorage.removeItem("taskhub_email");
+
+      window.location.href = "login.html";
+    }
+
+    async function apiRequest(path, options = {}) {
+      const token = getToken();
+
+      if (!token) {
+        window.location.href = "login.html";
+        return null;
+      }
+
+      const headers = {
+        "apikey": SUPABASE_KEY,
+        "Authorization": "Bearer " + token,
+        "Content-Type": "application/json",
+        ...(options.headers || {})
+      };
+
+      const response = await fetch(
+        SUPABASE_URL + path,
+        {
+          ...options,
+          headers
+        }
+      );
+
+      if (response.status === 401 || response.status === 403) {
+        clearSession();
+        return null;
+      }
+
+      return response;
+    }
+
+    function formatNaira(amount) {
+      return "₦" + Number(amount || 0).toLocaleString("en-NG");
+    }
+
+    function escapeHtml(value) {
+      return String(value ?? "")
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;")
+        .replace(/"/g, "&quot;")
+        .replace(/'/g, "&#039;");
+    }
+
+    function createPlanCard(plan, currentPlanId) {
+      const name = String(plan.name || "");
+      const lowerName = name.toLowerCase();
+
+      const isFree = lowerName === "free";
+      const isCurrent =
+        Number(plan.id) === Number(currentPlanId);
+
+      const isPremium = lowerName === "premium";
+
+      let buttonText = "Choose Plan";
+      let buttonClass = "plan-btn";
+
+      if (isCurrent) {
+        buttonText = "Current Plan";
+      } else if (isFree) {
+        buttonText = "Free Plan";
+        buttonClass += " free";
+      } else {
+        buttonText = "Upgrade";
+      }
+
+      const features = [];
+
+      features.push(
+        "₦" +
+        Number(plan.reward || 0).toLocaleString("en-NG") +
+        " reward per approved eligible task"
+      );
+
+      if (plan.duration_days) {
+        features.push(
+          Number(plan.duration_days) + " days"
+        );
+      } else {
+        features.push("No expiration");
+      }
+
+      features.push("Task Hub account access");
+      features.push("Wallet and withdrawal access");
+
+      return `
+        <article class="plan-card ${isPremium ? "featured" : ""}">
+          ${isPremium ? '<div class="popular">POPULAR</div>' : ""}
+
+          <h2>${escapeHtml(name)}</h2>
+
+          <p class="plan-description">
+            ${escapeHtml(
+              plan.description ||
+              "Task Hub reward plan."
+            )}
+          </p>
+
+          <div class="price">
+            ${formatNaira(plan.price)}
+          </div>
+
+          <div class="price-period">
+            ${isFree ? "No payment required" : "30-day plan"}
+          </div>
+
+          <div class="reward">
+            ₦${Number(plan.reward || 0).toLocaleString("en-NG")}
+            per approved task
+          </div>
+
+          <ul class="features">
+            ${features.map(feature =>
+              `<li>✓ ${escapeHtml(feature)}</li>`
+            ).join("")}
+          </ul>
+
+          ${
+            isCurrent
+              ? `<button class="plan-btn" disabled>
+                   Current Plan
+                 </button>`
+              : isFree
+                ? `<button class="plan-btn free" disabled>
+                     Free Plan
+                   </button>`
+                : `<a
+                     class="plan-btn"
+                     href="upgrade.html?plan_id=${encodeURIComponent(plan.id)}"
+                   >
+                     ${buttonText}
+                   </a>`
+          }
+        </article>
+      `;
+    }
+
+    async function loadPlans() {
+      try {
+        const response = await apiRequest(
+          "/rest/v1/taskhub_plans" +
+          "?select=*&order=price.asc"
+        );
+
+        if (!response) return;
+
+        if (!response.ok) {
+          const error = await response.json().catch(() => ({}));
+
+          throw new Error(
+            error.message || "Unable to load plans."
+          );
+        }
+
+        const plans = await response.json();
+
+        if (!Array.isArray(plans) || plans.length === 0) {
+          plansGrid.innerHTML =
+            "<p>No plans are currently available.</p>";
+          return;
+        }
+
+        let currentPlanId = null;
+
+        const subscriptionResponse = await apiRequest(
+          "/rest/v1/taskhub_subscriptions" +
+          "?select=plan_id,status,expires_at" +
+          "&status=eq.active" +
+          "&order=created_at.desc" +
+          "&limit=1"
+        );
+
+        if (subscriptionResponse) {
+          if (subscriptionResponse.ok) {
+            const subscriptions =
+              await subscriptionResponse.json();
+
+            if (
+              Array.isArray(subscriptions) &&
+              subscriptions.length
+            ) {
+              currentPlanId =
+                subscriptions[0].plan_id;
+
+              const currentPlan =
+                plans.find(
+                  plan =>
+                    Number(plan.id) ===
+                    Number(currentPlanId)
+                );
+
+              if (currentPlan) {
+                currentPlanBox.textContent =
+                  "Your current plan: " +
+                  currentPlan.name;
+
+                currentPlanBox.style.display =
+                  "block";
+              }
+            }
+          }
+        }
+
+        plansGrid.innerHTML = plans
+          .map(plan =>
+            createPlanCard(plan, currentPlanId)
+          )
+          .join("");
+
+      } catch (error) {
+        console.error(error);
+
+        showMessage(
+          error.message ||
+          "Unable to load plans.",
+          "error"
+        );
+
+        plansGrid.innerHTML = "";
+      }
+    }
+
+    loadPlans();
+  </script>
+
+</body>
+</html>

@@ -1,0 +1,552 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Task Hub | Agent Payment</title>
+  <link rel="stylesheet" href="style.css">
+
+  <style>
+    .payment-page {
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 25px 18px;
+      background: #f7f7fb;
+    }
+
+    .payment-card {
+      width: 100%;
+      max-width: 480px;
+      background: #fff;
+      border-radius: 16px;
+      padding: 30px;
+      box-shadow: 0 10px 35px rgba(0, 0, 0, 0.08);
+    }
+
+    .payment-card h1 {
+      margin: 0 0 8px;
+      color: #17172b;
+      font-size: 28px;
+    }
+
+    .subtitle {
+      margin: 0 0 24px;
+      color: #686879;
+      line-height: 1.5;
+    }
+
+    .role-summary {
+      padding: 20px;
+      margin-bottom: 22px;
+      border-radius: 12px;
+      background: #f1f1ff;
+    }
+
+    .role-name {
+      margin: 0 0 8px;
+      color: #3334a4;
+      font-size: 23px;
+      font-weight: 800;
+    }
+
+    .role-fee {
+      margin: 0;
+      color: #17172b;
+      font-size: 30px;
+      font-weight: 800;
+    }
+
+    .role-details {
+      margin-top: 12px;
+      color: #626274;
+      font-size: 14px;
+      line-height: 1.6;
+    }
+
+    .commission-box {
+      margin: 20px 0;
+      padding: 14px;
+      border-radius: 9px;
+      background: #f7f7f9;
+      color: #333344;
+      text-align: center;
+      font-weight: 700;
+      line-height: 1.5;
+    }
+
+    .notice {
+      margin-bottom: 20px;
+      padding: 13px;
+      border-radius: 9px;
+      background: #fff8e8;
+      color: #765600;
+      font-size: 13px;
+      line-height: 1.55;
+    }
+
+    .message {
+      display: none;
+      margin-bottom: 18px;
+      padding: 13px 14px;
+      border-radius: 9px;
+      font-size: 14px;
+      line-height: 1.45;
+    }
+
+    .message.error {
+      display: block;
+      background: #fff0f0;
+      color: #a32929;
+    }
+
+    .message.success {
+      display: block;
+      background: #eaf8ef;
+      color: #176b38;
+    }
+
+    .pay-btn {
+      width: 100%;
+      border: 0;
+      border-radius: 9px;
+      padding: 14px;
+      background: #5b5cf0;
+      color: #fff;
+      font-size: 15px;
+      font-weight: 700;
+      cursor: pointer;
+    }
+
+    .pay-btn:hover {
+      background: #4748d8;
+    }
+
+    .pay-btn:disabled {
+      opacity: 0.65;
+      cursor: not-allowed;
+    }
+
+    .back-link {
+      display: block;
+      margin-top: 18px;
+      text-align: center;
+      color: #5b5cf0;
+      text-decoration: none;
+      font-weight: 700;
+      font-size: 14px;
+    }
+  </style>
+</head>
+
+<body>
+
+  <main class="payment-page">
+    <section class="payment-card">
+
+      <h1>Join Agent Program</h1>
+
+      <p class="subtitle">
+        Review the selected Agent role before continuing
+        to secure Paystack checkout.
+      </p>
+
+      <div id="message" class="message"></div>
+
+      <div id="roleSummary" class="role-summary">
+        Loading Agent role...
+      </div>
+
+      <div
+        id="commissionBox"
+        class="commission-box"
+        style="display:none;"
+      ></div>
+
+      <div class="notice">
+        Agent commissions are not guaranteed. The program
+        fee gives access to the selected Agent program;
+        commissions are earned only from eligible activities
+        that are completed and verified.
+      </div>
+
+      <button
+        type="button"
+        id="payButton"
+        class="pay-btn"
+        disabled
+      >
+        Continue to Payment
+      </button>
+
+      <a
+        href="agent.html"
+        class="back-link"
+      >
+        Back to Agent Roles
+      </a>
+
+    </section>
+  </main>
+
+  <script>
+    const SUPABASE_URL =
+      "https://bcogfxghqrffrnfetqbo.supabase.co";
+
+    const SUPABASE_KEY =
+      "sb_publishable_cX6B4WgoF6bwz1Br5kIj4g_p4RsBRJP";
+
+    const roleSummary =
+      document.getElementById(
+        "roleSummary"
+      );
+
+    const commissionBox =
+      document.getElementById(
+        "commissionBox"
+      );
+
+    const payButton =
+      document.getElementById(
+        "payButton"
+      );
+
+    const message =
+      document.getElementById(
+        "message"
+      );
+
+    const params =
+      new URLSearchParams(
+        window.location.search
+      );
+
+    const roleId =
+      params.get("role_id");
+
+    let selectedRole = null;
+
+    function getToken() {
+      return localStorage.getItem(
+        "taskhub_access_token"
+      );
+    }
+
+    function clearSession() {
+      localStorage.removeItem(
+        "taskhub_access_token"
+      );
+      localStorage.removeItem(
+        "taskhub_refresh_token"
+      );
+      localStorage.removeItem(
+        "taskhub_user_id"
+      );
+      localStorage.removeItem(
+        "taskhub_email"
+      );
+
+      window.location.href =
+        "login.html";
+    }
+
+    function showMessage(
+      text,
+      type
+    ) {
+      message.textContent = text;
+      message.className =
+        "message " + type;
+    }
+
+    function formatNaira(
+      amount
+    ) {
+      return "₦" +
+        Number(
+          amount || 0
+        ).toLocaleString(
+          "en-NG"
+        );
+    }
+
+    function escapeHtml(
+      value
+    ) {
+      return String(
+        value ?? ""
+      )
+        .replace(
+          /&/g,
+          "&amp;"
+        )
+        .replace(
+          /</g,
+          "&lt;"
+        )
+        .replace(
+          />/g,
+          "&gt;"
+        )
+        .replace(
+          /"/g,
+          "&quot;"
+        )
+        .replace(
+          /'/g,
+          "&#039;"
+        );
+    }
+
+    async function loadRole() {
+      const token =
+        getToken();
+
+      if (!token) {
+        window.location.href =
+          "login.html";
+        return;
+      }
+
+      if (!roleId) {
+        showMessage(
+          "No Agent role was selected. Please return to the Agent page.",
+          "error"
+        );
+
+        roleSummary.textContent =
+          "No role selected.";
+
+        return;
+      }
+
+      try {
+        const response =
+          await fetch(
+            SUPABASE_URL +
+            "/rest/v1/taskhub_agent_roles" +
+            "?select=*" +
+            "&id=eq." +
+            encodeURIComponent(
+              roleId
+            ) +
+            "&is_active=eq.true" +
+            "&limit=1",
+            {
+              method: "GET",
+              headers: {
+                "apikey":
+                  SUPABASE_KEY,
+                "Authorization":
+                  "Bearer " +
+                  token
+              }
+            }
+          );
+
+        if (
+          response.status === 401 ||
+          response.status === 403
+        ) {
+          clearSession();
+          return;
+        }
+
+        if (!response.ok) {
+          throw new Error(
+            "Unable to load the selected Agent role."
+          );
+        }
+
+        const roles =
+          await response.json();
+
+        if (
+          !Array.isArray(
+            roles
+          ) ||
+          roles.length === 0
+        ) {
+          throw new Error(
+            "The selected Agent role could not be found."
+          );
+        }
+
+        selectedRole =
+          roles[0];
+
+        roleSummary.innerHTML = `
+          <p class="role-name">
+            ${escapeHtml(
+              selectedRole.name
+            )}
+          </p>
+
+          <p class="role-fee">
+            ${formatNaira(
+              selectedRole.fee
+            )}
+          </p>
+
+          <div class="role-details">
+            ${
+              selectedRole.description
+                ? escapeHtml(
+                    selectedRole.description
+                  )
+                : "Task Hub Agent Program"
+            }
+
+            <br><br>
+
+            Minimum withdrawal:
+            <strong>
+              ${formatNaira(
+                selectedRole.minimum_withdrawal
+              )}
+            </strong>
+          </div>
+        `;
+
+        commissionBox.innerHTML =
+          "Commission: " +
+          formatNaira(
+            selectedRole.commission
+          ) +
+          " per verified eligible activity";
+
+        commissionBox.style.display =
+          "block";
+
+        payButton.disabled =
+          false;
+
+      } catch (error) {
+        console.error(error);
+
+        showMessage(
+          error.message ||
+          "Unable to load Agent role.",
+          "error"
+        );
+
+        roleSummary.textContent =
+          "Unable to load role.";
+      }
+    }
+
+    payButton.addEventListener(
+      "click",
+      async function () {
+
+        if (!selectedRole) {
+          return;
+        }
+
+        const token =
+          getToken();
+
+        if (!token) {
+          window.location.href =
+            "login.html";
+          return;
+        }
+
+        payButton.disabled =
+          true;
+
+        payButton.textContent =
+          "Preparing Payment...";
+
+        showMessage(
+          "Connecting to secure payment checkout...",
+          "success"
+        );
+
+        try {
+          const response =
+            await fetch(
+              SUPABASE_URL +
+              "/functions/v1/initialize-agent-payment",
+              {
+                method: "POST",
+                headers: {
+                  "Content-Type":
+                    "application/json",
+                  "apikey":
+                    SUPABASE_KEY,
+                  "Authorization":
+                    "Bearer " +
+                    token
+                },
+                body: JSON.stringify({
+                  role_id:
+                    Number(
+                      selectedRole.id
+                    )
+                })
+              }
+            );
+
+          if (
+            response.status === 401 ||
+            response.status === 403
+          ) {
+            clearSession();
+            return;
+          }
+
+          const data =
+            await response.json()
+              .catch(
+                () => ({})
+              );
+
+          if (!response.ok) {
+            throw new Error(
+              data.message ||
+              data.error ||
+              "Unable to initialize Agent payment."
+            );
+          }
+
+          const checkoutUrl =
+            data.authorization_url ||
+            data.data?.authorization_url;
+
+          if (!checkoutUrl) {
+            throw new Error(
+              "Payment checkout URL was not returned."
+            );
+          }
+
+          window.location.href =
+            checkoutUrl;
+
+        } catch (error) {
+          console.error(
+            "Agent payment error:",
+            error
+          );
+
+          showMessage(
+            error.message ||
+            "Unable to start payment. Please try again.",
+            "error"
+          );
+
+          payButton.disabled =
+            false;
+
+          payButton.textContent =
+            "Continue to Payment";
+        }
+      }
+    );
+
+    loadRole();
+  </script>
+
+</body>
+</html>

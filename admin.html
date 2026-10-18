@@ -1,1391 +1,1300 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Task Hub | Admin Dashboard</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Task Hub | Admin Dashboard</title>
 
-<style>
-:root {
-  --bg: #f4f6fb;
-  --card: #ffffff;
-  --text: #182230;
-  --muted: #687386;
-  --primary: #2563eb;
-  --green: #15803d;
-  --red: #dc2626;
-  --border: #e4e8f0;
-}
+    <style>
+        * {
+            box-sizing: border-box;
+        }
 
-* {
-  box-sizing: border-box;
-}
+        body {
+            margin: 0;
+            font-family: Arial, sans-serif;
+            background: #f4f6fb;
+            color: #1f2937;
+        }
 
-body {
-  margin: 0;
-  font-family: Arial, sans-serif;
-  background: var(--bg);
-  color: var(--text);
-}
+        header {
+            background: #111827;
+            color: white;
+            padding: 18px 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 15px;
+            flex-wrap: wrap;
+        }
 
-header {
-  background: #111827;
-  color: white;
-  padding: 18px 20px;
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  gap: 12px;
-  flex-wrap: wrap;
-}
+        header h1 {
+            margin: 0;
+            font-size: 22px;
+        }
 
-header h1 {
-  font-size: 21px;
-  margin: 0;
-}
+        header p {
+            margin: 5px 0 0;
+            color: #cbd5e1;
+            font-size: 13px;
+        }
 
-header p {
-  margin: 5px 0 0;
-  font-size: 12px;
-  color: #cbd5e1;
-}
+        .header-actions {
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+        }
 
-main {
-  max-width: 1100px;
-  margin: auto;
-  padding: 20px 14px 45px;
-}
+        .header-actions a,
+        .header-actions button {
+            border: 0;
+            text-decoration: none;
+            background: white;
+            color: #111827;
+            padding: 9px 13px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 600;
+        }
 
-.notice {
-  padding: 13px;
-  margin-bottom: 16px;
-  border-radius: 10px;
-  background: #eff6ff;
-  color: #1d4ed8;
-  font-size: 14px;
-  overflow-wrap: anywhere;
-}
+        main {
+            max-width: 1200px;
+            margin: 25px auto;
+            padding: 0 15px 40px;
+        }
 
-.stats {
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 12px;
-  margin-bottom: 22px;
-}
+        .stats {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 15px;
+            margin-bottom: 20px;
+        }
 
-.stat, .panel, .item {
-  background: var(--card);
-  border: 1px solid var(--border);
-  border-radius: 13px;
-}
+        .stat {
+            background: white;
+            border-radius: 12px;
+            padding: 20px;
+            box-shadow: 0 3px 15px rgba(0,0,0,.06);
+        }
 
-.stat {
-  padding: 16px 10px;
-}
+        .stat span {
+            display: block;
+            color: #6b7280;
+            font-size: 13px;
+            margin-bottom: 8px;
+        }
 
-.stat span {
-  display: block;
-  color: var(--muted);
-  font-size: 12px;
-  margin-bottom: 8px;
-}
+        .stat strong {
+            font-size: 28px;
+        }
 
-.stat strong {
-  font-size: 23px;
-}
+        .panel {
+            background: white;
+            border-radius: 12px;
+            padding: 20px;
+            margin-bottom: 20px;
+            box-shadow: 0 3px 15px rgba(0,0,0,.06);
+        }
 
-.panel {
-  padding: 18px;
-  margin-bottom: 22px;
-}
+        .panel h2 {
+            margin-top: 0;
+            font-size: 19px;
+        }
 
-h2 {
-  font-size: 19px;
-  margin: 0 0 16px;
-}
+        .panel-description {
+            color: #6b7280;
+            font-size: 14px;
+        }
 
-h3 {
-  font-size: 16px;
-  margin: 0 0 10px;
-}
+        .form-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 12px;
+        }
 
-label {
-  display: block;
-  font-size: 13px;
-  font-weight: bold;
-  margin: 12px 0 6px;
-}
+        input,
+        textarea,
+        select {
+            width: 100%;
+            padding: 11px 12px;
+            border: 1px solid #d1d5db;
+            border-radius: 8px;
+            font-size: 14px;
+            outline: none;
+        }
 
-input, textarea, select {
-  width: 100%;
-  padding: 12px;
-  border: 1px solid #d6dce7;
-  border-radius: 8px;
-  font: inherit;
-  font-size: 14px;
-  background: white;
-  color: var(--text);
-}
+        textarea {
+            min-height: 100px;
+            resize: vertical;
+        }
 
-textarea {
-  resize: vertical;
-  min-height: 75px;
-}
+        input:focus,
+        textarea:focus,
+        select:focus {
+            border-color: #5b5cf0;
+        }
 
-.grid {
-  display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 0 14px;
-}
+        .full {
+            grid-column: 1 / -1;
+        }
 
-button, .button {
-  border: 0;
-  border-radius: 8px;
-  padding: 11px 14px;
-  font-weight: bold;
-  font-size: 13px;
-  cursor: pointer;
-  text-decoration: none;
-  display: inline-block;
-  text-align: center;
-}
+        .actions {
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+            margin-top: 12px;
+        }
 
-button:disabled {
-  opacity: .55;
-  cursor: not-allowed;
-}
+        button,
+        .button {
+            border: 0;
+            border-radius: 8px;
+            padding: 10px 14px;
+            cursor: pointer;
+            font-weight: 600;
+            text-decoration: none;
+            display: inline-block;
+        }
 
-.primary {
-  background: var(--primary);
-  color: white;
-}
+        .primary {
+            background: #5b5cf0;
+            color: white;
+        }
 
-.success {
-  background: var(--green);
-  color: white;
-}
+        .secondary {
+            background: #e5e7eb;
+            color: #111827;
+        }
 
-.danger {
-  background: var(--red);
-  color: white;
-}
+        .success {
+            background: #16a34a;
+            color: white;
+        }
 
-.secondary {
-  background: #e9edf5;
-  color: #263449;
-}
+        .danger {
+            background: #dc2626;
+            color: white;
+        }
 
-.actions {
-  display: flex;
-  gap: 8px;
-  flex-wrap: wrap;
-  margin-top: 14px;
-}
+        .warning {
+            background: #f59e0b;
+            color: white;
+        }
 
-.item {
-  padding: 16px;
-  margin-bottom: 12px;
-  overflow-wrap: anywhere;
-}
+        .task-list,
+        .submission-list,
+        .withdrawal-list {
+            display: grid;
+            gap: 12px;
+            margin-top: 15px;
+        }
 
-.item p {
-  color: var(--muted);
-  font-size: 13px;
-  line-height: 1.6;
-  margin: 7px 0;
-}
+        .item {
+            border: 1px solid #e5e7eb;
+            border-radius: 10px;
+            padding: 15px;
+        }
 
-.badge {
-  display: inline-block;
-  padding: 5px 9px;
-  border-radius: 20px;
-  background: #e9edf5;
-  font-size: 11px;
-  font-weight: bold;
-  text-transform: uppercase;
-  margin: 4px 4px 4px 0;
-}
+        .item h3 {
+            margin: 0 0 7px;
+            font-size: 16px;
+        }
 
-.badge.active, .badge.approved {
-  background: #dcfce7;
-  color: #166534;
-}
+        .item p {
+            margin: 5px 0;
+            color: #4b5563;
+            font-size: 14px;
+        }
 
-.badge.paused, .badge.pending {
-  background: #fef3c7;
-  color: #92400e;
-}
+        .meta {
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+            margin: 10px 0;
+        }
 
-.badge.rejected {
-  background: #fee2e2;
-  color: #991b1b;
-}
+        .badge {
+            display: inline-block;
+            padding: 5px 8px;
+            border-radius: 20px;
+            background: #eef2ff;
+            color: #3730a3;
+            font-size: 12px;
+            font-weight: 600;
+        }
 
-.empty {
-  text-align: center;
-  color: var(--muted);
-  padding: 25px 10px;
-  font-size: 14px;
-}
+        .badge.pending {
+            background: #fff7ed;
+            color: #c2410c;
+        }
 
-#message {
-  white-space: pre-wrap;
-  overflow-wrap: anywhere;
-  font-size: 13px;
-  margin-bottom: 15px;
-}
+        .badge.approved,
+        .badge.verified {
+            background: #ecfdf5;
+            color: #047857;
+        }
 
-.error {
-  color: #b91c1c;
-}
+        .badge.rejected {
+            background: #fef2f2;
+            color: #b91c1c;
+        }
 
-.ok {
-  color: #15803d;
-}
+        .empty {
+            color: #6b7280;
+            padding: 15px 0;
+        }
 
-.hidden {
-  display: none !important;
-}
+        .message {
+            display: none;
+            padding: 12px;
+            border-radius: 8px;
+            margin-bottom: 15px;
+            font-size: 14px;
+        }
 
-@media (max-width: 520px) {
-  .stats {
-    grid-template-columns: 1fr;
-  }
+        .message.success-message {
+            display: block;
+            background: #ecfdf5;
+            color: #047857;
+        }
 
-  .stat {
-    padding: 12px;
-  }
+        .message.error-message {
+            display: block;
+            background: #fef2f2;
+            color: #b91c1c;
+        }
 
-  .stat strong {
-    font-size: 20px;
-  }
+        .danger-zone {
+            border: 1px solid #fecaca;
+        }
 
-  .grid {
-    grid-template-columns: 1fr;
-  }
+        @media (max-width: 750px) {
+            .stats {
+                grid-template-columns: 1fr;
+            }
 
-  header h1 {
-    font-size: 18px;
-  }
+            .form-grid {
+                grid-template-columns: 1fr;
+            }
 
-  .panel {
-    padding: 14px;
-  }
-}
+            .full {
+                grid-column: auto;
+            }
 
-.withdrawal-admin-card {
-  background: #fff;
-  padding: 18px;
-  margin: 12px 0;
-  border-radius: 12px;
-  border: 1px solid #e5e7eb;
-}
-
-.withdrawal-admin-card p {
-  margin: 6px 0;
-}
-
-.withdrawal-actions {
-  margin-top: 15px;
-  display: flex;
-  gap: 8px;
-  flex-wrap: wrap;
-}
-
-.withdrawal-actions input {
-  width: 100%;
-  padding: 10px;
-  border: 1px solid #ddd;
-  border-radius: 8px;
-}
-
-.withdrawal-actions button {
-  padding: 10px 15px;
-  border: none;
-  border-radius: 8px;
-  cursor: pointer;
-}
-</style>
+            header {
+                align-items: flex-start;
+            }
+        }
+    </style>
 </head>
 
 <body>
 
 <header>
-  <div>
-    <h1>Task Hub Admin</h1>
-    <p>Manage tasks and review submissions</p>
-  </div>
+    <div>
+        <h1>Task Hub Admin</h1>
+        <p>Manage tasks, users, submissions, withdrawals and Agent activity.</p>
+    </div>
 
-  <button class="secondary" onclick="logoutUser()">
-    Log out
-  </button>
+    <div class="header-actions">
+        <a href="dashboard.html">Dashboard</a>
+        <a href="agent-admin.html">Agent Admin</a>
+        <button onclick="logoutAdmin()">Logout</button>
+    </div>
 </header>
 
 <main>
 
-  <div id="message" class="notice">Checking administrator access...</div>
+    <div id="message" class="message"></div>
 
-  <div id="adminArea" class="hidden">
-
+    <!-- STATS -->
     <section class="stats">
-      <div class="stat">
-        <span>Total Tasks</span>
-        <strong id="totalTasks">0</strong>
-      </div>
+        <div class="stat">
+            <span>Total Tasks</span>
+            <strong id="totalTasks">0</strong>
+        </div>
 
-      <div class="stat">
-        <span>Pending Submissions</span>
-        <strong id="pendingCount">0</strong>
-      </div>
+        <div class="stat">
+            <span>Pending Submissions</span>
+            <strong id="pendingSubmissions">0</strong>
+        </div>
 
-      <div class="stat">
-        <span>Approved Submissions</span>
-        <strong id="approvedCount">0</strong>
-      </div>
+        <div class="stat">
+            <span>Approved Submissions</span>
+            <strong id="approvedSubmissions">0</strong>
+        </div>
     </section>
 
     <!-- TASK FORM -->
+    <section class="panel">
+        <h2>Create / Edit Task</h2>
 
-    <section class="panel" id="taskFormPanel">
-      <h2 id="formHeading">Create a New Task</h2>
+        <p class="panel-description">
+            Create tasks that users can complete and submit proof for.
+        </p>
 
-      <form id="taskForm">
+        <form id="taskForm">
 
-        <input type="hidden" id="taskId">
+            <input type="hidden" id="taskId">
 
-        <label for="title">Task Title *</label>
-        <input id="title" maxlength="150" required
-               placeholder="e.g. Visit our website">
+            <div class="form-grid">
 
-        <label for="description">Description *</label>
-        <textarea id="description" required
-          placeholder="Explain what the user needs to do"></textarea>
+                <div>
+                    <input
+                        id="taskTitle"
+                        placeholder="Task title"
+                        required
+                    >
+                </div>
 
-        <div class="grid">
-          <div>
-            <label for="category">Category</label>
-            <input id="category" maxlength="60"
-                   placeholder="e.g. Website">
-          </div>
+                <div>
+                    <input
+                        id="taskCategory"
+                        placeholder="Category"
+                        required
+                    >
+                </div>
 
-          <div>
-            <label for="reward">Reward (₦) *</label>
-            <input id="reward" type="number"
-                   min="0" step="0.01" required value="100">
-          </div>
-        </div>
+                <div class="full">
+                    <textarea
+                        id="taskDescription"
+                        placeholder="Task description"
+                        required
+                    ></textarea>
+                </div>
 
-        <label for="instructions">Instructions *</label>
-        <textarea id="instructions" required
-          placeholder="Explain how users should complete the task and what proof to submit"></textarea>
+                <div>
+                    <input
+                        id="taskReward"
+                        type="number"
+                        min="0"
+                        step="0.01"
+                        placeholder="Reward"
+                        required
+                    >
+                </div>
 
-        <label for="taskLink">Task Link</label>
-        <input id="taskLink" type="url"
-               placeholder="https://example.com">
+                <div>
+                    <select id="taskStatus">
+                        <option value="active">Active</option>
+                        <option value="paused">Paused</option>
+                        <option value="completed">Completed</option>
+                    </select>
+                </div>
 
-        <label for="taskStatus">Task Status</label>
-        <select id="taskStatus">
-          <option value="active">Active</option>
-          <option value="paused">Paused</option>
-          <option value="completed">Completed</option>
-        </select>
+                <div class="full">
+                    <textarea
+                        id="taskInstructions"
+                        placeholder="Task instructions"
+                        required
+                    ></textarea>
+                </div>
 
-        <div class="actions">
-          <button type="submit" class="primary" id="saveTaskButton">
-            Create Task
-          </button>
+                <div class="full">
+                    <input
+                        id="taskLink"
+                        type="url"
+                        placeholder="Task link (optional)"
+                    >
+                </div>
 
-          <button type="button" class="secondary hidden"
-                  id="cancelEditButton" onclick="resetTaskForm()">
-            Cancel Edit
-          </button>
-        </div>
-      </form>
+            </div>
+
+            <div class="actions">
+                <button class="primary" type="submit">
+                    Save Task
+                </button>
+
+                <button
+                    class="secondary"
+                    type="button"
+                    onclick="resetTaskForm()"
+                >
+                    Clear
+                </button>
+            </div>
+
+        </form>
     </section>
 
     <!-- TASK LIST -->
-
     <section class="panel">
-      <h2>Manage Tasks</h2>
+        <h2>Manage Tasks</h2>
 
-      <div class="actions">
-        <button class="secondary" onclick="loadTasks()">Refresh Tasks</button>
-      </div>
-
-      <div id="taskList" style="margin-top:16px">
-        <div class="empty">Loading tasks...</div>
-      </div>
+        <div id="taskList" class="task-list">
+            <div class="empty">Loading tasks...</div>
+        </div>
     </section>
 
-    <!-- SEND NOTIFICATION -->
-
+    <!-- SUBMISSIONS -->
     <section class="panel">
+        <h2>Task Submissions</h2>
 
-      <h2>Send Notification</h2>
+        <p class="panel-description">
+            Review submitted proof and approve or reject completed tasks.
+        </p>
 
-      <form id="notificationForm">
+        <div id="submissionList" class="submission-list">
+            <div class="empty">Loading submissions...</div>
+        </div>
+    </section>
 
-        <label for="notificationUserId">
-          User ID
-        </label>
+    <!-- AGENT PROGRAM -->
+    <section class="panel">
+        <h2>Agent Program</h2>
 
-        <input
-          id="notificationUserId"
-          type="text"
-          placeholder="Enter the user's UUID"
-          required
-        >
-
-        <label for="notificationTitle">
-          Notification Title
-        </label>
-
-        <input
-          id="notificationTitle"
-          type="text"
-          maxlength="150"
-          placeholder="e.g. Account Notice"
-          required
-        >
-
-        <label for="notificationMessage">
-          Message
-        </label>
-
-        <textarea
-          id="notificationMessage"
-          maxlength="1000"
-          placeholder="Write the notification message..."
-          required
-        ></textarea>
-
-        <label for="notificationType">
-          Notification Type
-        </label>
-
-        <select id="notificationType">
-          <option value="account">Account</option>
-          <option value="general">General</option>
-          <option value="task">Task</option>
-          <option value="withdrawal">Withdrawal</option>
-        </select>
+        <p class="panel-description">
+            Manage Agent applications and verify legitimate Agent activities
+            and commissions.
+        </p>
 
         <div class="actions">
+            <a href="agent-admin.html" class="button primary">
+                Manage Agents
+            </a>
 
-          <button
-            type="submit"
-            class="primary"
-            id="sendNotificationButton"
-          >
-            Send Notification
-          </button>
-
+            <a href="agent.html" class="button secondary">
+                View Agent Program
+            </a>
         </div>
-
-        <p id="notificationAdminMessage"></p>
-
-      </form>
-
     </section>
-    <!-- SUBMISSIONS -->
 
+    <!-- NOTIFICATIONS -->
     <section class="panel">
-      <h2>Task Submissions</h2>
+        <h2>Send Notification</h2>
 
-      <label for="submissionFilter">Filter Submissions</label>
-      <select id="submissionFilter" onchange="renderSubmissions()">
-        <option value="all">All submissions</option>
-        <option value="pending">Pending</option>
-        <option value="approved">Approved</option>
-        <option value="rejected">Rejected</option>
-      </select>
+        <p class="panel-description">
+            Send an account notification to a specific Task Hub user.
+        </p>
 
-      <div class="actions">
-        <button class="secondary" onclick="loadSubmissions()">
-          Refresh Submissions
-        </button>
-      </div>
+        <form id="notificationForm">
 
-      <div id="submissionList" style="margin-top:16px">
-        <div class="empty">Loading submissions...</div>
-      </div>
+            <div class="form-grid">
+
+                <div>
+                    <input
+                        id="notificationUserId"
+                        placeholder="User ID"
+                        required
+                    >
+                </div>
+
+                <div>
+                    <select id="notificationType">
+                        <option value="general">General</option>
+                        <option value="task">Task</option>
+                        <option value="submission">Submission</option>
+                        <option value="withdrawal">Withdrawal</option>
+                        <option value="referral">Referral</option>
+                        <option value="account">Account</option>
+                    </select>
+                </div>
+
+                <div class="full">
+                    <input
+                        id="notificationTitle"
+                        placeholder="Notification title"
+                        required
+                    >
+                </div>
+
+                <div class="full">
+                    <textarea
+                        id="notificationMessage"
+                        placeholder="Notification message"
+                        required
+                    ></textarea>
+                </div>
+
+            </div>
+
+            <div class="actions">
+                <button class="primary" type="submit">
+                    Send Notification
+                </button>
+            </div>
+
+        </form>
     </section>
 
-  </div>
-  
-<section class="admin-section">
+    <!-- WITHDRAWALS -->
+    <section class="panel">
+        <h2>Withdrawal Requests</h2>
 
-  <h2>Withdrawal Requests</h2>
+        <p class="panel-description">
+            Review pending withdrawal requests and manage their status.
+        </p>
 
-  <div id="withdrawalRequests">
-    Loading withdrawal requests...
-  </div>
+        <div id="withdrawalList" class="withdrawal-list">
+            <div class="empty">Loading withdrawals...</div>
+        </div>
+    </section>
 
-</section>
+    <!-- SECURITY -->
+    <section class="panel danger-zone">
+        <h2>Admin Security</h2>
+
+        <p class="panel-description">
+            Admin actions are protected by the Task Hub admin authorization
+            system. Never expose Supabase service-role keys or Paystack secret
+            keys in this page.
+        </p>
+
+        <div class="actions">
+            <a href="security.html" class="button secondary">
+                Account Security
+            </a>
+        </div>
+    </section>
+
 </main>
 
 <script src="script.js"></script>
 
 <script>
-const adminMessage = document.getElementById("message");
-const adminArea = document.getElementById("adminArea");
+    let editingTaskId = null;
 
-let tasks = [];
-let submissions = [];
-let busy = false;
+    function showMessage(text, type = "success") {
+        const box = document.getElementById("message");
 
-function showMessage(text, isError = false) {
-  adminMessage.textContent = text;
-  adminMessage.className = isError ? "notice error" : "notice";
-}
+        box.textContent = text;
+        box.className =
+            "message " +
+            (type === "error"
+                ? "error-message"
+                : "success-message");
 
-function escapeHTML(value) {
-  return String(value ?? "").replace(/[&<>"']/g, char => ({
-    "&": "&amp;",
-    "<": "&lt;",
-    ">": "&gt;",
-    '"': "&quot;",
-    "'": "&#39;"
-  })[char]);
-}
-
-function money(value) {
-  return "₦" + Number(value || 0).toLocaleString("en-NG", {
-    minimumFractionDigits: 2,
-    maximumFractionDigits: 2
-  });
-}
-
-function getToken() {
-  return localStorage.getItem("taskhub_access_token");
-}
-
-async function api(path, options = {}) {
-  const token = getToken();
-
-  if (!token) {
-    throw new Error("You are not logged in. Please log in again.");
-  }
-
-  const response = await fetch(
-    SUPABASE_URL + "/rest/v1/" + path,
-    {
-      ...options,
-      headers: {
-        "apikey": SUPABASE_KEY,
-        "Authorization": "Bearer " + token,
-        "Content-Type": "application/json",
-        "Accept": "application/json",
-        ...(options.headers || {})
-      }
-    }
-  );
-
-  const text = await response.text();
-  let data = null;
-
-  try {
-    data = text ? JSON.parse(text) : null;
-  } catch {
-    data = text;
-  }
-
-  if (!response.ok) {
-    const message = data?.message || data?.hint || data?.details ||
-      (typeof data === "string" ? data : "Request failed");
-
-    throw new Error(message);
-  }
-
-  return data;
-}
-
-async function checkAdmin() {
-  try {
-    if (typeof SUPABASE_URL === "undefined" ||
-        typeof SUPABASE_KEY === "undefined") {
-      throw new Error("Supabase settings were not found in script.js.");
+        setTimeout(() => {
+            box.className = "message";
+        }, 5000);
     }
 
-    if (!getToken()) {
-      throw new Error("Please log in to Task Hub first.");
-    }
-
-    const result = await api("rpc/is_taskhub_admin", {
-      method: "POST",
-      body: JSON.stringify({})
-    });
-
-    if (result !== true) {
-      throw new Error("Administrator access is required for this page.");
-    }
-
-    adminArea.classList.remove("hidden");
-    showMessage("Administrator access verified.");
-
-    await Promise.all([
-  loadTasks(),
-  loadSubmissions(),
-  loadWithdrawalRequests()
-]);
-
-  } catch (error) {
-    adminArea.classList.add("hidden");
-    showMessage(error.message, true);
-  }
-}
-
-// ---------------- TASK MANAGEMENT ----------------
-
-async function loadTasks() {
-  const list = document.getElementById("taskList");
-  list.innerHTML = '<div class="empty">Loading tasks...</div>';
-
-  try {
-    tasks = await api(
-      "tasks?select=*&order=created_at.desc"
-    );
-
-    document.getElementById("totalTasks").textContent = tasks.length;
-
-    renderTasks();
-  } catch (error) {
-    list.innerHTML =
-      '<div class="empty error">' + escapeHTML(error.message) + '</div>';
-  }
-}
-
-function renderTasks() {
-  const list = document.getElementById("taskList");
-
-  if (!tasks.length) {
-    list.innerHTML = '<div class="empty">No tasks yet. Create your first task above.</div>';
-    return;
-  }
-
-  list.innerHTML = tasks.map(task => `
-    <article class="item">
-      <h3>${escapeHTML(task.title)}</h3>
-
-      <span class="badge ${escapeHTML(task.status)}">
-        ${escapeHTML(task.status)}
-      </span>
-
-      <span class="badge">${escapeHTML(task.category)}</span>
-
-      <p>${escapeHTML(task.description)}</p>
-      <p><strong>Reward:</strong> ${money(task.reward)}</p>
-      <p><strong>Instructions:</strong> ${escapeHTML(task.instructions)}</p>
-
-      ${task.task_link ? `
-        <p>
-          <a href="${escapeHTML(task.task_link)}"
-             target="_blank" rel="noopener noreferrer">
-            Open task link
-          </a>
-        </p>
-      ` : ""}
-
-      <div class="actions">
-        <button class="primary"
-          onclick="editTask(${Number(task.id)})">
-          Edit
-        </button>
-
-        <button class="secondary"
-          onclick="toggleTaskStatus(${Number(task.id)})">
-          ${task.status === "active" ? "Pause Task" : "Activate Task"}
-        </button>
-
-        <button class="danger"
-          onclick="deleteTask(${Number(task.id)})">
-          Delete
-        </button>
-      </div>
-    </article>
-  `).join("");
-}
-
-document.getElementById("taskForm").addEventListener("submit", async event => {
-  event.preventDefault();
-
-  if (busy) return;
-  busy = true;
-
-  const saveButton = document.getElementById("saveTaskButton");
-  saveButton.disabled = true;
-
-  const taskId = document.getElementById("taskId").value;
-
-  const reward = Number(document.getElementById("reward").value);
-
-  if (!Number.isFinite(reward) || reward < 0) {
-    showMessage("Enter a valid non-negative reward.", true);
-    busy = false;
-    saveButton.disabled = false;
-    return;
-  }
-
-  const task = {
-    title: document.getElementById("title").value.trim(),
-    description: document.getElementById("description").value.trim(),
-    category: document.getElementById("category").value.trim() || "Other",
-    reward,
-    instructions: document.getElementById("instructions").value.trim(),
-    task_link: document.getElementById("taskLink").value.trim() || null,
-    status: document.getElementById("taskStatus").value
-  };
-
-  try {
-    if (!task.title || !task.description || !task.instructions) {
-      throw new Error("Fill in the title, description, and instructions.");
-    }
-
-    if (task.task_link &&
-        !/^https?:\/\//i.test(task.task_link)) {
-      throw new Error("The task link must start with https:// or http://");
-    }
-
-    if (taskId) {
-      await api("tasks?id=eq." + encodeURIComponent(taskId), {
-        method: "PATCH",
-        headers: { "Prefer": "return=minimal" },
-        body: JSON.stringify(task)
-      });
-
-      showMessage("Task updated successfully.");
-    } else {
-      await api("tasks", {
-        method: "POST",
-        headers: { "Prefer": "return=minimal" },
-        body: JSON.stringify(task)
-      });
-
-      showMessage("Task created successfully.");
-    }
-
-    resetTaskForm();
-    await loadTasks();
-
-  } catch (error) {
-    showMessage(error.message, true);
-  } finally {
-    busy = false;
-    saveButton.disabled = false;
-  }
-});
-
-function editTask(id) {
-  const task = tasks.find(item => Number(item.id) === Number(id));
-  if (!task) return;
-
-  document.getElementById("taskId").value = task.id;
-  document.getElementById("title").value = task.title || "";
-  document.getElementById("description").value = task.description || "";
-  document.getElementById("category").value = task.category || "";
-  document.getElementById("reward").value = task.reward ?? 0;
-  document.getElementById("instructions").value = task.instructions || "";
-  document.getElementById("taskLink").value = task.task_link || "";
-  document.getElementById("taskStatus").value = task.status || "active";
-
-  document.getElementById("formHeading").textContent = "Edit Task";
-  document.getElementById("saveTaskButton").textContent = "Save Changes";
-  document.getElementById("cancelEditButton").classList.remove("hidden");
-
-  document.getElementById("taskFormPanel").scrollIntoView({
-    behavior: "smooth",
-    block: "start"
-  });
-}
-
-function resetTaskForm() {
-  document.getElementById("taskForm").reset();
-  document.getElementById("taskId").value = "";
-  document.getElementById("reward").value = "100";
-  document.getElementById("taskStatus").value = "active";
-
-  document.getElementById("formHeading").textContent = "Create a New Task";
-  document.getElementById("saveTaskButton").textContent = "Create Task";
-  document.getElementById("cancelEditButton").classList.add("hidden");
-}
-
-async function toggleTaskStatus(id) {
-  const task = tasks.find(item => Number(item.id) === Number(id));
-  if (!task) return;
-
-  const newStatus = task.status === "active" ? "paused" : "active";
-
-  if (!confirm(
-    `Change "${task.title}" status to ${newStatus}?`
-  )) return;
-
-  try {
-    await api("tasks?id=eq." + encodeURIComponent(id), {
-      method: "PATCH",
-      headers: { "Prefer": "return=minimal" },
-      body: JSON.stringify({ status: newStatus })
-    });
-
-    showMessage("Task status updated.");
-    await loadTasks();
-
-  } catch (error) {
-    showMessage(error.message, true);
-  }
-}
-
-async function deleteTask(id) {
-  const task = tasks.find(item => Number(item.id) === Number(id));
-  if (!task) return;
-
-  if (!confirm(
-    `Delete "${task.title}"? This cannot be undone.`
-  )) return;
-
-  try {
-    // Preserve submission history: don't delete tasks that have submissions.
-    const existing = await api(
-      "task_submissions?select=id&task_id=eq." +
-      encodeURIComponent(id) + "&limit=1"
-    );
-
-    if (existing.length) {
-      throw new Error(
-        "This task has submissions. Pause it instead to preserve submission and reward records."
-      );
-    }
-
-    await api("tasks?id=eq." + encodeURIComponent(id), {
-      method: "DELETE",
-      headers: { "Prefer": "return=minimal" }
-    });
-
-    showMessage("Task deleted successfully.");
-    await loadTasks();
-
-  } catch (error) {
-    showMessage(error.message, true);
-  }
-}
-
-// ---------------- SUBMISSION REVIEW ----------------
-
-async function loadSubmissions() {
-  const list = document.getElementById("submissionList");
-  list.innerHTML = '<div class="empty">Loading submissions...</div>';
-
-  try {
-    submissions = await api(
-      "task_submissions?select=id,user_id,task_id,proof,status,created_at,reviewed_at,credited_at,tasks(title,reward)&order=created_at.desc"
-    );
-
-    updateSubmissionStats();
-    renderSubmissions();
-
-  } catch (error) {
-    list.innerHTML =
-      '<div class="empty error">' + escapeHTML(error.message) + '</div>';
-  }
-}
-
-function updateSubmissionStats() {
-  document.getElementById("pendingCount").textContent =
-    submissions.filter(item => item.status === "pending").length;
-
-  document.getElementById("approvedCount").textContent =
-    submissions.filter(item => item.status === "approved").length;
-}
-
-function renderSubmissions() {
-  const list = document.getElementById("submissionList");
-  const filter = document.getElementById("submissionFilter").value;
-
-  const visible = submissions.filter(item =>
-    filter === "all" || item.status === filter
-  );
-
-  if (!visible.length) {
-    list.innerHTML = '<div class="empty">No submissions in this category.</div>';
-    return;
-  }
-
-  list.innerHTML = visible.map(item => {
-    const task = Array.isArray(item.tasks) ? item.tasks[0] : item.tasks;
-    const date = item.created_at
-      ? new Date(item.created_at).toLocaleString()
-      : "Unknown";
-
-    return `
-      <article class="item">
-        <h3>${escapeHTML(task?.title || "Task #" + item.task_id)}</h3>
-
-        <span class="badge ${escapeHTML(item.status)}">
-          ${escapeHTML(item.status)}
-        </span>
-
-        <p><strong>Reward:</strong> ${money(task?.reward)}</p>
-        <p><strong>Submitted:</strong> ${escapeHTML(date)}</p>
-        <p><strong>User ID:</strong><br>${escapeHTML(item.user_id)}</p>
-        <p><strong>Proof:</strong><br>${escapeHTML(item.proof)}</p>
-
-        ${item.credited_at ? `
-          <p class="ok"><strong>Reward credited:</strong>
-          ${escapeHTML(new Date(item.credited_at).toLocaleString())}</p>
-        ` : ""}
-
-        ${item.status === "pending" ? `
-          <div class="actions">
-            <button class="success"
-              onclick="reviewSubmission(${Number(item.id)}, 'approved')">
-              Approve
-            </button>
-
-            <button class="danger"
-              onclick="reviewSubmission(${Number(item.id)}, 'rejected')">
-              Reject
-            </button>
-          </div>
-        ` : ""}
-      </article>
-    `;
-  }).join("");
-}
-
-async function reviewSubmission(id, decision) {
-  const item = submissions.find(row => Number(row.id) === Number(id));
-  if (!item || item.status !== "pending") {
-    showMessage("This submission has already been reviewed.", true);
-    return;
-  }
-
-  const task = Array.isArray(item.tasks) ? item.tasks[0] : item.tasks;
-
-  const question = decision === "approved"
-    ? `Approve this submission? The task reward of ${money(task?.reward)} will be credited to the user's balance.`
-    : "Reject this submission?";
-
-  if (!confirm(question)) return;
-
-  try {
-    await api("rpc/review_task_submission", {
-      method: "POST",
-      body: JSON.stringify({
-        p_submission_id: id,
-        p_decision: decision
-      })
-    });
-
-    showMessage(
-      decision === "approved"
-        ? "Submission approved. Check that the reward was credited."
-        : "Submission rejected."
-    );
-
-    await Promise.all([loadSubmissions(), loadTasks()]);
-
-  } catch (error) {
-    showMessage(error.message, true);
-  }
-}
-
-checkAdmin();
-async function loadWithdrawalRequests() {
-
-  const container =
-    document.getElementById("withdrawalRequests");
-
-  try {
-
-    const response = await fetch(
-      `${SUPABASE_URL}/rest/v1/withdrawal_requests?select=*&order=created_at.desc`,
-      {
-        headers: {
-          apikey: SUPABASE_KEY,
-          Authorization: `Bearer ${localStorage.getItem("taskhub_access_token")}`
+    function safeText(value) {
+        if (typeof escapeHtml === "function") {
+            return escapeHtml(value);
         }
-      }
-    );
 
-    if (!response.ok) {
-      throw new Error("Failed to load withdrawal requests");
+        return String(value ?? "")
+            .replace(/&/g, "&amp;")
+            .replace(/</g, "&lt;")
+            .replace(/>/g, "&gt;")
+            .replace(/"/g, "&quot;")
+            .replace(/'/g, "&#039;");
     }
 
-    const withdrawals = await response.json();
-
-    if (!withdrawals.length) {
-      container.innerHTML =
-        "<p>No withdrawal requests yet.</p>";
-      return;
+    async function loadAdminData() {
+        try {
+            await loadTasks();
+            await loadSubmissions();
+            await loadWithdrawals();
+        } catch (error) {
+            console.error(error);
+            showMessage(
+                error.message || "Unable to load admin data.",
+                "error"
+            );
+        }
     }
 
-    container.innerHTML = withdrawals.map(item => {
+    async function loadTasks() {
+        const tasks = await supabaseRequest(
+            "/rest/v1/tasks?select=*&order=created_at.desc"
+        );
 
-      const amount =
-        Number(item.amount || 0).toLocaleString("en-NG", {
-          minimumFractionDigits: 2,
-          maximumFractionDigits: 2
+        const list = document.getElementById("taskList");
+
+        document.getElementById("totalTasks").textContent =
+            Array.isArray(tasks) ? tasks.length : 0;
+
+        if (!Array.isArray(tasks) || tasks.length === 0) {
+            list.innerHTML =
+                '<div class="empty">No tasks found.</div>';
+            return;
+        }
+
+        list.innerHTML = tasks.map(task => `
+            <div class="item">
+
+                <h3>${safeText(task.title)}</h3>
+
+                <p>${safeText(task.description)}</p>
+
+                <div class="meta">
+                    <span class="badge">
+                        ${safeText(task.category)}
+                    </span>
+
+                    <span class="badge">
+                        ₦${Number(task.reward || 0).toLocaleString()}
+                    </span>
+
+                    <span class="badge">
+                        ${safeText(task.status)}
+                    </span>
+                </div>
+
+                <p>
+                    <strong>Instructions:</strong>
+                    ${safeText(task.instructions)}
+                </p>
+
+                ${
+                    task.task_link
+                        ? `
+                            <p>
+                                <strong>Link:</strong>
+                                <a
+                                    href="${safeText(task.task_link)}"
+                                    target="_blank"
+                                    rel="noopener noreferrer"
+                                >
+                                    Open task
+                                </a>
+                            </p>
+                        `
+                        : ""
+                }
+
+                <div class="actions">
+
+                    <button
+                        class="primary"
+                        onclick='editTask(${JSON.stringify(task)})'
+                    >
+                        Edit
+                    </button>
+
+                    ${
+                        task.status === "active"
+                        ? `
+                            <button
+                                class="warning"
+                                onclick="changeTaskStatus(${task.id}, 'paused')"
+                            >
+                                Pause
+                            </button>
+                        `
+                        : `
+                            <button
+                                class="success"
+                                onclick="changeTaskStatus(${task.id}, 'active')"
+                            >
+                                Activate
+                            </button>
+                        `
+                    }
+
+                    <button
+                        class="danger"
+                        onclick="deleteTask(${task.id})"
+                    >
+                        Delete
+                    </button>
+
+                </div>
+
+            </div>
+        `).join("");
+    }
+
+    function editTask(task) {
+        editingTaskId = task.id;
+
+        document.getElementById("taskId").value =
+            task.id || "";
+
+        document.getElementById("taskTitle").value =
+            task.title || "";
+
+        document.getElementById("taskCategory").value =
+            task.category || "";
+
+        document.getElementById("taskDescription").value =
+            task.description || "";
+
+        document.getElementById("taskReward").value =
+            task.reward || "";
+
+        document.getElementById("taskInstructions").value =
+            task.instructions || "";
+
+        document.getElementById("taskLink").value =
+            task.task_link || "";
+
+        document.getElementById("taskStatus").value =
+            task.status || "active";
+
+        window.scrollTo({
+            top: 0,
+            behavior: "smooth"
+        });
+    }
+
+    function resetTaskForm() {
+        editingTaskId = null;
+
+        document.getElementById("taskForm").reset();
+        document.getElementById("taskId").value = "";
+        document.getElementById("taskStatus").value = "active";
+    }
+
+    document
+        .getElementById("taskForm")
+        .addEventListener("submit", async function(event) {
+
+            event.preventDefault();
+
+            const payload = {
+                title:
+                    document.getElementById("taskTitle").value.trim(),
+
+                description:
+                    document
+                        .getElementById("taskDescription")
+                        .value
+                        .trim(),
+
+                category:
+                    document
+                        .getElementById("taskCategory")
+                        .value
+                        .trim(),
+
+                reward:
+                    Number(
+                        document
+                            .getElementById("taskReward")
+                            .value
+                    ),
+
+                instructions:
+                    document
+                        .getElementById("taskInstructions")
+                        .value
+                        .trim(),
+
+                task_link:
+                    document
+                        .getElementById("taskLink")
+                        .value
+                        .trim() || null,
+
+                status:
+                    document
+                        .getElementById("taskStatus")
+                        .value
+            };
+
+            try {
+
+                if (editingTaskId) {
+
+                    await supabaseRequest(
+                        "/rest/v1/tasks?id=eq." +
+                        encodeURIComponent(editingTaskId),
+                        {
+                            method: "PATCH",
+                            body: JSON.stringify(payload)
+                        }
+                    );
+
+                    showMessage("Task updated successfully.");
+
+                } else {
+
+                    await supabaseRequest(
+                        "/rest/v1/tasks",
+                        {
+                            method: "POST",
+                            body: JSON.stringify(payload)
+                        }
+                    );
+
+                    showMessage("Task created successfully.");
+                }
+
+                resetTaskForm();
+                await loadTasks();
+
+            } catch (error) {
+
+                console.error(error);
+
+                showMessage(
+                    error.message || "Unable to save task.",
+                    "error"
+                );
+            }
         });
 
-      const date =
-        new Date(item.created_at).toLocaleString("en-NG");
+    async function changeTaskStatus(taskId, status) {
 
-      return `
-        <div class="withdrawal-admin-card">
+        try {
 
-          <div>
-            <strong>₦${amount}</strong>
+            await supabaseRequest(
+                "/rest/v1/tasks?id=eq." +
+                encodeURIComponent(taskId),
+                {
+                    method: "PATCH",
+                    body: JSON.stringify({
+                        status: status
+                    })
+                }
+            );
 
-            <p>
-              Bank: ${escapeHTML(item.bank_name)}
-            </p>
+            showMessage(
+                status === "active"
+                    ? "Task activated."
+                    : "Task paused."
+            );
 
-            <p>
-              Account:
-              ${escapeHTML(item.account_number)}
-            </p>
+            await loadTasks();
 
-            <p>
-              Account Name:
-              ${escapeHTML(item.account_name)}
-            </p>
+        } catch (error) {
 
-            <p>
-              Status:
-              <strong>${escapeHTML(item.status)}</strong>
-            </p>
+            console.error(error);
 
-            <small>${date}</small>
-          </div>
-
-          ${
-            item.status === "pending"
-            ? `
-              <div class="withdrawal-actions">
-
-                <input
-                  type="text"
-                  id="note-${item.id}"
-                  placeholder="Admin note (optional)"
-                >
-
-                <button
-                  onclick="reviewWithdrawal(${item.id}, 'approved')"
-                >
-                  Approve
-                </button>
-
-                <button
-                  onclick="reviewWithdrawal(${item.id}, 'rejected')"
-                >
-                  Reject
-                </button>
-
-              </div>
-            `
-            : `
-              <p>
-                ${item.admin_note
-                  ? "Note: " + escapeHTML(item.admin_note)
-                  : "Already reviewed."}
-              </p>
-            `
-          }
-
-        </div>
-      `;
-
-    }).join("");
-
-  } catch (error) {
-
-    console.error(error);
-
-    container.innerHTML =
-      "<p>Unable to load withdrawal requests.</p>";
-  }
-}
-
-
-async function reviewWithdrawal(withdrawalId, decision) {
-
-  const token =
-    localStorage.getItem("taskhub_access_token");
-
-  const noteInput =
-    document.getElementById(`note-${withdrawalId}`);
-
-  const note =
-    noteInput ? noteInput.value.trim() : "";
-
-  const actionText =
-    decision === "approved"
-      ? "approve this withdrawal and start the Paystack payout?"
-      : "reject this withdrawal?";
-
-  if (!confirm(actionText)) {
-    return;
-  }
-
-  try {
-
-    /*
-      STEP 1:
-      Approve or reject the withdrawal.
-    */
-
-    const reviewResponse =
-      await fetch(
-        `${SUPABASE_URL}/rest/v1/rpc/review_withdrawal`,
-        {
-          method: "POST",
-
-          headers: {
-            apikey: SUPABASE_KEY,
-            Authorization:
-              `Bearer ${token}`,
-            "Content-Type":
-              "application/json"
-          },
-
-          body: JSON.stringify({
-            p_withdrawal_id:
-              withdrawalId,
-
-            p_decision:
-              decision,
-
-            p_admin_note:
-              note
-          })
+            showMessage(
+                error.message || "Unable to change task status.",
+                "error"
+            );
         }
-      );
-
-    const reviewText =
-      await reviewResponse.text();
-
-    let reviewResult = null;
-
-    try {
-      reviewResult =
-        reviewText
-          ? JSON.parse(reviewText)
-          : null;
-    } catch {
-      reviewResult = reviewText;
     }
 
-    if (!reviewResponse.ok) {
+    async function deleteTask(taskId) {
 
-      throw new Error(
-        reviewResult?.message ||
-        reviewResult?.error ||
-        reviewResult?.details ||
-        "Withdrawal review failed"
-      );
-    }
-
-    /*
-      If rejected, we're finished.
-    */
-
-    if (decision !== "approved") {
-
-      alert(
-        "Withdrawal rejected successfully."
-      );
-
-      await loadWithdrawalRequests();
-
-      return;
-    }
-
-    /*
-      STEP 2:
-      Start the Paystack payout.
-    */
-
-    const payoutResponse =
-      await fetch(
-        `${SUPABASE_URL}/functions/v1/process-withdrawal`,
-        {
-          method: "POST",
-
-          headers: {
-            apikey: SUPABASE_KEY,
-            Authorization:
-              `Bearer ${token}`,
-            "Content-Type":
-              "application/json"
-          },
-
-          body: JSON.stringify({
-            withdrawal_id:
-              withdrawalId
-          })
+        if (!confirm("Delete this task?")) {
+            return;
         }
-      );
 
-    const payoutText =
-      await payoutResponse.text();
+        try {
 
-    let payoutResult = null;
+            await supabaseRequest(
+                "/rest/v1/tasks?id=eq." +
+                encodeURIComponent(taskId),
+                {
+                    method: "DELETE"
+                }
+            );
 
-    try {
-      payoutResult =
-        payoutText
-          ? JSON.parse(payoutText)
-          : null;
-    } catch {
-      payoutResult = payoutText;
+            showMessage("Task deleted.");
+
+            await loadTasks();
+
+        } catch (error) {
+
+            console.error(error);
+
+            showMessage(
+                error.message || "Unable to delete task.",
+                "error"
+            );
+        }
     }
 
-    if (!payoutResponse.ok) {
+    async function loadSubmissions() {
 
-      throw new Error(
-        payoutResult?.error ||
-        payoutResult?.message ||
-        "Withdrawal approved, but Paystack payout could not be started."
-      );
+        const submissions = await supabaseRequest(
+            "/rest/v1/task_submissions" +
+            "?select=*" +
+            "&order=created_at.desc"
+        );
+
+        const list =
+            document.getElementById("submissionList");
+
+        const pending =
+            Array.isArray(submissions)
+                ? submissions.filter(
+                    item => item.status === "pending"
+                ).length
+                : 0;
+
+        const approved =
+            Array.isArray(submissions)
+                ? submissions.filter(
+                    item => item.status === "approved"
+                ).length
+                : 0;
+
+        document.getElementById("pendingSubmissions")
+            .textContent = pending;
+
+        document.getElementById("approvedSubmissions")
+            .textContent = approved;
+
+        if (
+            !Array.isArray(submissions) ||
+            submissions.length === 0
+        ) {
+            list.innerHTML =
+                '<div class="empty">No submissions found.</div>';
+            return;
+        }
+
+        list.innerHTML = submissions.map(item => `
+
+            <div class="item">
+
+                <h3>
+                    Submission #${safeText(item.id)}
+                </h3>
+
+                <p>
+                    <strong>User:</strong>
+                    ${safeText(item.user_id)}
+                </p>
+
+                <p>
+                    <strong>Task:</strong>
+                    ${safeText(item.task_id)}
+                </p>
+
+                <p>
+                    <strong>Proof:</strong>
+                    ${safeText(item.proof)}
+                </p>
+
+                <div class="meta">
+
+                    <span class="badge ${safeText(item.status)}">
+                        ${safeText(item.status)}
+                    </span>
+
+                    <span class="badge">
+                        ${new Date(item.created_at)
+                            .toLocaleString()}
+                    </span>
+
+                </div>
+
+                ${
+                    item.status === "pending"
+                        ? `
+                            <div class="actions">
+
+                                <button
+                                    class="success"
+                                    onclick="reviewSubmission(${item.id}, 'approved')"
+                                >
+                                    Approve
+                                </button>
+
+                                <button
+                                    class="danger"
+                                    onclick="reviewSubmission(${item.id}, 'rejected')"
+                                >
+                                    Reject
+                                </button>
+
+                            </div>
+                        `
+                        : ""
+                }
+
+            </div>
+
+        `).join("");
     }
 
-    /*
-      Payout successfully initiated.
-    */
+    async function reviewSubmission(id, status) {
 
-    alert(
-      "Withdrawal approved and Paystack payout initiated successfully."
-    );
+        const action =
+            status === "approved"
+                ? "approve"
+                : "reject";
 
-    await loadWithdrawalRequests();
+        if (
+            !confirm(
+                "Are you sure you want to " +
+                action +
+                " this submission?"
+            )
+        ) {
+            return;
+        }
 
-  } catch (error) {
+        try {
 
-    console.error(
-      "Withdrawal processing error:",
-      error
-    );
+            await supabaseRequest(
+                "/rest/v1/rpc/review_task_submission",
+                {
+                    method: "POST",
+                    body: JSON.stringify({
+                        p_submission_id: id,
+                        p_status: status
+                    })
+                }
+            );
 
-    alert(
-      error.message ||
-      "Unable to process withdrawal."
-    );
+            showMessage(
+                status === "approved"
+                    ? "Submission approved."
+                    : "Submission rejected."
+            );
 
-    await loadWithdrawalRequests();
-  }
-}
-const notificationForm =
-  document.getElementById("notificationForm");
+            await loadSubmissions();
 
-if (notificationForm) {
+        } catch (error) {
 
-  notificationForm.addEventListener(
-    "submit",
-    async function(event) {
+            console.error(error);
 
-      event.preventDefault();
+            showMessage(
+                error.message ||
+                "Unable to review submission.",
+                "error"
+            );
+        }
+    }
 
-      const token =
-        localStorage.getItem(
-          "taskhub_access_token"
-        );
+    document
+        .getElementById("notificationForm")
+        .addEventListener("submit", async function(event) {
 
-      const userId =
-        document.getElementById(
-          "notificationUserId"
-        ).value.trim();
+            event.preventDefault();
 
-      const title =
-        document.getElementById(
-          "notificationTitle"
-        ).value.trim();
+            const payload = {
+                p_user_id:
+                    document
+                        .getElementById("notificationUserId")
+                        .value
+                        .trim(),
 
-      const message =
-        document.getElementById(
-          "notificationMessage"
-        ).value.trim();
+                p_title:
+                    document
+                        .getElementById("notificationTitle")
+                        .value
+                        .trim(),
 
-      const type =
-        document.getElementById(
-          "notificationType"
-        ).value;
+                p_message:
+                    document
+                        .getElementById("notificationMessage")
+                        .value
+                        .trim(),
 
-      const button =
-        document.getElementById(
-          "sendNotificationButton"
-        );
+                p_type:
+                    document
+                        .getElementById("notificationType")
+                        .value
+            };
 
-      const resultMessage =
-        document.getElementById(
-          "notificationAdminMessage"
-        );
+            try {
 
-      if (!token) {
-        window.location.href = "login.html";
-        return;
-      }
+                await supabaseRequest(
+                    "/rest/v1/rpc/admin_create_notification",
+                    {
+                        method: "POST",
+                        body: JSON.stringify(payload)
+                    }
+                );
 
-      if (!userId || !title || !message) {
-        resultMessage.textContent =
-          "Please fill in all notification fields.";
+                showMessage("Notification sent.");
 
-        resultMessage.className = "error";
+                document
+                    .getElementById("notificationForm")
+                    .reset();
 
-        return;
-      }
+            } catch (error) {
 
-      button.disabled = true;
-      button.textContent = "Sending...";
+                console.error(error);
 
-      resultMessage.textContent = "";
-
-      try {
-
-        const result =
-          await api(
-            "rpc/admin_create_notification",
-            {
-              method: "POST",
-              body: JSON.stringify({
-                p_user_id: userId,
-                p_title: title,
-                p_message: message,
-                p_type: type
-              })
+                showMessage(
+                    error.message ||
+                    "Unable to send notification.",
+                    "error"
+                );
             }
-          );
+        });
 
-        resultMessage.textContent =
-          "Notification sent successfully.";
+    async function loadWithdrawals() {
 
-        resultMessage.className = "ok";
-
-        notificationForm.reset();
-
-      } catch (error) {
-
-        console.error(
-          "Notification error:",
-          error
+        const withdrawals = await supabaseRequest(
+            "/rest/v1/withdrawal_requests" +
+            "?select=*" +
+            "&order=created_at.desc"
         );
 
-        resultMessage.textContent =
-          error.message ||
-          "Unable to send notification.";
+        const list =
+            document.getElementById("withdrawalList");
 
-        resultMessage.className = "error";
+        if (
+            !Array.isArray(withdrawals) ||
+            withdrawals.length === 0
+        ) {
+            list.innerHTML =
+                '<div class="empty">No withdrawal requests found.</div>';
+            return;
+        }
 
-      } finally {
+        list.innerHTML = withdrawals.map(item => `
 
-        button.disabled = false;
-        button.textContent =
-          "Send Notification";
+            <div class="item">
 
-      }
+                <h3>
+                    Withdrawal #${safeText(item.id)}
+                </h3>
 
+                <p>
+                    <strong>User:</strong>
+                    ${safeText(item.user_id)}
+                </p>
+
+                <p>
+                    <strong>Amount:</strong>
+                    ₦${Number(item.amount || 0)
+                        .toLocaleString()}
+                </p>
+
+                <p>
+                    <strong>Bank:</strong>
+                    ${safeText(item.bank_name)}
+                </p>
+
+                <p>
+                    <strong>Account:</strong>
+                    ${safeText(item.account_number)}
+                </p>
+
+                <p>
+                    <strong>Account Name:</strong>
+                    ${safeText(item.account_name)}
+                </p>
+
+                <div class="meta">
+
+                    <span class="badge ${safeText(item.status)}">
+                        ${safeText(item.status)}
+                    </span>
+
+                    <span class="badge">
+                        ${new Date(item.created_at)
+                            .toLocaleString()}
+                    </span>
+
+                </div>
+
+                ${
+                    item.status === "pending"
+                        ? `
+                            <div class="actions">
+
+                                <button
+                                    class="success"
+                                    onclick="reviewWithdrawal(${item.id}, 'approved')"
+                                >
+                                    Approve
+                                </button>
+
+                                <button
+                                    class="danger"
+                                    onclick="reviewWithdrawal(${item.id}, 'rejected')"
+                                >
+                                    Reject
+                                </button>
+
+                            </div>
+                        `
+                        : ""
+                }
+
+            </div>
+
+        `).join("");
     }
-  );
 
-}
+    async function reviewWithdrawal(id, status) {
+
+        const action =
+            status === "approved"
+                ? "approve"
+                : "reject";
+
+        if (
+            !confirm(
+                "Are you sure you want to " +
+                action +
+                " this withdrawal?"
+            )
+        ) {
+            return;
+        }
+
+        let note = "";
+
+        if (status === "rejected") {
+            note =
+                prompt(
+                    "Enter an admin note for this rejection:"
+                ) || "";
+        }
+
+        try {
+
+            await supabaseRequest(
+                "/rest/v1/rpc/review_withdrawal",
+                {
+                    method: "POST",
+                    body: JSON.stringify({
+                        p_withdrawal_id: id,
+                        p_status: status,
+                        p_admin_note: note
+                    })
+                }
+            );
+
+            showMessage(
+                status === "approved"
+                    ? "Withdrawal approved."
+                    : "Withdrawal rejected."
+            );
+
+            await loadWithdrawals();
+
+        } catch (error) {
+
+            console.error(error);
+
+            showMessage(
+                error.message ||
+                "Unable to review withdrawal.",
+                "error"
+            );
+        }
+    }
+
+    function logoutAdmin() {
+
+        localStorage.removeItem("taskhub_access_token");
+        localStorage.removeItem("taskhub_refresh_token");
+        localStorage.removeItem("taskhub_user_id");
+        localStorage.removeItem("taskhub_email");
+
+        window.location.href = "login.html";
+    }
+
+    async function initializeAdmin() {
+
+        try {
+
+            if (typeof checkAdmin === "function") {
+                await checkAdmin();
+            }
+
+            await loadAdminData();
+
+        } catch (error) {
+
+            console.error(error);
+
+            showMessage(
+                error.message ||
+                "Admin authorization failed.",
+                "error"
+            );
+        }
+    }
+
+    initializeAdmin();
 </script>
 
 </body>
