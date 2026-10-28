@@ -1,11 +1,9 @@
-<!DOCTYPE html>
-<html lang="en">
+<!DOCTYPE html><html lang="en">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Wallet - Task Hub</title>
-
-  <style>
+  <meta name="theme-color" content="#111827">
+  <title>My Wallet - Task Hub</title>  <style>
     * {
       box-sizing: border-box;
       margin: 0;
@@ -14,8 +12,13 @@
 
     body {
       font-family: Arial, sans-serif;
-      background: #f5f7fb;
+      background: #f3f5fa;
       color: #111827;
+      line-height: 1.5;
+    }
+
+    a {
+      text-decoration: none;
     }
 
     .header {
@@ -25,65 +28,145 @@
       display: flex;
       justify-content: space-between;
       align-items: center;
+      gap: 12px;
     }
 
     .header h2 {
-      font-size: 20px;
+      font-size: 21px;
     }
 
     .back-btn {
       color: white;
-      text-decoration: none;
       font-size: 14px;
     }
 
     .container {
-      max-width: 700px;
-      margin: 25px auto;
-      padding: 0 16px;
+      max-width: 760px;
+      margin: 28px auto;
+      padding: 0 16px 40px;
+    }
+
+    .intro {
+      margin-bottom: 22px;
+    }
+
+    .intro h1 {
+      font-size: 25px;
+      margin-bottom: 5px;
+    }
+
+    .intro p {
+      color: #6b7280;
+      font-size: 14px;
     }
 
     .balance-card {
-      background: #111827;
+      background: linear-gradient(135deg, #111827, #263b65);
       color: white;
-      border-radius: 16px;
-      padding: 25px;
-      margin-bottom: 25px;
+      border-radius: 20px;
+      padding: 26px 22px;
+      margin-bottom: 20px;
+      box-shadow: 0 8px 24px rgba(17, 24, 39, 0.12);
     }
 
     .balance-label {
       font-size: 14px;
-      opacity: 0.75;
-      margin-bottom: 8px;
+      color: #d1d5db;
+      margin-bottom: 7px;
     }
 
     .balance {
-      font-size: 32px;
+      font-size: clamp(29px, 7vw, 38px);
       font-weight: bold;
+      overflow-wrap: anywhere;
+      margin-bottom: 22px;
+    }
+
+    .actions {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 10px;
+    }
+
+    .btn {
+      min-height: 46px;
+      border-radius: 10px;
+      padding: 12px 10px;
+      display: inline-flex;
+      justify-content: center;
+      align-items: center;
+      text-align: center;
+      font-size: 14px;
+      font-weight: bold;
+      border: 1px solid transparent;
+      transition: opacity 0.2s;
+    }
+
+    .btn:hover {
+      opacity: 0.88;
+    }
+
+    .btn-deposit {
+      background: #22c55e;
+      color: #052e16;
+    }
+
+    .btn-withdraw {
+      background: white;
+      color: #111827;
+    }
+
+    .btn-history {
+      background: #e5e7eb;
+      color: #111827;
+      width: 100%;
+      margin-top: 10px;
+    }
+
+    .info-card {
+      background: white;
+      border: 1px solid #e5e7eb;
+      border-radius: 14px;
+      padding: 18px;
+      margin-bottom: 25px;
+    }
+
+    .info-card h3 {
+      font-size: 16px;
+      margin-bottom: 7px;
+    }
+
+    .info-card p {
+      font-size: 13px;
+      color: #6b7280;
     }
 
     .section-title {
-      margin-bottom: 15px;
+      margin: 28px 0 14px;
       font-size: 20px;
     }
 
     .transaction {
       background: white;
+      border: 1px solid #e5e7eb;
       border-radius: 12px;
       padding: 16px;
       margin-bottom: 10px;
       display: flex;
       justify-content: space-between;
       align-items: center;
-      box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+      gap: 12px;
     }
 
     .transaction-left {
-      max-width: 70%;
+      min-width: 0;
+      flex: 1;
     }
 
     .description {
       font-weight: 600;
+      font-size: 14px;
+      overflow-wrap: anywhere;
       margin-bottom: 5px;
     }
 
@@ -94,59 +177,163 @@
 
     .amount {
       font-weight: bold;
+      font-size: 14px;
+      white-space: nowrap;
     }
 
     .positive {
-      color: #16a34a;
+      color: #15803d;
     }
 
     .negative {
       color: #dc2626;
     }
 
-    .empty {
+    .empty,
+    .loading {
       background: white;
-      padding: 25px;
+      padding: 24px 16px;
       text-align: center;
       border-radius: 12px;
       color: #6b7280;
+      font-size: 14px;
     }
 
-    .loading {
-      text-align: center;
-      padding: 20px;
+    .quick-links {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 10px;
+      margin-top: 18px;
+    }
+
+    .quick-link {
+      background: white;
+      border: 1px solid #e5e7eb;
+      border-radius: 12px;
+      padding: 15px 12px;
+      color: #111827;
+      font-size: 13px;
+      font-weight: bold;
+    }
+
+    .quick-link span {
+      display: block;
       color: #6b7280;
+      font-weight: normal;
+      font-size: 12px;
+      margin-top: 4px;
     }
-  </style>
-</head>
 
-<body>
+    .footer {
+      text-align: center;
+      color: #9ca3af;
+      font-size: 12px;
+      padding: 20px 0 5px;
+    }
 
-  <div class="header">
-    <h2>My Wallet</h2>
+    @media (max-width: 380px) {
+      .header {
+        padding: 16px 14px;
+      }
+
+      .header h2 {
+        font-size: 18px;
+      }
+
+      .container {
+        padding-left: 12px;
+        padding-right: 12px;
+      }
+
+      .balance-card {
+        padding: 22px 16px;
+      }
+
+      .transaction {
+        padding: 13px 11px;
+      }
+
+      .amount {
+        font-size: 12px;
+      }
+    }
+  </style></head><body>  <header class="header">
+    <h2>Task Hub Wallet</h2>
     <a href="dashboard.html" class="back-btn">← Dashboard</a>
+  </header>  <main class="container"><section class="intro">
+  <h1>My Wallet</h1>
+  <p>Manage your funds and track your Task Hub transactions.</p>
+</section>
+
+<section class="balance-card">
+  <div class="balance-label">Available Balance</div>
+  <div class="balance" id="balance">₦0.00</div>
+
+  <div class="actions">
+    <a href="deposit.html" class="btn btn-deposit">＋ Deposit Funds</a>
+    <a href="withdraw.html" class="btn btn-withdraw">Withdraw Funds</a>
   </div>
 
-  <div class="container">
+  <a href="wallet.html" class="btn btn-history">↻ Refresh Wallet</a>
+</section>
 
-    <div class="balance-card">
-      <div class="balance-label">Available Balance</div>
-      <div class="balance" id="balance">₦0.00</div>
-      
-      <a href="withdraw.html" class="withdraw-btn">Withdraw Funds</a>
-    </div>
+<section class="info-card">
+  <h3>💳 Deposits</h3>
+  <p>
+    Submit your transfer details and payment proof on the deposit page.
+    Your balance will be credited after an administrator approves your request.
+  </p>
+</section>
 
-    <h2 class="section-title">Transaction History</h2>
+<section>
+  <h2 class="section-title">Transaction History</h2>
 
-    <div id="transactions">
-      <div class="loading">Loading transactions...</div>
-    </div>
-
+  <div id="transactions">
+    <div class="loading">Loading transactions...</div>
   </div>
+</section>
 
-  <script src="script.js"></script>
+<section>
+  <h2 class="section-title">Quick Access</h2>
 
-  <script>
+  <div class="quick-links">
+    <a href="deposit.html" class="quick-link">
+      💰 Deposit Funds
+      <span>Submit a deposit request</span>
+    </a>
+
+    <a href="withdraw.html" class="quick-link">
+      🏦 Withdraw Funds
+      <span>Request a withdrawal</span>
+    </a>
+
+    <a href="dashboard.html" class="quick-link">
+      📋 My Dashboard
+      <span>View your account overview</span>
+    </a>
+
+    <a href="tasks.html" class="quick-link">
+      ✅ Earn from Tasks
+      <span>View available tasks</span>
+    </a>
+
+    <a href="referrals.html" class="quick-link">
+      👥 Referrals
+      <span>Manage your referrals</span>
+    </a>
+
+    <a href="notifications.html" class="quick-link">
+      🔔 Notifications
+      <span>View account updates</span>
+    </a>
+  </div>
+</section>
+
+<div class="footer">
+  Task Hub · Keep track of every transaction.
+</div>
+
+  </main>  <script src="script.js"></script>  <script>
     async function loadWallet() {
       const accessToken = localStorage.getItem("taskhub_access_token");
       const userId = localStorage.getItem("taskhub_user_id");
@@ -157,134 +344,119 @@
       }
 
       try {
-        // Get balance
+        const headers = {
+          apikey: SUPABASE_KEY,
+          Authorization: `Bearer ${accessToken}`
+        };
+
         const profileResponse = await fetch(
-          `${SUPABASE_URL}/rest/v1/profiles?id=eq.${userId}&select=balance`,
-          {
-            headers: {
-              apikey: SUPABASE_KEY,
-              Authorization: `Bearer ${accessToken}`
-            }
-          }
+          `${SUPABASE_URL}/rest/v1/profiles?id=eq.${encodeURIComponent(userId)}&select=balance`,
+          { headers }
         );
 
-if (profileResponse.status === 401 || profileResponse.status === 403) {
-  localStorage.removeItem("taskhub_access_token");
-  localStorage.removeItem("taskhub_refresh_token");
-  localStorage.removeItem("taskhub_user_id");
-  localStorage.removeItem("taskhub_email");
-
-  window.location.href = "login.html";
-  return;
-}
-        const profiles = await profileResponse.json();
-
-        if (profiles.length > 0) {
-          const balance = Number(profiles[0].balance || 0);
-
-          document.getElementById("balance").textContent =
-            "₦" + balance.toLocaleString("en-NG", {
-              minimumFractionDigits: 2,
-              maximumFractionDigits: 2
-            });
+        if (profileResponse.status === 401 || profileResponse.status === 403) {
+          clearWalletSession();
+          window.location.href = "login.html";
+          return;
         }
 
-        // Get transactions
+        if (!profileResponse.ok) {
+          throw new Error("Could not load wallet balance.");
+        }
+
+        const profiles = await profileResponse.json();
+
+        if (!profiles.length) {
+          throw new Error("Wallet profile not found.");
+        }
+
+        const balance = Number(profiles[0].balance || 0);
+
+        document.getElementById("balance").textContent =
+          "₦" + balance.toLocaleString("en-NG", {
+            minimumFractionDigits: 2,
+            maximumFractionDigits: 2
+          });
+
         const transactionResponse = await fetch(
-          `${SUPABASE_URL}/rest/v1/wallet_transactions?user_id=eq.${userId}&select=*&order=created_at.desc`,
-          {
-            headers: {
-              apikey: SUPABASE_KEY,
-              Authorization: `Bearer ${accessToken}`
-            }
-          }
+          `${SUPABASE_URL}/rest/v1/wallet_transactions?user_id=eq.${encodeURIComponent(userId)}&select=id,type,amount,description,created_at&order=created_at.desc&limit=100`,
+          { headers }
         );
 
-if (transactionResponse.status === 401 || transactionResponse.status === 403) {
-  localStorage.removeItem("taskhub_access_token");
-  localStorage.removeItem("taskhub_refresh_token");
-  localStorage.removeItem("taskhub_user_id");
-  localStorage.removeItem("taskhub_email");
+        if (transactionResponse.status === 401 || transactionResponse.status === 403) {
+          clearWalletSession();
+          window.location.href = "login.html";
+          return;
+        }
 
-  window.location.href = "login.html";
-  return;
-}
         if (!transactionResponse.ok) {
-          throw new Error("Could not load transactions");
+          throw new Error("Could not load transactions.");
         }
 
         const transactions = await transactionResponse.json();
-
-        const container = document.getElementById("transactions");
+        const transactionContainer = document.getElementById("transactions");
 
         if (!transactions.length) {
-          container.innerHTML = `
-            <div class="empty">
-              No transactions yet.
-            </div>
+          transactionContainer.innerHTML = `
+            <div class="empty">No transactions yet. Your wallet activity will appear here.</div>
           `;
           return;
         }
 
-        container.innerHTML = transactions.map(transaction => {
-
+        transactionContainer.innerHTML = transactions.map(transaction => {
           const amount = Number(transaction.amount || 0);
-
           const isNegative = transaction.type === "withdrawal";
-
-          const sign = isNegative ? "-" : "+";
-
+          const sign = isNegative ? "−" : "+";
           const amountClass = isNegative ? "negative" : "positive";
-
           const date = new Date(transaction.created_at);
+
+          const formattedDate = Number.isNaN(date.getTime())
+            ? "Date unavailable"
+            : date.toLocaleString("en-NG");
 
           return `
             <div class="transaction">
-
               <div class="transaction-left">
-
                 <div class="description">
-                  ${escapeHtml(transaction.description || transaction.type)}
+                  ${escapeHtml(transaction.description || transaction.type || "Transaction")}
                 </div>
-
-                <div class="date">
-                  ${date.toLocaleString("en-NG")}
-                </div>
-
+                <div class="date">${escapeHtml(formattedDate)}</div>
               </div>
 
               <div class="amount ${amountClass}">
-                ${sign}₦${amount.toLocaleString("en-NG", {
+                ${sign}₦${Math.abs(amount).toLocaleString("en-NG", {
                   minimumFractionDigits: 2,
                   maximumFractionDigits: 2
                 })}
               </div>
-
             </div>
           `;
-
         }).join("");
 
       } catch (error) {
-
-        console.error(error);
+        console.error("Wallet loading error:", error);
 
         document.getElementById("transactions").innerHTML = `
           <div class="empty">
-            Unable to load wallet information.
+            Unable to load wallet information right now. Please try again later.
           </div>
         `;
       }
     }
 
-    function escapeHtml(text) {
+    function clearWalletSession() {
+      localStorage.removeItem("taskhub_access_token");
+      localStorage.removeItem("taskhub_refresh_token");
+      localStorage.removeItem("taskhub_user_id");
+      localStorage.removeItem("taskhub_email");
+    }
+
+    function escapeHtml(value) {
       const div = document.createElement("div");
-      div.textContent = text;
+      div.textContent = String(value ?? "");
       return div.innerHTML;
     }
 
     loadWallet();
-  </script>
-
-</body>
+  </script></body>
 </html>

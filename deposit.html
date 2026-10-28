@@ -1,0 +1,931 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Task Hub | Deposit</title>
+  <link rel="stylesheet" href="style.css">
+
+  <style>
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      background: #f7f7fb;
+      color: #202033;
+      font-family: Arial, sans-serif;
+    }
+
+    .deposit-page {
+      max-width: 850px;
+      margin: auto;
+      padding: 28px 16px 55px;
+    }
+
+    .deposit-header {
+      margin-bottom: 24px;
+    }
+
+    .deposit-header h1 {
+      margin: 0 0 8px;
+      font-size: 29px;
+    }
+
+    .deposit-header p {
+      margin: 0;
+      color: #6c6c7e;
+      line-height: 1.6;
+    }
+
+    .deposit-card {
+      background: #fff;
+      border: 1px solid #e8e8f0;
+      border-radius: 15px;
+      padding: 23px;
+      margin-bottom: 22px;
+      box-shadow: 0 5px 20px rgba(0, 0, 0, 0.035);
+    }
+
+    .deposit-card h2 {
+      margin: 0 0 18px;
+      font-size: 20px;
+    }
+
+    .form-group {
+      margin-bottom: 17px;
+    }
+
+    .form-group label {
+      display: block;
+      margin-bottom: 7px;
+      font-size: 14px;
+      font-weight: 700;
+    }
+
+    .form-group input,
+    .form-group select,
+    .form-group textarea {
+      width: 100%;
+      padding: 12px;
+      border: 1px solid #dcdce6;
+      border-radius: 9px;
+      background: #fff;
+      font-size: 15px;
+      color: #202033;
+    }
+
+    .form-group textarea {
+      min-height: 85px;
+      resize: vertical;
+    }
+
+    .form-group input:focus,
+    .form-group select:focus,
+    .form-group textarea:focus {
+      outline: none;
+      border-color: #5b5cf0;
+    }
+
+    .hint {
+      display: block;
+      margin-top: 6px;
+      color: #777789;
+      font-size: 12px;
+      line-height: 1.5;
+    }
+
+    .account-box {
+      padding: 17px;
+      margin-bottom: 20px;
+      border: 1px solid #e2e2ff;
+      border-radius: 12px;
+      background: #f6f6ff;
+    }
+
+    .account-box h3 {
+      margin: 0 0 14px;
+      color: #4243bd;
+      font-size: 18px;
+    }
+
+    .account-row {
+      display: flex;
+      justify-content: space-between;
+      gap: 12px;
+      padding: 10px 0;
+      border-bottom: 1px solid #e6e6f5;
+      font-size: 14px;
+    }
+
+    .account-row:last-child {
+      border-bottom: 0;
+    }
+
+    .account-row span:first-child {
+      color: #6c6c7e;
+    }
+
+    .account-row strong {
+      text-align: right;
+      overflow-wrap: anywhere;
+    }
+
+    .copy-btn {
+      margin-top: 12px;
+      padding: 9px 12px;
+      border: 1px solid #5b5cf0;
+      border-radius: 7px;
+      background: #fff;
+      color: #4a4bd0;
+      font-weight: 700;
+      cursor: pointer;
+    }
+
+    .notice {
+      padding: 13px;
+      margin-bottom: 18px;
+      border-radius: 9px;
+      background: #fff7e6;
+      color: #795516;
+      font-size: 13px;
+      line-height: 1.6;
+    }
+
+    .message {
+      display: none;
+      padding: 13px;
+      margin-bottom: 18px;
+      border-radius: 9px;
+      font-size: 14px;
+      line-height: 1.5;
+      overflow-wrap: anywhere;
+    }
+
+    .message.error {
+      display: block;
+      background: #fff0f0;
+      color: #a32929;
+    }
+
+    .message.success {
+      display: block;
+      background: #eaf8ef;
+      color: #176b38;
+    }
+
+    .submit-btn {
+      width: 100%;
+      padding: 14px;
+      border: 0;
+      border-radius: 9px;
+      background: #5b5cf0;
+      color: #fff;
+      font-size: 15px;
+      font-weight: 700;
+      cursor: pointer;
+    }
+
+    .submit-btn:hover {
+      background: #4748d8;
+    }
+
+    .submit-btn:disabled {
+      opacity: 0.6;
+      cursor: not-allowed;
+    }
+
+    .history-item {
+      padding: 15px 0;
+      border-bottom: 1px solid #ededf2;
+    }
+
+    .history-item:last-child {
+      border-bottom: 0;
+    }
+
+    .history-top {
+      display: flex;
+      justify-content: space-between;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+
+    .history-amount {
+      font-weight: 800;
+      font-size: 17px;
+    }
+
+    .history-meta {
+      margin-top: 7px;
+      color: #777789;
+      font-size: 12px;
+      line-height: 1.6;
+      overflow-wrap: anywhere;
+    }
+
+    .status {
+      display: inline-block;
+      padding: 5px 9px;
+      border-radius: 20px;
+      font-size: 11px;
+      font-weight: 800;
+      text-transform: uppercase;
+    }
+
+    .status.pending {
+      background: #fff1cf;
+      color: #855900;
+    }
+
+    .status.approved {
+      background: #dcf7e5;
+      color: #176b38;
+    }
+
+    .status.rejected {
+      background: #ffe1e1;
+      color: #a32929;
+    }
+
+    .empty-state {
+      color: #777789;
+      font-size: 14px;
+      line-height: 1.6;
+    }
+
+    .back-link {
+      display: inline-block;
+      margin-bottom: 20px;
+      color: #5b5cf0;
+      font-size: 14px;
+      font-weight: 700;
+      text-decoration: none;
+    }
+
+    @media (max-width: 500px) {
+      .deposit-card {
+        padding: 17px;
+      }
+
+      .deposit-header h1 {
+        font-size: 25px;
+      }
+
+      .account-row {
+        font-size: 13px;
+      }
+    }
+  </style>
+</head>
+
+<body>
+
+  <main class="deposit-page">
+
+    <a href="wallet.html" class="back-link">
+      ← Back to Wallet
+    </a>
+
+    <header class="deposit-header">
+      <h1>Deposit Funds</h1>
+      <p>
+        Transfer funds using one of the available payment methods,
+        then submit your transaction details for review.
+      </p>
+    </header>
+
+    <section class="deposit-card">
+      <h2>Make a Deposit</h2>
+
+      <div class="notice">
+        Only send money to the account displayed below. Your
+        balance will be credited only after an administrator
+        verifies and approves your deposit. Approval is not
+        automatic.
+      </div>
+
+      <div id="formMessage" class="message"></div>
+
+      <form id="depositForm">
+
+        <div class="form-group">
+          <label for="paymentMethod">Payment Method</label>
+          <select id="paymentMethod" required>
+            <option value="">Loading payment methods...</option>
+          </select>
+        </div>
+
+        <div id="accountDetails" class="account-box" hidden></div>
+
+        <div class="form-group">
+          <label for="amount">Deposit Amount (₦)</label>
+          <input
+            type="number"
+            id="amount"
+            min="1"
+            step="0.01"
+            inputmode="decimal"
+            placeholder="Enter amount"
+            required
+          >
+        </div>
+
+        <div class="form-group">
+          <label for="reference">Transaction Reference</label>
+          <input
+            type="text"
+            id="reference"
+            maxlength="150"
+            placeholder="Enter your bank transaction reference"
+            required
+          >
+          <span class="hint">
+            Use the reference supplied by your bank or payment
+            provider. Do not enter your PIN or password.
+          </span>
+        </div>
+
+        <div class="form-group">
+          <label for="proof">Payment Proof (Screenshot)</label>
+          <input
+            type="file"
+            id="proof"
+            accept="image/jpeg,image/png,image/webp,application/pdf"
+            required
+          >
+          <span class="hint">
+            Accepted: JPG, PNG, WebP or PDF. Maximum file size: 5 MB.
+            Upload proof that shows the transfer details.
+          </span>
+        </div>
+
+        <div class="form-group">
+          <label for="note">Additional Note (Optional)</label>
+          <textarea
+            id="note"
+            maxlength="500"
+            placeholder="Any additional information for the administrator"
+          ></textarea>
+        </div>
+
+        <button
+          type="submit"
+          class="submit-btn"
+          id="submitButton"
+        >
+          Submit Deposit Request
+        </button>
+
+      </form>
+    </section>
+
+    <section class="deposit-card">
+      <h2>My Deposit Requests</h2>
+      <div id="depositHistory">
+        <p class="empty-state">Loading your deposit history...</p>
+      </div>
+    </section>
+
+  </main>
+
+  <script>
+    const SUPABASE_URL =
+      "https://bcogfxghqrffrnfetqbo.supabase.co";
+
+    const SUPABASE_KEY =
+      "sb_publishable_cX6B4WgoF6bwz1Br5kIj4g_p4RsBRJP";
+
+    const paymentMethodSelect =
+      document.getElementById("paymentMethod");
+
+    const accountDetails =
+      document.getElementById("accountDetails");
+
+    const depositForm =
+      document.getElementById("depositForm");
+
+    const formMessage =
+      document.getElementById("formMessage");
+
+    const submitButton =
+      document.getElementById("submitButton");
+
+    const depositHistory =
+      document.getElementById("depositHistory");
+
+    let paymentMethods = [];
+    let currentUserId = null;
+
+    function getToken() {
+      return localStorage.getItem("taskhub_access_token");
+    }
+
+    function escapeHtml(value) {
+      return String(value ?? "")
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;")
+        .replace(/"/g, "&quot;")
+        .replace(/'/g, "&#039;");
+    }
+
+    function showMessage(text, type) {
+      formMessage.textContent = text;
+      formMessage.className = "message " + type;
+      formMessage.scrollIntoView({
+        behavior: "smooth",
+        block: "nearest"
+      });
+    }
+
+    function clearSession() {
+      localStorage.removeItem("taskhub_access_token");
+      localStorage.removeItem("taskhub_refresh_token");
+      localStorage.removeItem("taskhub_user_id");
+      localStorage.removeItem("taskhub_email");
+
+      window.location.href = "login.html";
+    }
+
+    async function apiRequest(path, options = {}) {
+      const token = getToken();
+
+      if (!token) {
+        clearSession();
+        return null;
+      }
+
+      const response = await fetch(
+        SUPABASE_URL + path,
+        {
+          ...options,
+          headers: {
+            "apikey": SUPABASE_KEY,
+            "Authorization": "Bearer " + token,
+            ...options.headers
+          }
+        }
+      );
+
+      if (response.status === 401) {
+        clearSession();
+        return null;
+      }
+
+      return response;
+    }
+
+    async function getCurrentUser() {
+      const response = await apiRequest(
+        "/auth/v1/user"
+      );
+
+      if (!response) return null;
+
+      if (!response.ok) {
+        throw new Error("Unable to verify your account.");
+      }
+
+      const user = await response.json();
+
+      if (!user.id) {
+        throw new Error("Your account could not be identified.");
+      }
+
+      currentUserId = user.id;
+      return user;
+    }
+
+    async function loadPaymentMethods() {
+      const response = await apiRequest(
+        "/rest/v1/deposit_payment_methods" +
+        "?select=id,method,title,account_name,account_number," +
+        "bank_name,wallet_address,network,instructions" +
+        "&is_active=eq.true&order=id.asc"
+      );
+
+      if (!response) return;
+
+      if (!response.ok) {
+        throw new Error("Unable to load payment methods.");
+      }
+
+      paymentMethods = await response.json();
+
+      paymentMethodSelect.innerHTML =
+        '<option value="">Choose a payment method</option>';
+
+      paymentMethods.forEach(method => {
+        const option = document.createElement("option");
+        option.value = String(method.id);
+        option.textContent = method.title;
+        paymentMethodSelect.appendChild(option);
+      });
+
+      if (!paymentMethods.length) {
+        paymentMethodSelect.innerHTML =
+          '<option value="">No payment methods available</option>';
+      }
+
+      updateAccountDetails();
+    }
+
+    function updateAccountDetails() {
+      const selectedId = paymentMethodSelect.value;
+
+      const method = paymentMethods.find(
+        item => String(item.id) === selectedId
+      );
+
+      if (!method) {
+        accountDetails.hidden = true;
+        accountDetails.innerHTML = "";
+        return;
+      }
+
+      let rows = "";
+
+      if (method.method === "bank_transfer") {
+        rows += `
+          <div class="account-row">
+            <span>Bank</span>
+            <strong>${escapeHtml(method.bank_name)}</strong>
+          </div>
+
+          <div class="account-row">
+            <span>Account Name</span>
+            <strong>${escapeHtml(method.account_name)}</strong>
+          </div>
+
+          <div class="account-row">
+            <span>Account Number</span>
+            <strong>${escapeHtml(method.account_number)}</strong>
+          </div>
+        `;
+      } else if (method.method === "crypto") {
+        rows += `
+          <div class="account-row">
+            <span>Network</span>
+            <strong>${escapeHtml(method.network)}</strong>
+          </div>
+
+          <div class="account-row">
+            <span>Wallet Address</span>
+            <strong>${escapeHtml(method.wallet_address)}</strong>
+          </div>
+        `;
+      }
+
+      accountDetails.innerHTML = `
+        <h3>${escapeHtml(method.title)}</h3>
+        ${rows}
+        ${
+          method.instructions
+            ? `<p class="hint">${escapeHtml(method.instructions)}</p>`
+            : ""
+        }
+        ${
+          method.method === "crypto"
+            ? `<button type="button" class="copy-btn" id="copyAddress">
+                 Copy Wallet Address
+               </button>`
+            : ""
+        }
+      `;
+
+      accountDetails.hidden = false;
+
+      const copyButton =
+        document.getElementById("copyAddress");
+
+      if (copyButton) {
+        copyButton.addEventListener("click", async () => {
+          try {
+            await navigator.clipboard.writeText(
+              method.wallet_address
+            );
+
+            copyButton.textContent = "Copied";
+          } catch {
+            showMessage(
+              "Unable to copy automatically. Select and copy the address.",
+              "error"
+            );
+          }
+        });
+      }
+    }
+
+    async function uploadProof(file) {
+      const allowedTypes = [
+        "image/jpeg",
+        "image/png",
+        "image/webp",
+        "application/pdf"
+      ];
+
+      if (!allowedTypes.includes(file.type)) {
+        throw new Error(
+          "Choose a JPG, PNG, WebP or PDF file."
+        );
+      }
+
+      if (file.size > 5 * 1024 * 1024) {
+        throw new Error(
+          "The proof file must not exceed 5 MB."
+        );
+      }
+
+      const extensionByType = {
+        "image/jpeg": "jpg",
+        "image/png": "png",
+        "image/webp": "webp",
+        "application/pdf": "pdf"
+      };
+
+      const extension = extensionByType[file.type];
+
+      const filePath =
+        currentUserId + "/" +
+        Date.now() + "-" +
+        crypto.randomUUID() + "." +
+        extension;
+
+      const response = await apiRequest(
+        "/storage/v1/object/deposit-proofs/" +
+        filePath,
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": file.type,
+            "x-upsert": "false"
+          },
+          body: file
+        }
+      );
+
+      if (!response) {
+        throw new Error("Your session has expired.");
+      }
+
+      if (!response.ok) {
+        const error = await response.json().catch(() => ({}));
+
+        throw new Error(
+          error.message ||
+          error.error ||
+          "Payment proof upload failed."
+        );
+      }
+
+      // Save the private object path, not a public URL.
+      return filePath;
+    }
+
+    async function loadDepositHistory() {
+      const response = await apiRequest(
+        "/rest/v1/deposit_requests" +
+        "?select=id,amount,payment_method,transaction_reference," +
+        "status,admin_note,created_at,reviewed_at" +
+        "&user_id=eq." + encodeURIComponent(currentUserId) +
+        "&order=created_at.desc&limit=50"
+      );
+
+      if (!response) return;
+
+      if (!response.ok) {
+        throw new Error("Unable to load deposit history.");
+      }
+
+      const deposits = await response.json();
+
+      if (!deposits.length) {
+        depositHistory.innerHTML =
+          '<p class="empty-state">You have not submitted any deposit requests yet.</p>';
+        return;
+      }
+
+      depositHistory.innerHTML = deposits.map(deposit => {
+        const status = String(deposit.status || "pending").toLowerCase();
+
+        const methodLabel =
+          deposit.payment_method === "bank_transfer"
+            ? "Bank Transfer"
+            : deposit.payment_method === "crypto"
+              ? "Crypto"
+              : "Other";
+
+        return `
+          <article class="history-item">
+            <div class="history-top">
+              <span class="history-amount">
+                ₦${Number(deposit.amount).toLocaleString("en-NG", {
+                  minimumFractionDigits: 2,
+                  maximumFractionDigits: 2
+                })}
+              </span>
+
+              <span class="status ${escapeHtml(status)}">
+                ${escapeHtml(status)}
+              </span>
+            </div>
+
+            <div class="history-meta">
+              Method: ${escapeHtml(methodLabel)}<br>
+              Reference: ${escapeHtml(deposit.transaction_reference)}<br>
+              Submitted: ${escapeHtml(
+                new Date(deposit.created_at).toLocaleString()
+              )}
+              ${
+                deposit.admin_note
+                  ? `<br>Admin note: ${escapeHtml(deposit.admin_note)}`
+                  : ""
+              }
+            </div>
+          </article>
+        `;
+      }).join("");
+    }
+
+    paymentMethodSelect.addEventListener(
+      "change",
+      updateAccountDetails
+    );
+
+    depositForm.addEventListener("submit", async event => {
+      event.preventDefault();
+
+      if (!currentUserId) {
+        showMessage(
+          "Unable to identify your account. Please sign in again.",
+          "error"
+        );
+        return;
+      }
+
+      const methodId = paymentMethodSelect.value;
+
+      const selectedMethod = paymentMethods.find(
+        method => String(method.id) === methodId
+      );
+
+      const amountInput =
+        document.getElementById("amount");
+
+      const referenceInput =
+        document.getElementById("reference");
+
+      const proofInput =
+        document.getElementById("proof");
+
+      const noteInput =
+        document.getElementById("note");
+
+      const amount = Number(amountInput.value);
+      const reference = referenceInput.value.trim();
+      const proof = proofInput.files[0];
+      const note = noteInput.value.trim();
+
+      if (!selectedMethod) {
+        showMessage(
+          "Please select an available payment method.",
+          "error"
+        );
+        return;
+      }
+
+      if (!Number.isFinite(amount) || amount <= 0) {
+        showMessage(
+          "Enter a valid deposit amount.",
+          "error"
+        );
+        return;
+      }
+
+      if (!reference || reference.length > 150) {
+        showMessage(
+          "Enter a valid transaction reference.",
+          "error"
+        );
+        return;
+      }
+
+      if (!proof) {
+        showMessage(
+          "Please attach your payment proof.",
+          "error"
+        );
+        return;
+      }
+
+      submitButton.disabled = true;
+      submitButton.textContent = "Submitting...";
+
+      let uploadedProofPath = null;
+
+      try {
+        showMessage(
+          "Uploading your payment proof...",
+          "success"
+        );
+
+        uploadedProofPath = await uploadProof(proof);
+
+        showMessage(
+          "Submitting your deposit request...",
+          "success"
+        );
+
+        const response = await apiRequest(
+          "/rest/v1/deposit_requests",
+          {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+              "Prefer": "return=representation"
+            },
+            body: JSON.stringify({
+              user_id: currentUserId,
+              amount: amount,
+              payment_method: selectedMethod.method,
+              transaction_reference: reference,
+              proof_url: uploadedProofPath,
+              note: note || null
+            })
+          }
+        );
+
+        if (!response) {
+          throw new Error("Your session has expired.");
+        }
+
+        if (!response.ok) {
+          const error = await response.json().catch(() => ({}));
+
+          throw new Error(
+            error.message ||
+            error.details ||
+            "Unable to submit your deposit request."
+          );
+        }
+
+        depositForm.reset();
+        updateAccountDetails();
+
+        showMessage(
+          "Deposit request submitted successfully. It is pending admin review. Your wallet has not been credited yet.",
+          "success"
+        );
+
+        await loadDepositHistory();
+
+      } catch (error) {
+        console.error("Deposit submission error:", error);
+
+        showMessage(
+          error.message ||
+          "Unable to submit your deposit. Please try again.",
+          "error"
+        );
+      } finally {
+        submitButton.disabled = false;
+        submitButton.textContent =
+          "Submit Deposit Request";
+      }
+    });
+
+    async function initializePage() {
+      if (!getToken()) {
+        window.location.href = "login.html";
+        return;
+      }
+
+      try {
+        await getCurrentUser();
+
+        if (!currentUserId) return;
+
+        await loadPaymentMethods();
+        await loadDepositHistory();
+
+      } catch (error) {
+        console.error(error);
+
+        showMessage(
+          error.message ||
+          "Unable to load the deposit page.",
+          "error"
+        );
+
+        depositHistory.innerHTML =
+          '<p class="empty-state">Unable to load deposit history.</p>';
+      }
+    }
+
+    initializePage();
+  </script>
+
+</body>
+</html>
