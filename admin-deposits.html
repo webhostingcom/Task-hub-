@@ -1,0 +1,377 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Task Hub | Deposit Administration</title>
+  <style>
+    *{box-sizing:border-box}
+    body{margin:0;background:#0b1020;color:#eef2ff;font-family:Arial,sans-serif}
+    header{padding:18px;background:#121a30;border-bottom:1px solid #293452}
+    header h1{margin:0;font-size:22px}
+    header p{color:#a9b5d0;font-size:13px}
+    main{max-width:1200px;margin:auto;padding:18px}
+    .card{background:#121a30;border:1px solid #293452;border-radius:14px;padding:16px;margin-bottom:16px}
+    .stats{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px}
+    .stat strong{display:block;font-size:24px;margin-top:8px}
+    .muted{color:#a9b5d0;font-size:13px}
+    .controls{display:flex;gap:10px;flex-wrap:wrap;margin:16px 0}
+    select,input,textarea,button{font:inherit;border-radius:8px;padding:11px;border:1px solid #354361}
+    select,input,textarea{background:#0b1020;color:#eef2ff;width:100%}
+    button{background:#5865f2;color:white;border:0;font-weight:bold;cursor:pointer}
+    button:disabled{opacity:.5;cursor:not-allowed}
+    .reject{background:#c83e55}
+    .approve{background:#16865e}
+    .request{background:#121a30;border:1px solid #293452;border-radius:12px;padding:16px;margin:12px 0}
+    .row{display:flex;gap:10px;flex-wrap:wrap;align-items:center}
+    .row>*{flex:1}
+    .badge{display:inline-block;padding:5px 9px;border-radius:20px;background:#293452;font-size:12px}
+    .pending{color:#ffd166}.approved{color:#55e6a5}.rejected{color:#ff8495}
+    .proof{display:block;margin:12px 0;color:#aebaff}
+    .actions{display:flex;gap:10px;margin-top:10px}
+    .actions button{flex:1}
+    .message{padding:12px;border-radius:8px;margin:12px 0;display:none;white-space:pre-wrap}
+    .error{background:#51202c;color:#ffc5ce}
+    .success{background:#123d31;color:#a5f3d0}
+    .hidden{display:none!important}
+    @media(max-width:600px){.stats{grid-template-columns:1fr}.actions{flex-direction:column}main{padding:12px}}
+  </style>
+</head>
+<body>
+<header>
+  <h1>Task Hub Admin</h1>
+  <p>Manual deposit review and wallet approvals</p>
+</header>
+
+<main>
+  <div id="message" class="message"></div>
+
+  <section id="loginCard" class="card">
+    <h2>Administrator access</h2>
+    <p class="muted">Sign in using your existing Task Hub account.</p>
+    <label for="email">Email</label>
+    <input id="email" type="email" autocomplete="username">
+    <br><br>
+    <label for="password">Password</label>
+    <input id="password" type="password" autocomplete="current-password">
+    <br><br>
+    <button id="loginBtn">Sign in</button>
+  </section>
+
+  <section id="dashboard" class="hidden">
+    <div class="row">
+      <h2>Deposit requests</h2>
+      <button id="refreshBtn" style="max-width:140px">Refresh</button>
+    </div>
+
+    <div class="stats">
+      <div class="card stat">Pending<strong id="pendingCount">0</strong></div>
+      <div class="card stat">Approved<strong id="approvedCount">0</strong></div>
+      <div class="card stat">Rejected<strong id="rejectedCount">0</strong></div>
+    </div>
+
+    <div class="controls">
+      <select id="filter" style="max-width:240px">
+        <option value="pending">Pending requests</option>
+        <option value="all">All requests</option>
+        <option value="approved">Approved</option>
+        <option value="rejected">Rejected</option>
+      </select>
+      <button id="logoutBtn" style="background:#354361">Sign out</button>
+    </div>
+
+    <div id="requests"></div>
+  </section>
+</main>
+
+<script>
+(() => {
+  const SUPABASE_URL = "https://bcogfxghqrffrnfetqbo.supabase.co";
+  const SUPABASE_KEY = "sb_publishable_cX6B4WgoF6bwz1Br5kIj4g_p4RsBRJP";
+  const BUCKET = "deposit-proofs";
+
+  let accessToken = "";
+  let currentUser = null;
+  let deposits = [];
+
+  const $ = id => document.getElementById(id);
+
+  function showMessage(text, type = "error") {
+    const box = $("message");
+    box.textContent = text;
+    box.className = "message " + type;
+    box.style.display = "block";
+    window.scrollTo({top: 0, behavior: "smooth"});
+  }
+
+  function clearMessage() {
+    $("message").style.display = "none";
+  }
+
+  async function api(path, options = {}) {
+    const headers = {
+      apikey: SUPABASE_KEY,
+      Authorization: "Bearer " + (accessToken || SUPABASE_KEY),
+      ...(options.headers || {})
+    };
+
+    const response = await fetch(SUPABASE_URL + path, {
+      ...options,
+      headers
+    });
+
+    const text = await response.text();
+    let data = null;
+    try { data = text ? JSON.parse(text) : null; }
+    catch { data = text; }
+
+    if (!response.ok) {
+      throw new Error(data?.message || data?.error_description || data?.error || text || "Request failed.");
+    }
+    return data;
+  }
+
+  async function verifyAdmin() {
+    const user = await api("/auth/v1/user");
+    if (!user?.id) throw new Error("Please sign in again.");
+
+    currentUser = user;
+
+    const admins = await api(
+      "/rest/v1/taskhub_admins?select=user_id&user_id=eq." +
+      encodeURIComponent(user.id)
+    );
+
+    if (!Array.isArray(admins) || !admins.some(a => a.user_id === user.id)) {
+      throw new Error("This account is not an authorized Task Hub administrator.");
+    }
+
+    $("loginCard").classList.add("hidden");
+    $("dashboard").classList.remove("hidden");
+    await loadDeposits();
+  }
+
+  async function signIn() {
+    clearMessage();
+    const email = $("email").value.trim();
+    const password = $("password").value;
+
+    if (!email || !password) {
+      showMessage("Enter your email and password.");
+      return;
+    }
+
+    $("loginBtn").disabled = true;
+    $("loginBtn").textContent = "Signing in...";
+
+    try {
+      const result = await fetch(SUPABASE_URL + "/auth/v1/token?grant_type=password", {
+        method: "POST",
+        headers: {
+          apikey: SUPABASE_KEY,
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify({email, password})
+      });
+
+      const data = await result.json();
+      if (!result.ok) throw new Error(data.message || "Sign-in failed.");
+
+      accessToken = data.access_token;
+      await verifyAdmin();
+      showMessage("Administrator signed in successfully.", "success");
+    } catch (error) {
+      accessToken = "";
+      currentUser = null;
+      showMessage(error.message || "Unable to sign in.");
+    } finally {
+      $("loginBtn").disabled = false;
+      $("loginBtn").textContent = "Sign in";
+    }
+  }
+
+  async function loadDeposits() {
+    clearMessage();
+    $("requests").textContent = "Loading deposit requests...";
+
+    try {
+      deposits = await api(
+        "/rest/v1/deposit_requests?select=*&order=created_at.desc"
+      );
+
+      if (!Array.isArray(deposits)) deposits = [];
+
+      $("pendingCount").textContent = deposits.filter(d => d.status === "pending").length;
+      $("approvedCount").textContent = deposits.filter(d => d.status === "approved").length;
+      $("rejectedCount").textContent = deposits.filter(d => d.status === "rejected").length;
+
+      renderDeposits();
+    } catch (error) {
+      $("requests").textContent = "";
+      showMessage("Could not load requests: " + error.message);
+    }
+  }
+
+  function safe(value) {
+    return String(value ?? "").replace(/[&<>"']/g, c => ({
+      "&":"&amp;", "<":"&lt;", ">":"&gt;", '"':"&quot;", "'":"&#39;"
+    }[c]));
+  }
+
+  function money(value) {
+    return "₦" + Number(value || 0).toLocaleString("en-NG", {
+      minimumFractionDigits: 2,
+      maximumFractionDigits: 2
+    });
+  }
+
+  function renderDeposits() {
+    const filter = $("filter").value;
+    const shown = deposits.filter(d => filter === "all" || d.status === filter);
+    const container = $("requests");
+    container.replaceChildren();
+
+    if (!shown.length) {
+      container.textContent = "No deposit requests found.";
+      return;
+    }
+
+    shown.forEach(d => {
+      const card = document.createElement("article");
+      card.className = "request";
+
+      const statusClass = d.status === "approved" ? "approved" :
+        d.status === "rejected" ? "rejected" : "pending";
+
+      card.innerHTML = `
+        <div class="row">
+          <h3>Deposit #${safe(d.id)}</h3>
+          <span class="badge ${statusClass}">${safe(d.status)}</span>
+        </div>
+        <h2>${money(d.amount)}</h2>
+        <p><b>Payment method:</b> ${safe(d.payment_method)}</p>
+        <p><b>User ID:</b> ${safe(d.user_id)}</p>
+        <p><b>Transaction reference:</b> ${safe(d.transaction_reference)}</p>
+        <p><b>Submitted:</b> ${safe(new Date(d.created_at).toLocaleString())}</p>
+        <p><b>User note:</b> ${safe(d.note || "None")}</p>
+        <p><b>Admin note:</b> ${safe(d.admin_note || "None")}</p>
+        <div class="proofArea muted">Loading proof link...</div>
+        ${d.status === "pending" ? `
+          <label for="note-${safe(d.id)}">Admin note (optional)</label>
+          <textarea id="note-${safe(d.id)}" rows="2" placeholder="Reason or review note"></textarea>
+          <div class="actions">
+            <button class="approve" data-action="approved" data-id="${safe(d.id)}">Approve & credit wallet</button>
+            <button class="reject" data-action="rejected" data-id="${safe(d.id)}">Reject deposit</button>
+          </div>
+        ` : ""}
+      `;
+
+      container.appendChild(card);
+      loadProofLink(d, card.querySelector(".proofArea"));
+    });
+  }
+
+  async function loadProofLink(deposit, area) {
+    if (!deposit.proof_url) {
+      area.textContent = "No proof screenshot was attached.";
+      return;
+    }
+
+    try {
+      const path = String(deposit.proof_url).replace(/^\/+/, "");
+      const signed = await api(
+        "/storage/v1/object/sign/" + BUCKET + "/" +
+        path.split("/").map(encodeURIComponent).join("/"),
+        {
+          method: "POST",
+          headers: {"Content-Type": "application/json"},
+          body: JSON.stringify({expiresIn: 600})
+        }
+      );
+
+      let signedURL = signed.signedURL || signed.signedUrl;
+      if (!signedURL) throw new Error("No signed link returned.");
+
+      if (signedURL.startsWith("/")) {
+        signedURL = SUPABASE_URL + "/storage/v1" + signedURL;
+      }
+
+      const link = document.createElement("a");
+      link.className = "proof";
+      link.href = signedURL;
+      link.target = "_blank";
+      link.rel = "noopener noreferrer";
+      link.textContent = "View payment proof (expires in 10 minutes)";
+      area.replaceChildren(link);
+    } catch (error) {
+      area.textContent = "Unable to open proof: " + error.message;
+    }
+  }
+
+  async function reviewDeposit(id, status, button) {
+    clearMessage();
+
+    const noteElement = $("note-" + id);
+    const adminNote = noteElement ? noteElement.value.trim() : "";
+
+    const confirmation = status === "approved"
+      ? "Approve this deposit and credit the user's wallet?"
+      : "Reject this deposit without crediting the wallet?";
+
+    if (!window.confirm(confirmation)) return;
+
+    button.disabled = true;
+    button.textContent = status === "approved" ? "Approving..." : "Rejecting...";
+
+    try {
+      const result = await api("/rest/v1/rpc/review_deposit", {
+        method: "POST",
+        headers: {"Content-Type": "application/json"},
+        body: JSON.stringify({
+          p_deposit_id: Number(id),
+          p_status: status,
+          p_admin_note: adminNote || null
+        })
+      });
+
+      if (result && result.success === false) {
+        throw new Error(result.message || "Review failed.");
+      }
+
+      showMessage(
+        "Deposit #" + id + " " + status + ".",
+        "success"
+      );
+
+      await loadDeposits();
+    } catch (error) {
+      button.disabled = false;
+      button.textContent = status === "approved" ? "Approve & credit wallet" : "Reject deposit";
+      showMessage("Review failed: " + error.message);
+    }
+  }
+
+  $("loginBtn").addEventListener("click", signIn);
+  $("refreshBtn").addEventListener("click", loadDeposits);
+  $("filter").addEventListener("change", renderDeposits);
+
+  $("requests").addEventListener("click", event => {
+    const button = event.target.closest("button[data-action]");
+    if (!button) return;
+    reviewDeposit(button.dataset.id, button.dataset.action, button);
+  });
+
+  $("logoutBtn").addEventListener("click", () => {
+    accessToken = "";
+    currentUser = null;
+    deposits = [];
+    $("dashboard").classList.add("hidden");
+    $("loginCard").classList.remove("hidden");
+    $("password").value = "";
+    $("requests").replaceChildren();
+    clearMessage();
+  });
+})();
+</script>
+</body>
+</html>

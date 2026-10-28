@@ -1,0 +1,731 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Task Hub | Review Submissions</title>
+
+  <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: Arial, sans-serif;
+      background: #f5f7fb;
+      color: #172033;
+    }
+
+    header {
+      background: #111827;
+      color: white;
+      padding: 18px 20px;
+    }
+
+    header h1 {
+      font-size: 21px;
+    }
+
+    header p {
+      margin-top: 5px;
+      color: #aeb8c8;
+      font-size: 13px;
+    }
+
+    .container {
+      max-width: 1100px;
+      margin: auto;
+      padding: 20px;
+    }
+
+    .topbar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 20px;
+      flex-wrap: wrap;
+    }
+
+    .topbar h2 {
+      font-size: 22px;
+    }
+
+    button {
+      border: none;
+      border-radius: 8px;
+      padding: 10px 14px;
+      cursor: pointer;
+      font-weight: 600;
+    }
+
+    .refresh {
+      background: #2563eb;
+      color: white;
+    }
+
+    .logout {
+      background: #e5e7eb;
+      color: #111827;
+    }
+
+    .filters {
+      display: flex;
+      gap: 8px;
+      margin-bottom: 18px;
+      flex-wrap: wrap;
+    }
+
+    .filter {
+      background: white;
+      border: 1px solid #d8dee9;
+      color: #374151;
+    }
+
+    .filter.active {
+      background: #111827;
+      color: white;
+    }
+
+    .message {
+      padding: 13px;
+      border-radius: 8px;
+      margin-bottom: 15px;
+      display: none;
+      font-size: 14px;
+    }
+
+    .error {
+      background: #fee2e2;
+      color: #991b1b;
+    }
+
+    .success {
+      background: #dcfce7;
+      color: #166534;
+    }
+
+    .submission {
+      background: white;
+      border: 1px solid #e1e6ef;
+      border-radius: 12px;
+      margin-bottom: 16px;
+      overflow: hidden;
+      box-shadow: 0 2px 7px rgba(0,0,0,.04);
+    }
+
+    .submission-header {
+      padding: 15px;
+      border-bottom: 1px solid #edf0f5;
+      display: flex;
+      justify-content: space-between;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+
+    .submission-header h3 {
+      font-size: 16px;
+    }
+
+    .status {
+      display: inline-block;
+      padding: 5px 9px;
+      border-radius: 20px;
+      font-size: 12px;
+      font-weight: 700;
+      text-transform: capitalize;
+    }
+
+    .status.pending {
+      background: #fef3c7;
+      color: #92400e;
+    }
+
+    .status.approved {
+      background: #dcfce7;
+      color: #166534;
+    }
+
+    .status.rejected {
+      background: #fee2e2;
+      color: #991b1b;
+    }
+
+    .submission-body {
+      padding: 15px;
+    }
+
+    .info {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+      gap: 10px;
+      margin-bottom: 15px;
+    }
+
+    .info div {
+      background: #f8fafc;
+      padding: 10px;
+      border-radius: 7px;
+      font-size: 13px;
+    }
+
+    .info strong {
+      display: block;
+      margin-bottom: 4px;
+      color: #64748b;
+      font-size: 11px;
+      text-transform: uppercase;
+    }
+
+    .proof {
+      margin-top: 12px;
+    }
+
+    .proof img {
+      display: block;
+      width: 100%;
+      max-height: 500px;
+      object-fit: contain;
+      background: #111827;
+      border-radius: 9px;
+    }
+
+    .proof-error {
+      background: #fee2e2;
+      color: #991b1b;
+      padding: 12px;
+      border-radius: 8px;
+    }
+
+    .actions {
+      display: flex;
+      gap: 9px;
+      margin-top: 15px;
+      flex-wrap: wrap;
+    }
+
+    .approve {
+      background: #16a34a;
+      color: white;
+    }
+
+    .reject {
+      background: #dc2626;
+      color: white;
+    }
+
+    .disabled {
+      opacity: .5;
+      pointer-events: none;
+    }
+
+    .empty {
+      background: white;
+      border: 1px solid #e1e6ef;
+      border-radius: 12px;
+      padding: 40px 20px;
+      text-align: center;
+      color: #64748b;
+    }
+
+    .loading {
+      text-align: center;
+      padding: 35px;
+      color: #64748b;
+    }
+
+    .small {
+      font-size: 11px;
+      color: #64748b;
+      word-break: break-all;
+    }
+  </style>
+</head>
+
+<body>
+
+<header>
+  <h1>Task Hub Admin</h1>
+  <p>Review task submissions and uploaded proof screenshots</p>
+</header>
+
+<div class="container">
+
+  <div class="topbar">
+    <h2>Task Submissions</h2>
+
+    <div>
+      <button class="refresh" onclick="loadSubmissions()">Refresh</button>
+      <button class="logout" onclick="logoutUser()">Logout</button>
+    </div>
+  </div>
+
+  <div id="message" class="message"></div>
+
+  <div class="filters">
+    <button class="filter active" data-status="pending" onclick="changeFilter('pending', this)">
+      Pending
+    </button>
+
+    <button class="filter" data-status="approved" onclick="changeFilter('approved', this)">
+      Approved
+    </button>
+
+    <button class="filter" data-status="rejected" onclick="changeFilter('rejected', this)">
+      Rejected
+    </button>
+
+    <button class="filter" data-status="all" onclick="changeFilter('all', this)">
+      All
+    </button>
+  </div>
+
+  <div id="submissions">
+    <div class="loading">Loading submissions...</div>
+  </div>
+
+</div>
+
+<script>
+const SUPABASE_URL = "https://bcogfxghqrffrnfetqbo.supabase.co";
+const SUPABASE_KEY = "sb_publishable_cX6B4WgoF6bwz1Br5kIj4g_p4RsBRJP";
+
+let currentUser = null;
+let currentFilter = "pending";
+let tasksMap = {};
+
+function getToken() {
+  return localStorage.getItem("supabase_access_token") ||
+         localStorage.getItem("access_token") ||
+         localStorage.getItem("supabaseToken");
+}
+
+function showMessage(text, type = "error") {
+  const box = document.getElementById("message");
+
+  box.textContent = text;
+  box.className = "message " + type;
+  box.style.display = "block";
+
+  setTimeout(() => {
+    box.style.display = "none";
+  }, 5000);
+}
+
+async function apiRequest(path, options = {}) {
+  const token = getToken();
+
+  if (!token) {
+    throw new Error("You are not logged in.");
+  }
+
+  const headers = {
+    "apikey": SUPABASE_KEY,
+    "Authorization": "Bearer " + token,
+    "Content-Type": "application/json",
+    ...(options.headers || {})
+  };
+
+  const response = await fetch(SUPABASE_URL + path, {
+    ...options,
+    headers
+  });
+
+  const text = await response.text();
+
+  let data = null;
+
+  if (text) {
+    try {
+      data = JSON.parse(text);
+    } catch {
+      data = text;
+    }
+  }
+
+  if (!response.ok) {
+    let errorMessage = "Supabase request failed.";
+
+    if (data?.message) errorMessage = data.message;
+    else if (data?.error_description) errorMessage = data.error_description;
+    else if (data?.error) errorMessage = data.error;
+
+    throw new Error(errorMessage);
+  }
+
+  return data;
+}
+
+async function checkAdmin() {
+  const token = getToken();
+
+  if (!token) {
+    window.location.href = "login.html";
+    return false;
+  }
+
+  try {
+    const users = await apiRequest("/auth/v1/user");
+
+    currentUser = users;
+
+    const result = await apiRequest(
+      "/rest/v1/rpc/is_taskhub_admin",
+      {
+        method: "POST",
+        body: "{}"
+      }
+    );
+
+    if (result !== true) {
+      document.body.innerHTML = `
+        <div style="
+          padding:50px 20px;
+          text-align:center;
+          font-family:Arial;
+        ">
+          <h2>Access denied</h2>
+          <p style="margin-top:10px;color:#64748b;">
+            You do not have Task Hub administrator access.
+          </p>
+        </div>
+      `;
+
+      return false;
+    }
+
+    return true;
+
+  } catch (error) {
+    console.error(error);
+
+    document.body.innerHTML = `
+      <div style="
+        padding:50px 20px;
+        text-align:center;
+        font-family:Arial;
+      ">
+        <h2>Unable to verify admin access</h2>
+        <p style="margin-top:10px;color:#64748b;">
+          ${escapeHtml(error.message)}
+        </p>
+      </div>
+    `;
+
+    return false;
+  }
+}
+
+async function loadTasks() {
+  const tasks = await apiRequest(
+    "/rest/v1/tasks?select=id,title"
+  );
+
+  tasksMap = {};
+
+  for (const task of tasks || []) {
+    tasksMap[String(task.id)] = task.title;
+  }
+}
+
+async function loadSubmissions() {
+  const container = document.getElementById("submissions");
+
+  container.innerHTML = `
+    <div class="loading">Loading submissions...</div>
+  `;
+
+  try {
+    await loadTasks();
+
+    let query =
+      "/rest/v1/task_submissions" +
+      "?select=id,user_id,task_id,proof,status,created_at" +
+      "&order=created_at.desc";
+
+    if (currentFilter !== "all") {
+      query += "&status=eq." + encodeURIComponent(currentFilter);
+    }
+
+    const submissions = await apiRequest(query);
+
+    if (!Array.isArray(submissions) || submissions.length === 0) {
+      container.innerHTML = `
+        <div class="empty">
+          No ${currentFilter === "all" ? "" : currentFilter + " "}submissions found.
+        </div>
+      `;
+
+      return;
+    }
+
+    container.innerHTML = "";
+
+    for (const submission of submissions) {
+      container.appendChild(
+        await createSubmissionCard(submission)
+      );
+    }
+
+  } catch (error) {
+    console.error(error);
+
+    container.innerHTML = `
+      <div class="empty" style="color:#991b1b;">
+        Failed to load submissions.<br><br>
+        ${escapeHtml(error.message)}
+      </div>
+    `;
+  }
+}
+
+async function createSubmissionCard(submission) {
+
+  const card = document.createElement("div");
+  card.className = "submission";
+
+  const taskTitle =
+    tasksMap[String(submission.task_id)] ||
+    "Task #" + submission.task_id;
+
+  const date = submission.created_at
+    ? new Date(submission.created_at).toLocaleString()
+    : "Unknown";
+
+  let proofHtml = `
+    <div class="proof-error">
+      No screenshot was attached to this submission.
+    </div>
+  `;
+
+  if (submission.proof) {
+    try {
+      const signedUrl = await createSignedUrl(submission.proof);
+
+      proofHtml = `
+        <div class="proof">
+          <img
+            src="${escapeAttribute(signedUrl)}"
+            alt="Task proof screenshot"
+            onerror="this.parentElement.innerHTML='<div class=&quot;proof-error&quot;>Unable to display this screenshot.</div>'"
+          >
+        </div>
+      `;
+
+    } catch (error) {
+      proofHtml = `
+        <div class="proof-error">
+          Unable to load screenshot.<br>
+          <span class="small">
+            ${escapeHtml(error.message)}
+          </span>
+        </div>
+      `;
+    }
+  }
+
+  const actions =
+    submission.status === "pending"
+      ? `
+        <div class="actions">
+          <button
+            class="approve"
+            onclick="reviewSubmission('${escapeAttribute(String(submission.id))}', 'approved', this)"
+          >
+            Approve
+          </button>
+
+          <button
+            class="reject"
+            onclick="reviewSubmission('${escapeAttribute(String(submission.id))}', 'rejected', this)"
+          >
+            Reject
+          </button>
+        </div>
+      `
+      : "";
+
+  card.innerHTML = `
+    <div class="submission-header">
+      <h3>${escapeHtml(taskTitle)}</h3>
+
+      <span class="status ${escapeAttribute(submission.status || "")}">
+        ${escapeHtml(submission.status || "unknown")}
+      </span>
+    </div>
+
+    <div class="submission-body">
+
+      <div class="info">
+
+        <div>
+          <strong>User ID</strong>
+          <span class="small">
+            ${escapeHtml(String(submission.user_id || "Unknown"))}
+          </span>
+        </div>
+
+        <div>
+          <strong>Submission ID</strong>
+          <span class="small">
+            ${escapeHtml(String(submission.id || "Unknown"))}
+          </span>
+        </div>
+
+        <div>
+          <strong>Submitted</strong>
+          ${escapeHtml(date)}
+        </div>
+
+        <div>
+          <strong>Task ID</strong>
+          ${escapeHtml(String(submission.task_id || "Unknown"))}
+        </div>
+
+      </div>
+
+      ${proofHtml}
+
+      ${actions}
+
+    </div>
+  `;
+
+  return card;
+}
+
+async function createSignedUrl(proofPath) {
+
+  const cleanPath = String(proofPath)
+    .replace(/^\/+/, "")
+    .replace(/^task-proofs\//, "");
+
+  const endpoint =
+    "/storage/v1/object/sign/task-proofs/" +
+    cleanPath
+      .split("/")
+      .map(encodeURIComponent)
+      .join("/");
+
+  const result = await apiRequest(endpoint, {
+    method: "POST",
+    body: JSON.stringify({
+      expiresIn: 3600
+    })
+  });
+
+  if (!result || !result.signedURL) {
+    throw new Error("Supabase did not return a signed screenshot URL.");
+  }
+
+  if (result.signedURL.startsWith("http")) {
+    return result.signedURL;
+  }
+
+  return SUPABASE_URL + "/storage/v1" + result.signedURL;
+}
+
+async function reviewSubmission(id, status, button) {
+
+  const action =
+    status === "approved"
+      ? "approve"
+      : "reject";
+
+  const confirmed = confirm(
+    "Are you sure you want to " + action + " this submission?"
+  );
+
+  if (!confirmed) return;
+
+  button.disabled = true;
+  button.classList.add("disabled");
+
+  try {
+
+    const result = await apiRequest(
+      "/rest/v1/task_submissions?id=eq." +
+      encodeURIComponent(id),
+      {
+        method: "PATCH",
+        headers: {
+          "Prefer": "return=representation"
+        },
+        body: JSON.stringify({
+          status: status
+        })
+      }
+    );
+
+    if (!Array.isArray(result) || result.length === 0) {
+      throw new Error(
+        "Supabase updated 0 submissions. The submission ID was not matched."
+      );
+    }
+
+    showMessage(
+      "Submission " + status + " successfully.",
+      "success"
+    );
+
+    await loadSubmissions();
+
+  } catch (error) {
+
+    button.disabled = false;
+    button.classList.remove("disabled");
+
+    showMessage(error.message);
+  }
+}
+
+function changeFilter(status, button) {
+
+  currentFilter = status;
+
+  document.querySelectorAll(".filter").forEach(btn => {
+    btn.classList.remove("active");
+  });
+
+  button.classList.add("active");
+
+  loadSubmissions();
+}
+
+function logoutUser() {
+
+  localStorage.removeItem("supabase_access_token");
+  localStorage.removeItem("access_token");
+  localStorage.removeItem("supabaseToken");
+
+  window.location.href = "login.html";
+}
+
+function escapeHtml(value) {
+  return String(value ?? "")
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;")
+    .replace(/'/g, "&#039;");
+}
+
+function escapeAttribute(value) {
+  return escapeHtml(value);
+}
+
+(async function init() {
+
+  const isAdmin = await checkAdmin();
+
+  if (!isAdmin) return;
+
+  await loadSubmissions();
+
+})();
+</script>
+
+</body>
+</html>
