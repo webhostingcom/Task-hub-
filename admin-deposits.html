@@ -3,375 +3,1634 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
   <title>Task Hub | Deposit Administration</title>
+
   <style>
-    *{box-sizing:border-box}
-    body{margin:0;background:#0b1020;color:#eef2ff;font-family:Arial,sans-serif}
-    header{padding:18px;background:#121a30;border-bottom:1px solid #293452}
-    header h1{margin:0;font-size:22px}
-    header p{color:#a9b5d0;font-size:13px}
-    main{max-width:1200px;margin:auto;padding:18px}
-    .card{background:#121a30;border:1px solid #293452;border-radius:14px;padding:16px;margin-bottom:16px}
-    .stats{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px}
-    .stat strong{display:block;font-size:24px;margin-top:8px}
-    .muted{color:#a9b5d0;font-size:13px}
-    .controls{display:flex;gap:10px;flex-wrap:wrap;margin:16px 0}
-    select,input,textarea,button{font:inherit;border-radius:8px;padding:11px;border:1px solid #354361}
-    select,input,textarea{background:#0b1020;color:#eef2ff;width:100%}
-    button{background:#5865f2;color:white;border:0;font-weight:bold;cursor:pointer}
-    button:disabled{opacity:.5;cursor:not-allowed}
-    .reject{background:#c83e55}
-    .approve{background:#16865e}
-    .request{background:#121a30;border:1px solid #293452;border-radius:12px;padding:16px;margin:12px 0}
-    .row{display:flex;gap:10px;flex-wrap:wrap;align-items:center}
-    .row>*{flex:1}
-    .badge{display:inline-block;padding:5px 9px;border-radius:20px;background:#293452;font-size:12px}
-    .pending{color:#ffd166}.approved{color:#55e6a5}.rejected{color:#ff8495}
-    .proof{display:block;margin:12px 0;color:#aebaff}
-    .actions{display:flex;gap:10px;margin-top:10px}
-    .actions button{flex:1}
-    .message{padding:12px;border-radius:8px;margin:12px 0;display:none;white-space:pre-wrap}
-    .error{background:#51202c;color:#ffc5ce}
-    .success{background:#123d31;color:#a5f3d0}
-    .hidden{display:none!important}
-    @media(max-width:600px){.stats{grid-template-columns:1fr}.actions{flex-direction:column}main{padding:12px}}
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      background: #0b1020;
+      color: #eef2ff;
+      font-family: Arial, sans-serif;
+    }
+
+    header {
+      padding: 18px;
+      background: #121a30;
+      border-bottom: 1px solid #293452;
+    }
+
+    header h1 {
+      margin: 0;
+      font-size: 22px;
+    }
+
+    header p {
+      color: #a9b5d0;
+      font-size: 13px;
+      margin-bottom: 0;
+    }
+
+    main {
+      max-width: 1200px;
+      margin: auto;
+      padding: 18px;
+    }
+
+    .card {
+      background: #121a30;
+      border: 1px solid #293452;
+      border-radius: 14px;
+      padding: 16px;
+      margin-bottom: 16px;
+    }
+
+    .stats {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 10px;
+    }
+
+    .stat strong {
+      display: block;
+      font-size: 24px;
+      margin-top: 8px;
+    }
+
+    .muted {
+      color: #a9b5d0;
+      font-size: 13px;
+    }
+
+    .controls {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+      margin: 16px 0;
+    }
+
+    select,
+    input,
+    textarea,
+    button {
+      font: inherit;
+      border-radius: 8px;
+      padding: 11px;
+      border: 1px solid #354361;
+    }
+
+    select,
+    input,
+    textarea {
+      background: #0b1020;
+      color: #eef2ff;
+      width: 100%;
+    }
+
+    button {
+      background: #5865f2;
+      color: white;
+      border: 0;
+      font-weight: bold;
+      cursor: pointer;
+    }
+
+    button:disabled {
+      opacity: .5;
+      cursor: not-allowed;
+    }
+
+    .reject {
+      background: #c83e55;
+    }
+
+    .approve {
+      background: #16865e;
+    }
+
+    .logout {
+      background: #39445f;
+    }
+
+    .request {
+      background: #121a30;
+      border: 1px solid #293452;
+      border-radius: 12px;
+      padding: 16px;
+      margin: 12px 0;
+    }
+
+    .row {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+      align-items: center;
+    }
+
+    .row > * {
+      flex: 1;
+    }
+
+    .badge {
+      display: inline-block;
+      padding: 5px 9px;
+      border-radius: 20px;
+      background: #293452;
+      font-size: 12px;
+    }
+
+    .pending {
+      color: #ffd166;
+    }
+
+    .approved {
+      color: #55e6a5;
+    }
+
+    .rejected {
+      color: #ff8495;
+    }
+
+    .proof {
+      display: block;
+      margin: 12px 0;
+      color: #aebaff;
+    }
+
+    .proof img {
+      max-width: 100%;
+      max-height: 400px;
+      border-radius: 10px;
+      border: 1px solid #293452;
+      display: block;
+      margin-top: 10px;
+    }
+
+    .actions {
+      display: flex;
+      gap: 10px;
+      margin-top: 10px;
+    }
+
+    .actions button {
+      flex: 1;
+    }
+
+    .message {
+      padding: 12px;
+      border-radius: 8px;
+      margin: 12px 0;
+      display: none;
+      white-space: pre-wrap;
+    }
+
+    .error {
+      background: #51202c;
+      color: #ffc5ce;
+    }
+
+    .success {
+      background: #123d31;
+      color: #a5f3d0;
+    }
+
+    .hidden {
+      display: none !important;
+    }
+
+    .loading {
+      color: #a9b5d0;
+      padding: 20px 0;
+      text-align: center;
+    }
+
+    .empty {
+      text-align: center;
+      padding: 30px 10px;
+      color: #a9b5d0;
+    }
+
+    @media(max-width:600px) {
+      .stats {
+        grid-template-columns: 1fr;
+      }
+
+      .actions {
+        flex-direction: column;
+      }
+
+      main {
+        padding: 12px;
+      }
+    }
   </style>
 </head>
+
 <body>
+
 <header>
-  <h1>Task Hub Admin</h1>
-  <p>Manual deposit review and wallet approvals</p>
+  <div class="row">
+    <div>
+      <h1>Task Hub Admin</h1>
+      <p>Manual deposit review and wallet approvals</p>
+    </div>
+
+    <button
+      id="logoutBtn"
+      class="logout"
+      style="max-width:120px"
+    >
+      Logout
+    </button>
+  </div>
 </header>
 
 <main>
+
   <div id="message" class="message"></div>
 
+  <!-- LOGIN -->
   <section id="loginCard" class="card">
+
     <h2>Administrator access</h2>
-    <p class="muted">Sign in using your existing Task Hub account.</p>
-    <label for="email">Email</label>
-    <input id="email" type="email" autocomplete="username">
+
+    <p class="muted">
+      Sign in using your existing Task Hub account.
+    </p>
+
+    <label for="email">
+      Email
+    </label>
+
+    <input
+      id="email"
+      type="email"
+      autocomplete="username"
+    >
+
     <br><br>
-    <label for="password">Password</label>
-    <input id="password" type="password" autocomplete="current-password">
+
+    <label for="password">
+      Password
+    </label>
+
+    <input
+      id="password"
+      type="password"
+      autocomplete="current-password"
+    >
+
     <br><br>
-    <button id="loginBtn">Sign in</button>
+
+    <button id="loginBtn">
+      Sign in
+    </button>
+
   </section>
 
+
+  <!-- ADMIN DASHBOARD -->
   <section id="dashboard" class="hidden">
+
     <div class="row">
-      <h2>Deposit requests</h2>
-      <button id="refreshBtn" style="max-width:140px">Refresh</button>
+
+      <h2>
+        Deposit requests
+      </h2>
+
+      <button
+        id="refreshBtn"
+        style="max-width:140px"
+      >
+        Refresh
+      </button>
+
     </div>
 
+
+    <!-- STATS -->
     <div class="stats">
-      <div class="card stat">Pending<strong id="pendingCount">0</strong></div>
-      <div class="card stat">Approved<strong id="approvedCount">0</strong></div>
-      <div class="card stat">Rejected<strong id="rejectedCount">0</strong></div>
+
+      <div class="card stat">
+        Pending
+        <strong id="pendingCount">0</strong>
+      </div>
+
+      <div class="card stat">
+        Approved
+        <strong id="approvedCount">0</strong>
+      </div>
+
+      <div class="card stat">
+        Rejected
+        <strong id="rejectedCount">0</strong>
+      </div>
+
     </div>
 
+
+    <!-- CONTROLS -->
     <div class="controls">
-      <select id="filter" style="max-width:240px">
-        <option value="pending">Pending requests</option>
-        <option value="all">All requests</option>
+
+      <select
+        id="filter"
+        style="max-width:240px"
+      >
+        <option value="pending">Pending</option>
         <option value="approved">Approved</option>
         <option value="rejected">Rejected</option>
+        <option value="all">All</option>
       </select>
-      <button id="logoutBtn" style="background:#354361">Sign out</button>
+
     </div>
 
-    <div id="requests"></div>
+
+    <!-- REQUESTS -->
+    <div id="requests">
+      <div class="loading">
+        Loading deposit requests...
+      </div>
+    </div>
+
   </section>
+
 </main>
 
-<script>
-(() => {
-  const SUPABASE_URL = "https://bcogfxghqrffrnfetqbo.supabase.co";
-  const SUPABASE_KEY = "sb_publishable_cX6B4WgoF6bwz1Br5kIj4g_p4RsBRJP";
-  const BUCKET = "deposit-proofs";
 
-  let accessToken = "";
-  let currentUser = null;
+<script>
+  const SUPABASE_URL =
+    "https://bcogfxghqrffrnfetqbo.supabase.co";
+
+  const SUPABASE_KEY =
+    "sb_publishable_cX6B4WgoF6bwz1Br5kIj4g_p4RsBRJP";
+
+
+  const loginCard =
+    document.getElementById("loginCard");
+
+  const dashboard =
+    document.getElementById("dashboard");
+
+  const loginBtn =
+    document.getElementById("loginBtn");
+
+  const logoutBtn =
+    document.getElementById("logoutBtn");
+
+  const refreshBtn =
+    document.getElementById("refreshBtn");
+
+  const filter =
+    document.getElementById("filter");
+
+  const requests =
+    document.getElementById("requests");
+
+  const message =
+    document.getElementById("message");
+
+  const pendingCount =
+    document.getElementById("pendingCount");
+
+  const approvedCount =
+    document.getElementById("approvedCount");
+
+  const rejectedCount =
+    document.getElementById("rejectedCount");
+
+
   let deposits = [];
 
-  const $ = id => document.getElementById(id);
 
-  function showMessage(text, type = "error") {
-    const box = $("message");
-    box.textContent = text;
-    box.className = "message " + type;
-    box.style.display = "block";
-    window.scrollTo({top: 0, behavior: "smooth"});
+  function getToken() {
+    return localStorage.getItem(
+      "taskhub_access_token"
+    );
   }
 
-  function clearMessage() {
-    $("message").style.display = "none";
-  }
 
-  async function api(path, options = {}) {
-    const headers = {
-      apikey: SUPABASE_KEY,
-      Authorization: "Bearer " + (accessToken || SUPABASE_KEY),
-      ...(options.headers || {})
-    };
+  function saveSession(session) {
 
-    const response = await fetch(SUPABASE_URL + path, {
-      ...options,
-      headers
-    });
-
-    const text = await response.text();
-    let data = null;
-    try { data = text ? JSON.parse(text) : null; }
-    catch { data = text; }
-
-    if (!response.ok) {
-      throw new Error(data?.message || data?.error_description || data?.error || text || "Request failed.");
+    if (!session) {
+      return;
     }
-    return data;
+
+    if (session.access_token) {
+      localStorage.setItem(
+        "taskhub_access_token",
+        session.access_token
+      );
+    }
+
+    if (session.refresh_token) {
+      localStorage.setItem(
+        "taskhub_refresh_token",
+        session.refresh_token
+      );
+    }
+
+    if (session.user && session.user.id) {
+      localStorage.setItem(
+        "taskhub_user_id",
+        session.user.id
+      );
+    }
+
+    if (session.user && session.user.email) {
+      localStorage.setItem(
+        "taskhub_email",
+        session.user.email
+      );
+    }
   }
 
-  async function verifyAdmin() {
-    const user = await api("/auth/v1/user");
-    if (!user?.id) throw new Error("Please sign in again.");
 
-    currentUser = user;
+  function clearSession() {
 
-    const admins = await api(
-      "/rest/v1/taskhub_admins?select=user_id&user_id=eq." +
-      encodeURIComponent(user.id)
+    localStorage.removeItem(
+      "taskhub_access_token"
     );
 
-    if (!Array.isArray(admins) || !admins.some(a => a.user_id === user.id)) {
-      throw new Error("This account is not an authorized Task Hub administrator.");
-    }
+    localStorage.removeItem(
+      "taskhub_refresh_token"
+    );
 
-    $("loginCard").classList.add("hidden");
-    $("dashboard").classList.remove("hidden");
-    await loadDeposits();
+    localStorage.removeItem(
+      "taskhub_user_id"
+    );
+
+    localStorage.removeItem(
+      "taskhub_email"
+    );
   }
 
-  async function signIn() {
-    clearMessage();
-    const email = $("email").value.trim();
-    const password = $("password").value;
 
-    if (!email || !password) {
-      showMessage("Enter your email and password.");
-      return;
-    }
+  function showMessage(
+    text,
+    type = "error"
+  ) {
 
-    $("loginBtn").disabled = true;
-    $("loginBtn").textContent = "Signing in...";
+    message.textContent = text;
 
-    try {
-      const result = await fetch(SUPABASE_URL + "/auth/v1/token?grant_type=password", {
-        method: "POST",
-        headers: {
-          apikey: SUPABASE_KEY,
-          "Content-Type": "application/json"
-        },
-        body: JSON.stringify({email, password})
-      });
+    message.className =
+      "message " + type;
 
-      const data = await result.json();
-      if (!result.ok) throw new Error(data.message || "Sign-in failed.");
-
-      accessToken = data.access_token;
-      await verifyAdmin();
-      showMessage("Administrator signed in successfully.", "success");
-    } catch (error) {
-      accessToken = "";
-      currentUser = null;
-      showMessage(error.message || "Unable to sign in.");
-    } finally {
-      $("loginBtn").disabled = false;
-      $("loginBtn").textContent = "Sign in";
-    }
+    message.style.display =
+      "block";
   }
 
-  async function loadDeposits() {
-    clearMessage();
-    $("requests").textContent = "Loading deposit requests...";
 
-    try {
-      deposits = await api(
-        "/rest/v1/deposit_requests?select=*&order=created_at.desc"
-      );
+  function hideMessage() {
 
-      if (!Array.isArray(deposits)) deposits = [];
-
-      $("pendingCount").textContent = deposits.filter(d => d.status === "pending").length;
-      $("approvedCount").textContent = deposits.filter(d => d.status === "approved").length;
-      $("rejectedCount").textContent = deposits.filter(d => d.status === "rejected").length;
-
-      renderDeposits();
-    } catch (error) {
-      $("requests").textContent = "";
-      showMessage("Could not load requests: " + error.message);
-    }
+    message.style.display =
+      "none";
   }
 
-  function safe(value) {
-    return String(value ?? "").replace(/[&<>"']/g, c => ({
-      "&":"&amp;", "<":"&lt;", ">":"&gt;", '"':"&quot;", "'":"&#39;"
-    }[c]));
-  }
 
-  function money(value) {
-    return "₦" + Number(value || 0).toLocaleString("en-NG", {
-      minimumFractionDigits: 2,
-      maximumFractionDigits: 2
-    });
-  }
+  function formatNaira(amount) {
 
-  function renderDeposits() {
-    const filter = $("filter").value;
-    const shown = deposits.filter(d => filter === "all" || d.status === filter);
-    const container = $("requests");
-    container.replaceChildren();
+    const number =
+      Number(amount || 0);
 
-    if (!shown.length) {
-      container.textContent = "No deposit requests found.";
-      return;
-    }
-
-    shown.forEach(d => {
-      const card = document.createElement("article");
-      card.className = "request";
-
-      const statusClass = d.status === "approved" ? "approved" :
-        d.status === "rejected" ? "rejected" : "pending";
-
-      card.innerHTML = `
-        <div class="row">
-          <h3>Deposit #${safe(d.id)}</h3>
-          <span class="badge ${statusClass}">${safe(d.status)}</span>
-        </div>
-        <h2>${money(d.amount)}</h2>
-        <p><b>Payment method:</b> ${safe(d.payment_method)}</p>
-        <p><b>User ID:</b> ${safe(d.user_id)}</p>
-        <p><b>Transaction reference:</b> ${safe(d.transaction_reference)}</p>
-        <p><b>Submitted:</b> ${safe(new Date(d.created_at).toLocaleString())}</p>
-        <p><b>User note:</b> ${safe(d.note || "None")}</p>
-        <p><b>Admin note:</b> ${safe(d.admin_note || "None")}</p>
-        <div class="proofArea muted">Loading proof link...</div>
-        ${d.status === "pending" ? `
-          <label for="note-${safe(d.id)}">Admin note (optional)</label>
-          <textarea id="note-${safe(d.id)}" rows="2" placeholder="Reason or review note"></textarea>
-          <div class="actions">
-            <button class="approve" data-action="approved" data-id="${safe(d.id)}">Approve & credit wallet</button>
-            <button class="reject" data-action="rejected" data-id="${safe(d.id)}">Reject deposit</button>
-          </div>
-        ` : ""}
-      `;
-
-      container.appendChild(card);
-      loadProofLink(d, card.querySelector(".proofArea"));
-    });
-  }
-
-  async function loadProofLink(deposit, area) {
-    if (!deposit.proof_url) {
-      area.textContent = "No proof screenshot was attached.";
-      return;
-    }
-
-    try {
-      const path = String(deposit.proof_url).replace(/^\/+/, "");
-      const signed = await api(
-        "/storage/v1/object/sign/" + BUCKET + "/" +
-        path.split("/").map(encodeURIComponent).join("/"),
+    return "₦" +
+      number.toLocaleString(
+        "en-NG",
         {
-          method: "POST",
-          headers: {"Content-Type": "application/json"},
-          body: JSON.stringify({expiresIn: 600})
+          minimumFractionDigits: 2,
+          maximumFractionDigits: 2
+        }
+      );
+  }
+
+
+  function escapeHTML(value) {
+
+    return String(value ?? "")
+      .replace(/&/g, "&amp;")
+      .replace(/</g, "&lt;")
+      .replace(/>/g, "&gt;")
+      .replace(/"/g, "&quot;")
+      .replace(/'/g, "&#039;");
+  }
+
+
+  function getStatusClass(status) {
+
+    if (status === "approved") {
+      return "approved";
+    }
+
+    if (status === "rejected") {
+      return "rejected";
+    }
+
+    return "pending";
+  }
+
+
+  async function getCurrentUser() {
+
+    const token =
+      getToken();
+
+    if (!token) {
+      return null;
+    }
+
+    const response =
+      await fetch(
+        SUPABASE_URL +
+        "/auth/v1/user",
+        {
+          method: "GET",
+          headers: {
+            "apikey":
+              SUPABASE_KEY,
+
+            "Authorization":
+              "Bearer " + token
+          }
         }
       );
 
-      let signedURL = signed.signedURL || signed.signedUrl;
-      if (!signedURL) throw new Error("No signed link returned.");
+    if (!response.ok) {
+      return null;
+    }
 
-      if (signedURL.startsWith("/")) {
-        signedURL = SUPABASE_URL + "/storage/v1" + signedURL;
+    return await response.json();
+  }
+
+
+  async function verifyAdmin() {
+
+    const token =
+      getToken();
+
+    if (!token) {
+      return false;
+    }
+
+
+    const user =
+      await getCurrentUser();
+
+    if (!user || !user.id) {
+      return false;
+    }
+
+
+    localStorage.setItem(
+      "taskhub_user_id",
+      user.id
+    );
+
+
+    if (user.email) {
+      localStorage.setItem(
+        "taskhub_email",
+        user.email
+      );
+    }
+
+
+    const response =
+      await fetch(
+        SUPABASE_URL +
+        "/rest/v1/rpc/is_taskhub_admin",
+        {
+          method: "POST",
+
+          headers: {
+            "Content-Type":
+              "application/json",
+
+            "apikey":
+              SUPABASE_KEY,
+
+            "Authorization":
+              "Bearer " + token
+          },
+
+          body: "{}"
+        }
+      );
+
+
+    if (!response.ok) {
+      return false;
+    }
+
+
+    const result =
+      await response.json();
+
+
+    return (
+      result === true ||
+      result === "true"
+    );
+  }
+
+
+  async function signIn() {
+
+    hideMessage();
+
+    const email =
+      document
+        .getElementById("email")
+        .value
+        .trim();
+
+    const password =
+      document
+        .getElementById("password")
+        .value;
+
+
+    if (!email || !password) {
+      showMessage(
+        "Please enter your email and password."
+      );
+      return;
+    }
+
+
+    loginBtn.disabled =
+      true;
+
+    loginBtn.textContent =
+      "Signing in...";
+
+
+    try {
+
+      const response =
+        await fetch(
+          SUPABASE_URL +
+          "/auth/v1/token?grant_type=password",
+          {
+            method: "POST",
+
+            headers: {
+              "Content-Type":
+                "application/json",
+
+              "apikey":
+                SUPABASE_KEY
+            },
+
+            body: JSON.stringify({
+              email,
+              password
+            })
+          }
+        );
+
+
+      const data =
+        await response.json();
+
+
+      if (!response.ok) {
+
+        throw new Error(
+          data.error_description ||
+          data.msg ||
+          data.message ||
+          "Unable to sign in."
+        );
       }
 
-      const link = document.createElement("a");
-      link.className = "proof";
-      link.href = signedURL;
-      link.target = "_blank";
-      link.rel = "noopener noreferrer";
-      link.textContent = "View payment proof (expires in 10 minutes)";
-      area.replaceChildren(link);
+
+      saveSession(data);
+
+
+      const isAdmin =
+        await verifyAdmin();
+
+
+      if (!isAdmin) {
+
+        clearSession();
+
+        throw new Error(
+          "This account is not authorized as a Task Hub administrator."
+        );
+      }
+
+
+      loginCard.classList.add(
+        "hidden"
+      );
+
+      dashboard.classList.remove(
+        "hidden"
+      );
+
+
+      await loadDeposits();
+
+
     } catch (error) {
-      area.textContent = "Unable to open proof: " + error.message;
+
+      showMessage(
+        error.message ||
+        "Unable to sign in."
+      );
+
+    } finally {
+
+      loginBtn.disabled =
+        false;
+
+      loginBtn.textContent =
+        "Sign in";
     }
   }
 
-  async function reviewDeposit(id, status, button) {
-    clearMessage();
 
-    const noteElement = $("note-" + id);
-    const adminNote = noteElement ? noteElement.value.trim() : "";
+  async function initialize() {
 
-    const confirmation = status === "approved"
-      ? "Approve this deposit and credit the user's wallet?"
-      : "Reject this deposit without crediting the wallet?";
+    hideMessage();
 
-    if (!window.confirm(confirmation)) return;
 
-    button.disabled = true;
-    button.textContent = status === "approved" ? "Approving..." : "Rejecting...";
+    const token =
+      getToken();
+
+
+    if (!token) {
+
+      loginCard.classList.remove(
+        "hidden"
+      );
+
+      dashboard.classList.add(
+        "hidden"
+      );
+
+      return;
+    }
+
 
     try {
-      const result = await api("/rest/v1/rpc/review_deposit", {
-        method: "POST",
-        headers: {"Content-Type": "application/json"},
-        body: JSON.stringify({
-          p_deposit_id: Number(id),
-          p_status: status,
-          p_admin_note: adminNote || null
-        })
-      });
 
-      if (result && result.success === false) {
-        throw new Error(result.message || "Review failed.");
+      const isAdmin =
+        await verifyAdmin();
+
+
+      if (!isAdmin) {
+
+        clearSession();
+
+        loginCard.classList.remove(
+          "hidden"
+        );
+
+        dashboard.classList.add(
+          "hidden"
+        );
+
+        return;
       }
 
+
+      loginCard.classList.add(
+        "hidden"
+      );
+
+      dashboard.classList.remove(
+        "hidden"
+      );
+
+
+      await loadDeposits();
+
+
+    } catch (error) {
+
+      clearSession();
+
+      loginCard.classList.remove(
+        "hidden"
+      );
+
+      dashboard.classList.add(
+        "hidden"
+      );
+
       showMessage(
-        "Deposit #" + id + " " + status + ".",
+        "Your Task Hub session could not be verified. Please sign in again."
+      );
+    }
+  }
+
+
+  async function loadDeposits() {
+
+    const token =
+      getToken();
+
+
+    if (!token) {
+
+      clearSession();
+
+      window.location.href =
+        "login.html";
+
+      return;
+    }
+
+
+    requests.innerHTML =
+      '<div class="loading">Loading deposit requests...</div>';
+
+
+    try {
+
+      const response =
+        await fetch(
+          SUPABASE_URL +
+          "/rest/v1/deposit_requests" +
+          "?select=*"+
+          "&order=created_at.desc",
+          {
+            method: "GET",
+
+            headers: {
+              "apikey":
+                SUPABASE_KEY,
+
+              "Authorization":
+                "Bearer " + token
+            }
+          }
+        );
+
+
+      if (
+        response.status === 401 ||
+        response.status === 403
+      ) {
+
+        clearSession();
+
+        window.location.href =
+          "login.html";
+
+        return;
+      }
+
+
+      if (!response.ok) {
+
+        const errorText =
+          await response.text();
+
+        throw new Error(
+          errorText ||
+          "Unable to load deposit requests."
+        );
+      }
+
+
+      deposits =
+        await response.json();
+
+
+      if (!Array.isArray(deposits)) {
+        deposits = [];
+      }
+
+
+      updateStats();
+
+      renderDeposits();
+
+
+    } catch (error) {
+
+      requests.innerHTML = "";
+
+      showMessage(
+        "Failed to load deposit requests.\n\n" +
+        (error.message ||
+          "Unknown error.")
+      );
+    }
+  }
+
+
+  function updateStats() {
+
+    const pending =
+      deposits.filter(
+        item =>
+          String(item.status)
+            .toLowerCase() ===
+          "pending"
+      ).length;
+
+
+    const approved =
+      deposits.filter(
+        item =>
+          String(item.status)
+            .toLowerCase() ===
+          "approved"
+      ).length;
+
+
+    const rejected =
+      deposits.filter(
+        item =>
+          String(item.status)
+            .toLowerCase() ===
+          "rejected"
+      ).length;
+
+
+    pendingCount.textContent =
+      pending;
+
+    approvedCount.textContent =
+      approved;
+
+    rejectedCount.textContent =
+      rejected;
+  }
+
+
+  function renderDeposits() {
+
+    const selectedFilter =
+      filter.value;
+
+
+    let filtered =
+      deposits;
+
+
+    if (
+      selectedFilter !==
+      "all"
+    ) {
+
+      filtered =
+        deposits.filter(
+          item =>
+            String(item.status)
+              .toLowerCase() ===
+            selectedFilter
+        );
+    }
+
+
+    if (!filtered.length) {
+
+      requests.innerHTML =
+        '<div class="card empty">No deposit requests found.</div>';
+
+      return;
+    }
+
+
+    requests.innerHTML =
+      filtered
+        .map(renderDeposit)
+        .join("");
+
+
+    filtered.forEach(
+      deposit => {
+
+        const button =
+          document.getElementById(
+            "approve-" + deposit.id
+          );
+
+        if (button) {
+
+          button.addEventListener(
+            "click",
+            () =>
+              reviewDeposit(
+                deposit.id,
+                "approved"
+              )
+          );
+        }
+
+
+        const rejectButton =
+          document.getElementById(
+            "reject-" + deposit.id
+          );
+
+        if (rejectButton) {
+
+          rejectButton.addEventListener(
+            "click",
+            () =>
+              reviewDeposit(
+                deposit.id,
+                "rejected"
+              )
+          );
+        }
+      }
+    );
+  }
+
+
+  function renderDeposit(deposit) {
+
+    const id =
+      escapeHTML(deposit.id);
+
+    const status =
+      String(
+        deposit.status ||
+        "pending"
+      ).toLowerCase();
+
+
+    const statusClass =
+      getStatusClass(status);
+
+
+    const amount =
+      formatNaira(
+        deposit.amount
+      );
+
+
+    const createdAt =
+      deposit.created_at
+        ? new Date(
+            deposit.created_at
+          ).toLocaleString(
+            "en-NG"
+          )
+        : "Unknown";
+
+
+    const userId =
+      escapeHTML(
+        deposit.user_id ||
+        "Unknown"
+      );
+
+
+    const reference =
+      escapeHTML(
+        deposit.reference ||
+        deposit.payment_reference ||
+        deposit.transaction_reference ||
+        "Not provided"
+      );
+
+
+    const method =
+      escapeHTML(
+        deposit.payment_method ||
+        deposit.method ||
+        "Not specified"
+      );
+
+
+    const proof =
+      deposit.proof ||
+      deposit.proof_url ||
+      deposit.receipt_url ||
+      "";
+
+
+    const note =
+      escapeHTML(
+        deposit.admin_note ||
+        ""
+      );
+
+
+    return `
+      <article class="request">
+
+        <div class="row">
+
+          <div>
+            <strong>
+              Deposit #${id}
+            </strong>
+
+            <div class="muted">
+              ${createdAt}
+            </div>
+          </div>
+
+          <div style="text-align:right">
+            <span class="badge ${statusClass}">
+              ${escapeHTML(status)}
+            </span>
+          </div>
+
+        </div>
+
+
+        <hr style="
+          border:0;
+          border-top:1px solid #293452;
+          margin:14px 0;
+        ">
+
+
+        <p>
+          <strong>Amount:</strong>
+          ${amount}
+        </p>
+
+
+        <p>
+          <strong>User ID:</strong>
+          <span class="muted">
+            ${userId}
+          </span>
+        </p>
+
+
+        <p>
+          <strong>Payment method:</strong>
+          ${method}
+        </p>
+
+
+        <p>
+          <strong>Reference:</strong>
+          ${reference}
+        </p>
+
+
+        ${
+          proof
+            ? `
+              <div class="proof">
+
+                <strong>
+                  Payment proof:
+                </strong>
+
+                <div
+                  id="proof-${id}"
+                  class="muted"
+                >
+                  Loading proof...
+                </div>
+
+              </div>
+            `
+            : `
+              <div class="proof">
+                <strong>
+                  Payment proof:
+                </strong>
+
+                <span class="muted">
+                  No proof attached.
+                </span>
+              </div>
+            `
+        }
+
+
+        ${
+          note
+            ? `
+              <p>
+                <strong>Admin note:</strong><br>
+                <span class="muted">
+                  ${note}
+                </span>
+              </p>
+            `
+            : ""
+        }
+
+
+        ${
+          status === "pending"
+            ? `
+              <div class="actions">
+
+                <button
+                  id="approve-${id}"
+                  class="approve"
+                >
+                  Approve & Credit Wallet
+                </button>
+
+                <button
+                  id="reject-${id}"
+                  class="reject"
+                >
+                  Reject
+                </button>
+
+              </div>
+            `
+            : ""
+        }
+
+      </article>
+    `;
+  }
+
+
+  async function loadProofs() {
+
+    const pendingProofs =
+      deposits.filter(
+        deposit =>
+          deposit.proof ||
+          deposit.proof_url ||
+          deposit.receipt_url
+      );
+
+
+    for (
+      const deposit
+      of pendingProofs
+    ) {
+
+      const proof =
+        deposit.proof ||
+        deposit.proof_url ||
+        deposit.receipt_url;
+
+
+      const container =
+        document.getElementById(
+          "proof-" + deposit.id
+        );
+
+
+      if (!container) {
+        continue;
+      }
+
+
+      try {
+
+        const path =
+          String(proof)
+            .replace(
+              /^https?:\/\/[^/]+\/storage\/v1\/object\/(?:public|sign)\/deposit-proofs\//,
+              ""
+            );
+
+
+        const response =
+          await fetch(
+            SUPABASE_URL +
+            "/storage/v1/object/sign/deposit-proofs/" +
+            encodeURIComponent(path),
+            {
+              method: "POST",
+
+              headers: {
+                "Content-Type":
+                  "application/json",
+
+                "apikey":
+                  SUPABASE_KEY,
+
+                "Authorization":
+                  "Bearer " +
+                  getToken()
+              },
+
+              body: JSON.stringify({
+                expiresIn: 3600
+              })
+            }
+          );
+
+
+        if (!response.ok) {
+
+          container.textContent =
+            "Unable to open proof.";
+
+          continue;
+        }
+
+
+        const data =
+          await response.json();
+
+
+        const signedURL =
+          data.signedURL ||
+          data.signedUrl ||
+          data.url;
+
+
+        if (!signedURL) {
+
+          container.textContent =
+            "Proof URL unavailable.";
+
+          continue;
+        }
+
+
+        container.innerHTML = `
+          <a
+            href="${escapeHTML(signedURL)}"
+            target="_blank"
+            rel="noopener"
+          >
+            Open payment proof
+          </a>
+
+          <img
+            src="${escapeHTML(signedURL)}"
+            alt="Payment proof"
+            loading="lazy"
+            onerror="this.style.display='none'"
+          >
+        `;
+
+
+      } catch (error) {
+
+        container.textContent =
+          "Unable to load proof.";
+      }
+    }
+  }
+
+
+  async function reviewDeposit(
+    depositId,
+    status
+  ) {
+
+    const deposit =
+      deposits.find(
+        item =>
+          String(item.id) ===
+          String(depositId)
+      );
+
+
+    if (!deposit) {
+
+      showMessage(
+        "Deposit request not found."
+      );
+
+      return;
+    }
+
+
+    if (status === "approved") {
+
+      const confirmed =
+        confirm(
+          "Approve this deposit and credit the user's wallet?\n\n" +
+          "Amount: " +
+          formatNaira(
+            deposit.amount
+          )
+        );
+
+
+      if (!confirmed) {
+        return;
+      }
+
+    } else {
+
+      const confirmed =
+        confirm(
+          "Reject this deposit request?"
+        );
+
+
+      if (!confirmed) {
+        return;
+      }
+    }
+
+
+    const token =
+      getToken();
+
+
+    if (!token) {
+
+      clearSession();
+
+      window.location.href =
+        "login.html";
+
+      return;
+    }
+
+
+    const buttons =
+      document.querySelectorAll(
+        `#approve-${depositId}, #reject-${depositId}`
+      );
+
+
+    buttons.forEach(
+      button =>
+        button.disabled = true
+    );
+
+
+    hideMessage();
+
+
+    try {
+
+      const response =
+        await fetch(
+          SUPABASE_URL +
+          "/rest/v1/rpc/review_deposit",
+          {
+            method: "POST",
+
+            headers: {
+              "Content-Type":
+                "application/json",
+
+              "apikey":
+                SUPABASE_KEY,
+
+              "Authorization":
+                "Bearer " + token
+            },
+
+            body: JSON.stringify({
+              p_deposit_id:
+                depositId,
+
+              p_status:
+                status
+            })
+          }
+        );
+
+
+      if (
+        response.status === 401 ||
+        response.status === 403
+      ) {
+
+        clearSession();
+
+        window.location.href =
+          "login.html";
+
+        return;
+      }
+
+
+      const resultText =
+        await response.text();
+
+
+      if (!response.ok) {
+
+        throw new Error(
+          resultText ||
+          "The deposit review failed."
+        );
+      }
+
+
+      showMessage(
+        status === "approved"
+          ? "Deposit approved successfully. The user's wallet has been credited."
+          : "Deposit rejected successfully.",
         "success"
       );
 
+
       await loadDeposits();
+
+      await loadProofs();
+
+
     } catch (error) {
-      button.disabled = false;
-      button.textContent = status === "approved" ? "Approve & credit wallet" : "Reject deposit";
-      showMessage("Review failed: " + error.message);
+
+      showMessage(
+        "Unable to review deposit.\n\n" +
+        (
+          error.message ||
+          "Unknown error."
+        )
+      );
+
+      buttons.forEach(
+        button =>
+          button.disabled = false
+      );
     }
   }
 
-  $("loginBtn").addEventListener("click", signIn);
-  $("refreshBtn").addEventListener("click", loadDeposits);
-  $("filter").addEventListener("change", renderDeposits);
 
-  $("requests").addEventListener("click", event => {
-    const button = event.target.closest("button[data-action]");
-    if (!button) return;
-    reviewDeposit(button.dataset.id, button.dataset.action, button);
-  });
+  loginBtn.addEventListener(
+    "click",
+    signIn
+  );
 
-  $("logoutBtn").addEventListener("click", () => {
-    accessToken = "";
-    currentUser = null;
-    deposits = [];
-    $("dashboard").classList.add("hidden");
-    $("loginCard").classList.remove("hidden");
-    $("password").value = "";
-    $("requests").replaceChildren();
-    clearMessage();
-  });
-})();
+
+  document
+    .getElementById("password")
+    .addEventListener(
+      "keydown",
+      event => {
+
+        if (
+          event.key ===
+          "Enter"
+        ) {
+          signIn();
+        }
+      }
+    );
+
+
+  logoutBtn.addEventListener(
+    "click",
+    () => {
+
+      clearSession();
+
+      deposits = [];
+
+      dashboard.classList.add(
+        "hidden"
+      );
+
+      loginCard.classList.remove(
+        "hidden"
+      );
+
+      document.getElementById(
+        "password"
+      ).value = "";
+
+      showMessage(
+        "You have been signed out.",
+        "success"
+      );
+    }
+  );
+
+
+  refreshBtn.addEventListener(
+    "click",
+    async () => {
+
+      await loadDeposits();
+
+      await loadProofs();
+    }
+  );
+
+
+  filter.addEventListener(
+    "change",
+    renderDeposits
+  );
+
+
+  /*
+   * Load the page using the existing
+   * Task Hub authentication session.
+   */
+  initialize()
+    .then(
+      () => loadProofs()
+    )
+    .catch(
+      error => {
+
+        console.error(
+          error
+        );
+      }
+    );
 </script>
+
 </body>
 </html>
