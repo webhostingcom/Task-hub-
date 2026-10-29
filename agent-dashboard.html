@@ -59,43 +59,177 @@ function renderActivity(a){
  return `<div class="activity"><strong>${esc(a.activity_type||'Agent Activity')}</strong><div class="muted" style="margin:6px 0">${esc(a.description||'No instructions provided.')}</div><span class="badge">${esc(a.status||'pending')}</span>${a.commission?`<div class="small muted" style="margin-top:7px">Activity commission: ${money(a.commission)}</div>`:''}${extra}</div>`;
 }
 async function submitProof(id){
- const box=$("proof-"+id); const proof=box?box.value.trim():"";
- if(!proof){notice("Please enter your proof before submitting.");return}
- const btn=box.parentElement.querySelector("button");btn.disabled=true;btn.textContent="Submitting…";clearNotice();
- try{
-   await req("/rest/v1/taskhub_agent_activity?id=eq."+encodeURIComponent(id)+"&agent_id=eq."+encodeURIComponent(currentUserId),{method:"PATCH",body:JSON.stringify({proof_text:proof,submitted_at:new Date().toISOString(),status:"submitted"})});
-   notice("Proof submitted successfully. It is now waiting for admin verification.","ok");await load();
- }catch(e){btn.disabled=false;btn.textContent="Submit Proof";notice(e.message||"Unable to submit proof.")}
+  const box = $("proof-" + id);
+  const proof = box ? box.value.trim() : "";
+
+  if (!proof) {
+    notice("Please enter your proof before submitting.");
+    return;
+  }
+
+  const btn = box.parentElement.querySelector("button");
+  btn.disabled = true;
+  btn.textContent = "Submitting…";
+  clearNotice();
+
+  try {
+    const result = await req(
+      "/rest/v1/taskhub_agent_activity?id=eq." +
+      encodeURIComponent(id) +
+      "&agent_id=eq." +
+      encodeURIComponent(currentUserId),
+      {
+        method: "PATCH",
+        headers: {
+          "Prefer": "return=representation"
+        },
+        body: JSON.stringify({
+          proof_text: proof,
+          submitted_at: new Date().toISOString(),
+          status: "submitted"
+        })
+      }
+    );
+
+    if (!Array.isArray(result) || result.length === 0) {
+      throw new Error(
+        "Proof was not saved. Please refresh the page and try again."
+      );
+    }
+
+    notice(
+      "✅ Proof submitted successfully! Your activity is now waiting for admin verification.",
+      "ok"
+    );
+
+    await load();
+
+  } catch (e) {
+    console.error("Proof submission error:", e);
+
+    btn.disabled = false;
+    btn.textContent = "Submit Proof";
+
+    notice(
+      "❌ Proof submission failed: " +
+      (e.message || "Unknown error"),
+      "error"
+    );
+  }
 }
+
 async function load(){
- clearNotice();$("refresh").disabled=true;$("status").textContent="Checking account…";
- try{
-  if(!token)throw new Error("No active login session. Please log in again.");
-  const user=await req("/auth/v1/user");if(!user?.id)throw new Error("Supabase could not verify the signed-in user.");currentUserId=user.id;localStorage.setItem("taskhub_user_id",user.id);
-  const agents=await req("/rest/v1/taskhub_agents?select=id,status,role_id,started_at,user_id&user_id=eq."+encodeURIComponent(user.id)+"&status=eq.active&order=created_at.desc&limit=1");
-  if(!agents.length)throw new Error("No active Agent account was found for this signed-in account.");
-  const agent=agents[0];
-  const [roles,profiles,activities,transactions]=await Promise.all([
-   req("/rest/v1/taskhub_agent_roles?select=id,name,fee,commission,description,minimum_withdrawal&id=eq."+encodeURIComponent(agent.role_id)+"&limit=1"),
-   req("/rest/v1/profiles?select=balance,full_name,username&id=eq."+encodeURIComponent(user.id)+"&limit=1"),
-   req("/rest/v1/taskhub_agent_activity?select=id,activity_type,referred_user_id,description,commission,status,created_at,submitted_at,verified_at,proof_text,admin_note&agent_id=eq."+encodeURIComponent(agent.user_id)+"&order=created_at.desc"),
-   req("/rest/v1/wallet_transactions?select=id,amount,description,reference_id,created_at&user_id=eq."+encodeURIComponent(user.id)+"&type=eq.agent_commission&order=created_at.desc")
-  ]);
-  if(!roles.length)throw new Error("Agent account was found, but its Agent role could not be found.");
-  const role=roles[0],profile=profiles[0],acts=Array.isArray(activities)?activities:[],tx=Array.isArray(transactions)?transactions:[];
-  $("status").textContent="Active";$("roleDescription").textContent=role.description||"Manage your Agent activities and commissions.";
-  $("agentId").textContent=agent.id;$("roleName").textContent=role.name||"Agent";$("roleCommission").textContent=money(role.commission);$("minimumWithdrawal").textContent=money(role.minimum_withdrawal);$("roleFee").textContent=money(role.fee);$("startedAt").textContent=agent.started_at?new Date(agent.started_at).toLocaleDateString("en-NG",{day:"numeric",month:"short",year:"numeric"}):"—";
-  // Wallet balance remains the user's real profile balance. It is never replaced by commission totals.
-  $("balance").textContent=profile?money(profile.balance):"Profile missing";
-  // Verified commissions are only agent_commission wallet transactions, i.e. commissions already credited after verification.
-  $("commissionTotal").textContent=money(tx.reduce((sum,x)=>sum+Number(x.amount||0),0));
-  $("pending").textContent=acts.filter(x=>["pending","rejected"].includes(statusLabel(x.status))).length;
-  $("total").textContent=acts.length;
-  $("activities").innerHTML=acts.length?acts.map(renderActivity).join(""):"<div class='muted'>No Agent activities have been assigned/recorded yet.</div>";
- }catch(e){console.error(e);$("status").textContent="Unable to load";notice(e.message||"Unable to load Agent Dashboard.")}
- finally{$("refresh").disabled=false}
+  clearNotice();
+  $("refresh").disabled=true;
+  $("status").textContent="Checking account…";
+
+  try{
+    if(!token){
+      throw new Error("No active login session. Please log in again.");
+    }
+
+    const user=await req("/auth/v1/user");
+
+    if(!user?.id){
+      throw new Error("Supabase could not verify the signed-in user.");
+    }
+
+    currentUserId=user.id;
+    localStorage.setItem("taskhub_user_id",user.id);
+
+    const agents=await req(
+      "/rest/v1/taskhub_agents?select=id,status,role_id,started_at,user_id"+
+      "&user_id=eq."+encodeURIComponent(user.id)+
+      "&status=eq.active"+
+      "&order=created_at.desc&limit=1"
+    );
+
+    if(!agents.length){
+      throw new Error("No active Agent account was found for this signed-in account.");
+    }
+
+    const agent=agents[0];
+
+    const [roles,profiles,activities,transactions]=await Promise.all([
+      req(
+        "/rest/v1/taskhub_agent_roles?select=id,name,fee,commission,description,minimum_withdrawal"+
+        "&id=eq."+encodeURIComponent(agent.role_id)+"&limit=1"
+      ),
+
+      req(
+        "/rest/v1/profiles?select=balance,full_name,username"+
+        "&id=eq."+encodeURIComponent(user.id)+"&limit=1"
+      ),
+
+      req(
+        "/rest/v1/taskhub_agent_activity?select=id,activity_type,referred_user_id,description,commission,status,created_at,submitted_at,verified_at,proof_text,admin_note"+
+        "&agent_id=eq."+encodeURIComponent(agent.user_id)+
+        "&order=created_at.desc"
+      ),
+
+      req(
+        "/rest/v1/wallet_transactions?select=id,amount,description,reference_id,created_at"+
+        "&user_id=eq."+encodeURIComponent(user.id)+
+        "&type=eq.agent_commission"+
+        "&order=created_at.desc"
+      )
+    ]);
+
+    if(!roles.length){
+      throw new Error("Agent account was found, but its Agent role could not be found.");
+    }
+
+    const role=roles[0];
+    const profile=profiles[0];
+    const acts=Array.isArray(activities)?activities:[];
+    const tx=Array.isArray(transactions)?transactions:[];
+
+    $("status").textContent="Active";
+
+    $("roleDescription").textContent=
+      role.description || "Manage your Agent activities and commissions.";
+
+    $("agentId").textContent=agent.id;
+    $("roleName").textContent=role.name || "Agent";
+    $("roleCommission").textContent=money(role.commission);
+    $("minimumWithdrawal").textContent=money(role.minimum_withdrawal);
+    $("roleFee").textContent=money(role.fee);
+
+    $("startedAt").textContent=agent.started_at
+      ? new Date(agent.started_at).toLocaleDateString("en-NG",{
+          day:"numeric",
+          month:"short",
+          year:"numeric"
+        })
+      : "—";
+
+    $("balance").textContent=
+      profile ? money(profile.balance) : "Profile missing";
+
+    $("commissionTotal").textContent=
+      money(tx.reduce((sum,x)=>sum+Number(x.amount||0),0));
+
+    $("pending").textContent=
+      acts.filter(x=>["pending","rejected"].includes(statusLabel(x.status))).length;
+
+    $("total").textContent=acts.length;
+
+    $("activities").innerHTML=acts.length
+      ? acts.map(renderActivity).join("")
+      : "<div class='muted'>No Agent activities have been assigned/recorded yet.</div>";
+
+  }catch(e){
+    console.error("Agent dashboard error:",e);
+    $("status").textContent="Unable to load";
+    notice(e.message || "Unable to load Agent Dashboard.");
+  }finally{
+    $("refresh").disabled=false;
+  }
 }
-$("refresh").addEventListener("click",load);load();
+
+$("refresh").addEventListener("click",load);
+
+load();
 </script>
 </body>
 </html>
