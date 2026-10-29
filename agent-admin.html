@@ -3,65 +3,22 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>Task Hub | Agent Management v2</title>
+<title>Task Hub | Agent Management</title>
 <link rel="stylesheet" href="style.css">
 <style>
-body{background:#f7f7fb}.container{max-width:1000px;margin:auto;padding:20px}
-.card{background:#fff;border:1px solid #e7e7ef;border-radius:14px;padding:20px;margin-top:18px}
-.row{display:grid;grid-template-columns:1fr 1fr;gap:14px}label{display:block;font-weight:700;margin:14px 0 7px}
-input,select,textarea{width:100%;box-sizing:border-box;padding:12px;border:1px solid #dcdce5;border-radius:9px;font:inherit}
-textarea{min-height:110px;resize:vertical}button{cursor:pointer}
-.notice{margin-top:16px;padding:13px;border-radius:9px;white-space:pre-wrap;word-break:break-word}
-.error{background:#ffe8e8;color:#9d2020}.ok{background:#e9f8ef;color:#087443}
-.agent-card{padding:14px;border:1px solid #eee;border-radius:10px;margin-top:10px}
-.agent-card strong{display:inline-block;min-width:130px}.muted{color:#666;font-size:13px;line-height:1.5}
-.copy{border:1px solid #ddd;background:#fff;border-radius:7px;padding:5px 8px;margin-left:6px}
-@media(max-width:700px){.row{grid-template-columns:1fr}}
+body{background:#f7f7fb}.container{max-width:1100px;margin:auto;padding:20px}.card{background:#fff;border:1px solid #e7e7ef;border-radius:14px;padding:20px;margin-top:18px}.row{display:grid;grid-template-columns:1fr 1fr;gap:14px}label{display:block;font-weight:700;margin:14px 0 7px}input,select,textarea{width:100%;box-sizing:border-box;padding:12px;border:1px solid #dcdce5;border-radius:9px;font:inherit}textarea{min-height:100px;resize:vertical}button{cursor:pointer}.notice,.message{margin-top:14px;padding:13px;border-radius:9px;white-space:pre-wrap;word-break:break-word}.error{background:#ffe8e8;color:#9d2020}.ok{background:#e9f8ef;color:#087443}.agent-card{padding:16px;border:1px solid #eee;border-radius:10px;margin-top:12px}.muted{color:#666;font-size:13px;line-height:1.5}.pill{display:inline-block;padding:5px 9px;border-radius:999px;font-size:12px;font-weight:700;background:#eee}.pending{background:#fff3cd;color:#7a5b00}.submitted{background:#e6f0ff;color:#1457a6}.verified{background:#e8f7ee;color:#087443}.rejected{background:#ffe8e8;color:#9d2020}.proof{margin-top:12px;background:#fafafa;border:1px solid #eee;border-radius:10px;padding:13px;white-space:pre-wrap;word-break:break-word}.actions{display:flex;gap:9px;flex-wrap:wrap;margin-top:14px}.approve{background:#087443;color:#fff;border:0;border-radius:8px;padding:10px 14px}.reject{background:#b42318;color:#fff;border:0;border-radius:8px;padding:10px 14px}.secondary{background:#fff;border:1px solid #ccc;border-radius:8px;padding:10px 14px}.hidden{display:none}.stat{font-size:24px;font-weight:800}.stats{display:grid;grid-template-columns:repeat(3,1fr);gap:12px}.statbox{padding:15px;border:1px solid #eee;border-radius:10px}.topline{display:flex;justify-content:space-between;gap:10px;align-items:center;flex-wrap:wrap}@media(max-width:700px){.row,.stats{grid-template-columns:1fr}}
 </style>
 </head>
 <body>
-<header class="site-header"><div class="container" style="display:flex;justify-content:space-between;align-items:center;gap:10px">
-<a href="admin.html" class="logo">Task Hub Admin</a><a href="admin.html" style="text-decoration:none">← Admin Dashboard</a>
-</div></header>
+<header class="site-header"><div class="container" style="display:flex;justify-content:space-between;align-items:center;gap:10px"><a href="admin.html" class="logo">Task Hub Admin</a><a href="admin.html" style="text-decoration:none">← Admin Dashboard</a></div></header>
 <main class="container">
 <h1>Agent Management</h1>
-<p class="muted">Select an active Agent from the list. You do not need to manually guess an Agent ID.</p>
+<p class="muted">Assign activities and review submitted Agent proofs. Only verified activities earn commission.</p>
 <div id="notice"></div>
-
-<section class="card">
-<h2>Active Agents</h2>
-<div id="agents">Loading active agents…</div>
-</section>
-
-<section class="card">
-<h2>Assign Agent Activity</h2>
-<p class="muted">The existing Task Hub activity RPC uses the Agent user UUID in the assignment form. The page below also shows the numeric Agent record ID so you can identify both.</p>
-<form id="form">
-<label for="agent">Agent</label>
-<select id="agent" required><option value="">Loading agents…</option></select>
-
-<div class="row">
-<div><label for="type">Activity Type</label><input id="type" required placeholder="e.g. New user acquisition"></div>
-<div><label for="commission">Commission (optional)</label><input id="commission" type="number" min="0" step="0.01" placeholder="Leave empty to use role commission"></div>
-</div>
-
-<label for="description">Instructions / Description</label>
-<textarea id="description" required placeholder="Tell the Agent exactly what work to complete."></textarea>
-
-<label for="referred">Referred User UUID (optional)</label>
-<input id="referred" placeholder="Optional UUID">
-
-<button class="btn btn-primary" style="margin-top:15px" type="submit" id="submit">Assign Activity</button>
-<div id="formMessage" class="muted" style="margin-top:10px"></div>
-</form>
-</section>
-
-<section class="card">
-<h2>Agent Activities</h2>
-<div id="activities">Loading…</div>
-</section>
+<section class="card"><div class="stats"><div class="statbox"><div class="muted">Active Agents</div><div class="stat" id="agentCount">—</div></div><div class="statbox"><div class="muted">Awaiting Review</div><div class="stat" id="reviewCount">—</div></div><div class="statbox"><div class="muted">Verified Activities</div><div class="stat" id="verifiedCount">—</div></div></div></section>
+<section class="card"><h2>Assign Agent Activity</h2><form id="form"><label for="agent">Agent</label><select id="agent" required><option value="">Loading agents…</option></select><div class="row"><div><label for="type">Activity Type</label><input id="type" required placeholder="e.g. New user acquisition"></div><div><label for="commission">Commission</label><input id="commission" type="number" min="0" step="0.01" placeholder="Leave empty to use role commission"></div></div><label for="description">Instructions / Description</label><textarea id="description" required placeholder="Tell the Agent exactly what work to complete."></textarea><label for="referred">Referred User UUID (optional)</label><input id="referred" placeholder="Optional UUID"><button class="btn btn-primary" style="margin-top:15px" type="submit" id="submit">Assign Activity</button><div id="formMessage" class="muted" style="margin-top:10px"></div></form></section>
+<section class="card"><div class="topline"><div><h2 style="margin:0">Agent Activity Review</h2><p class="muted">Submitted proofs appear here. Verify to pay the commission or reject with a reason.</p></div><button class="secondary" id="refresh">Refresh</button></div><div id="activities">Loading…</div></section>
 </main>
-
 <script>
 const SUPABASE_URL="https://bcogfxghqrffrnfetqbo.supabase.co";
 const SUPABASE_KEY="sb_publishable_cX6B4WgoF6bwz1Br5kIj4g_p4RsBRJP";
@@ -70,41 +27,14 @@ const headers={apikey:SUPABASE_KEY,Authorization:"Bearer "+token,"Content-Type":
 const $=id=>document.getElementById(id);
 function esc(v){return String(v??"").replace(/[&<>"']/g,m=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#039;"}[m]))}
 function notice(msg,type="error"){$("notice").innerHTML=`<div class="notice ${type}">${esc(msg)}</div>`}
-async function req(path,opts={}){
- const r=await fetch(SUPABASE_URL+path,{...opts,headers:{...headers,...(opts.headers||{})}});
- if(!r.ok){let d={};try{d=await r.json()}catch{};throw new Error(d.message||d.details||d.hint||d.error_description||`HTTP ${r.status}`)} 
- return r.status===204?null:r.json()
-}
+async function req(path,opts={}){const r=await fetch(SUPABASE_URL+path,{...opts,headers:{...headers,...(opts.headers||{})}});if(!r.ok){let d={};try{d=await r.json()}catch{};throw new Error(d.message||d.details||d.hint||d.error_description||`HTTP ${r.status}`)}return r.status===204?null:r.json()}
 let agents=[];
-async function loadAgents(){
- const rows=await req("/rest/v1/taskhub_agents?select=id,user_id,status,role_id,started_at&status=eq.active&order=created_at.desc");
- const roleIds=[...new Set(rows.map(x=>x.role_id).filter(Boolean))];
- const roles=roleIds.length?await req("/rest/v1/taskhub_agent_roles?select=id,name,commission&id=in.("+roleIds.join(",")+")"):[]; 
- const profiles=rows.length?await req("/rest/v1/profiles?select=id,full_name,username&id=in.("+rows.map(x=>encodeURIComponent(x.user_id)).join(",")+")"):[]; 
- agents=rows.map(a=>({...a,role:roles.find(r=>String(r.id)===String(a.role_id))||{},profile:profiles.find(p=>p.id===a.user_id)||{}}));
- $("agents").innerHTML=agents.length?agents.map(a=>`<div class="agent-card"><div><strong>Agent ID:</strong> ${esc(a.id)} <button class="copy" onclick="navigator.clipboard?.writeText('${esc(a.id)}')">Copy</button></div><div><strong>User UUID:</strong> ${esc(a.user_id)}</div><div><strong>Name:</strong> ${esc(a.profile.full_name||"N/A")}</div><div><strong>Username:</strong> ${esc(a.profile.username||"N/A")}</div><div><strong>Role:</strong> ${esc(a.role.name||"N/A")}</div></div>`).join(""):"<p class='muted'>No active Agents found.</p>";
- $("agent").innerHTML='<option value="">Select an Agent</option>'+agents.map(a=>`<option value="${esc(a.user_id)}">${esc((a.profile.full_name||a.profile.username||"Agent")+" — Agent ID "+a.id)}</option>`).join("");
-}
-async function loadActivities(){
- const rows=await req("/rest/v1/taskhub_agent_activity?select=id,agent_id,activity_type,description,commission,status,created_at&order=created_at.desc");
- $("activities").innerHTML=rows.length?rows.map(a=>`<div class="agent-card"><strong>${esc(a.activity_type||"Activity")}</strong><div class="muted">Activity ID: ${esc(a.id)} · Agent ID: ${esc(a.agent_id)} · Status: ${esc(a.status)}</div><div style="margin-top:6px">${esc(a.description||"")}</div></div>`).join(""):"<p class='muted'>No activities yet.</p>";
-}
-$("form").addEventListener("submit",async e=>{
- e.preventDefault();$("submit").disabled=true;$("formMessage").textContent="Assigning activity…";
- try{
-  const result=await req("/rest/v1/rpc/create_agent_activity",{method:"POST",body:JSON.stringify({
-   p_agent_id:$("agent").value,
-   p_activity_type:$("type").value.trim(),
-   p_description:$("description").value.trim(),
-   p_referred_user_id:$("referred").value.trim()||null,
-   p_commission:$("commission").value.trim()===""?null:Number($("commission").value)
-  })});
-  if(result?.success!==true) throw new Error("Activity could not be created.");
-  $("form").reset();$("formMessage").textContent="Activity assigned successfully and is pending verification.";await loadActivities();
- }catch(err){$("formMessage").textContent=err.message||"Failed to assign activity.";}
- finally{$("submit").disabled=false}
-});
+async function loadAgents(){const rows=await req("/rest/v1/taskhub_agents?select=id,user_id,status,role_id,started_at&status=eq.active&order=created_at.desc");const roleIds=[...new Set(rows.map(x=>x.role_id).filter(Boolean))];const roles=roleIds.length?await req("/rest/v1/taskhub_agent_roles?select=id,name,commission&id=in.("+roleIds.join(",")+")"):[];const ids=rows.map(x=>x.user_id).filter(Boolean);const profiles=ids.length?await req("/rest/v1/profiles?select=id,full_name,username&id=in.("+ids.map(encodeURIComponent).join(",")+")"):[];agents=rows.map(a=>({...a,role:roles.find(r=>String(r.id)===String(a.role_id))||{},profile:profiles.find(p=>p.id===a.user_id)||{}}));$("agentCount").textContent=agents.length;$("agent").innerHTML='<option value="">Select an Agent</option>'+agents.map(a=>`<option value="${esc(a.user_id)}">${esc(a.profile.full_name||a.profile.username||"Agent")} — Agent ID ${esc(a.id)}</option>`).join("")}
+async function loadActivities(){const rows=await req("/rest/v1/taskhub_agent_activity?select=id,agent_id,activity_type,description,commission,status,proof_text,submitted_at,admin_note,created_at&order=created_at.desc");const pending=rows.filter(a=>a.status==="submitted").length;$("reviewCount").textContent=pending;$("verifiedCount").textContent=rows.filter(a=>a.status==="verified").length;const profileIds=[...new Set(rows.map(a=>a.agent_id).filter(Boolean))];let profiles=[];if(profileIds.length)profiles=await req("/rest/v1/profiles?select=id,full_name,username&id=in.("+profileIds.map(encodeURIComponent).join(",")+")");const names={};profiles.forEach(p=>names[p.id]=p);$("activities").innerHTML=rows.length?rows.map(a=>{const p=names[a.agent_id]||{};const status=a.status||"pending";const reviewable=status==="submitted";return `<div class="agent-card"><div class="topline"><strong>${esc(a.activity_type||"Activity")}</strong><span class="pill ${esc(status)}">${esc(status.toUpperCase())}</span></div><div class="muted" style="margin-top:7px">Activity ID: ${esc(a.id)} · Agent: ${esc(p.full_name||p.username||a.agent_id)} · Commission: ₦${Number(a.commission||0).toLocaleString()} · Created: ${esc(a.created_at?new Date(a.created_at).toLocaleString():"")}</div><div style="margin-top:10px"><strong>Instructions</strong><div class="muted">${esc(a.description||"")}</div></div>${a.proof_text?`<div class="proof"><strong>Agent Proof</strong><div style="margin-top:7px">${esc(a.proof_text)}</div><div class="muted" style="margin-top:8px">Submitted: ${esc(a.submitted_at?new Date(a.submitted_at).toLocaleString():"")}</div></div>`:`<div class="proof muted">No proof submitted yet.</div>`}${a.admin_note?`<div class="proof"><strong>Admin Note</strong><div style="margin-top:7px">${esc(a.admin_note)}</div></div>`:""}${reviewable?`<div class="actions"><button class="approve" onclick="verifyActivity(${Number(a.id)})">Approve & Pay ₦${Number(a.commission||0).toLocaleString()}</button><button class="reject" onclick="rejectActivity(${Number(a.id)})">Reject Proof</button></div>`:""}</div>`}).join(""):"<p class='muted'>No activities yet.</p>"}
+async function verifyActivity(id){if(!confirm("Approve this proof and credit the Agent's commission? This should only be done when the proof is valid."))return;try{notice("Verifying activity and crediting commission…","ok");const result=await req("/rest/v1/rpc/review_agent_activity",{method:"POST",body:JSON.stringify({p_activity_id:id,p_action:"verify",p_admin_note:null})});if(result?.success!==true)throw new Error(result?.message||"Verification failed.");notice(result.message||"Activity verified and commission credited successfully.","ok");await loadActivities()}catch(e){notice(e.message||"Verification failed.")}}
+async function rejectActivity(id){const reason=prompt("Enter the reason for rejecting this proof:");if(reason===null)return;if(!reason.trim()){alert("Please enter a rejection reason.");return}try{notice("Rejecting proof…","ok");const result=await req("/rest/v1/rpc/review_agent_activity",{method:"POST",body:JSON.stringify({p_activity_id:id,p_action:"reject",p_admin_note:reason.trim()})});if(result?.success!==true)throw new Error(result?.message||"Rejection failed.");notice(result.message||"Proof rejected successfully.","ok");await loadActivities()}catch(e){notice(e.message||"Rejection failed.")}}
+$("form").addEventListener("submit",async e=>{e.preventDefault();$("submit").disabled=true;$("formMessage").textContent="Assigning activity…";try{const result=await req("/rest/v1/rpc/create_agent_activity",{method:"POST",body:JSON.stringify({p_agent_id:$("agent").value,p_activity_type:$("type").value.trim(),p_description:$("description").value.trim(),p_referred_user_id:$("referred").value.trim()||null,p_commission:$("commission").value.trim()===""?null:Number($("commission").value)})});if(result?.success!==true)throw new Error(result?.message||"Activity could not be created.");$("form").reset();$("formMessage").textContent="Activity assigned successfully and is pending agent proof.";await loadActivities()}catch(err){$("formMessage").textContent=err.message||"Failed to assign activity."}finally{$("submit").disabled=false}});
+$("refresh").onclick=()=>{loadActivities().catch(e=>notice(e.message||"Unable to refresh activities."))};
 (async()=>{try{if(!token)throw new Error("You are not signed in. Please log in again.");await loadAgents();await loadActivities()}catch(e){notice(e.message||"Unable to load Agent management.")}})();
 </script>
-</body>
-</html>
+</body></html>
