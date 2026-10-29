@@ -3,53 +3,27 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>Task Hub | Agent Dashboard v2</title>
+<title>Task Hub | Agent Dashboard</title>
 <link rel="stylesheet" href="style.css">
 <style>
-body{background:#f7f7fb;color:#171722}
-.container{max-width:980px;margin:auto;padding:20px}
-.hero{margin-top:20px;padding:26px;border-radius:18px;background:linear-gradient(135deg,#5b5cf0,#4748d8);color:#fff}
-.status{display:inline-block;margin-top:14px;padding:7px 12px;border-radius:999px;background:rgba(255,255,255,.18);font-weight:700;font-size:13px}
-.grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px;margin-top:18px}
-.card{background:#fff;border:1px solid #e8e8ef;border-radius:14px;padding:20px;margin-top:16px}
-.stat strong{display:block;font-size:25px;margin-top:8px}
-.muted{color:#666;line-height:1.55}
-.error{background:#ffe8e8;color:#9d2020;padding:14px;border-radius:10px;margin-top:16px;white-space:pre-wrap;word-break:break-word}
-.ok{background:#e9f8ef;color:#087443;padding:14px;border-radius:10px;margin-top:16px}
-.row{display:flex;justify-content:space-between;gap:15px;padding:11px 0;border-bottom:1px solid #eee}
-.row:last-child{border-bottom:0}
-.actions{display:flex;flex-wrap:wrap;gap:10px;margin-top:18px}
-.btn2{display:inline-block;padding:11px 14px;border-radius:9px;text-decoration:none;border:1px solid #ddd;background:#fff;color:#222}
-.activity{padding:14px 0;border-bottom:1px solid #eee}
-.badge{display:inline-block;padding:5px 9px;border-radius:7px;background:#f1f1f5;font-size:12px;font-weight:700}
-@media(max-width:700px){.grid{grid-template-columns:1fr}.row{flex-direction:column;gap:4px}}
+body{background:#f7f7fb;color:#171722}.container{max-width:980px;margin:auto;padding:20px}.hero{margin-top:20px;padding:26px;border-radius:18px;background:linear-gradient(135deg,#5b5cf0,#4748d8);color:#fff}.status{display:inline-block;margin-top:14px;padding:7px 12px;border-radius:999px;background:rgba(255,255,255,.18);font-weight:700;font-size:13px}.grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px;margin-top:18px}.card{background:#fff;border:1px solid #e8e8ef;border-radius:14px;padding:20px;margin-top:16px}.stat strong{display:block;font-size:25px;margin-top:8px}.muted{color:#666;line-height:1.55}.error{background:#ffe8e8;color:#9d2020;padding:14px;border-radius:10px;margin-top:16px;white-space:pre-wrap;word-break:break-word}.ok{background:#e9f8ef;color:#087443;padding:14px;border-radius:10px;margin-top:16px}.row{display:flex;justify-content:space-between;gap:15px;padding:11px 0;border-bottom:1px solid #eee}.row:last-child{border-bottom:0}.actions{display:flex;flex-wrap:wrap;gap:10px;margin-top:18px}.btn2,.submitBtn{display:inline-block;padding:11px 14px;border-radius:9px;text-decoration:none;border:1px solid #ddd;background:#fff;color:#222;cursor:pointer;font:inherit}.submitBtn{background:#5b5cf0;color:#fff;border-color:#5b5cf0;font-weight:700}.submitBtn:disabled{opacity:.6;cursor:not-allowed}.activity{padding:18px 0;border-bottom:1px solid #eee}.activity:last-child{border-bottom:0}.badge{display:inline-block;padding:5px 9px;border-radius:7px;background:#f1f1f5;font-size:12px;font-weight:700}.proofBox{margin-top:13px;padding:14px;background:#fafaff;border:1px solid #e5e5f0;border-radius:10px}.proofBox textarea{width:100%;box-sizing:border-box;min-height:100px;resize:vertical;padding:11px;border:1px solid #d8d8e3;border-radius:9px;font:inherit;margin:8px 0 10px}.activityActions{margin-top:12px}.small{font-size:12px}.commission{margin-top:8px;font-weight:700}@media(max-width:700px){.grid{grid-template-columns:1fr}.row{flex-direction:column;gap:4px}}
 </style>
 </head>
 <body>
-<header class="site-header"><div class="container" style="display:flex;justify-content:space-between;align-items:center">
-<a href="index.html" class="logo">Task Hub</a>
-<a href="dashboard.html" class="btn2">Main Dashboard</a>
+<header class="site-header"><div class="container" style="display:flex;justify-content:space-between;align-items:center;gap:10px">
+<a href="index.html" class="logo">Task Hub</a><a href="dashboard.html" class="btn2">Main Dashboard</a>
 </div></header>
 <main class="container">
 <div id="notice"></div>
-<section class="hero">
-<h1 style="margin:0 0 8px">Agent Dashboard</h1>
-<p id="roleDescription" style="margin:0;opacity:.92">Loading your Agent account…</p>
-<span id="status" class="status">Checking account…</span>
-</section>
-<div class="actions">
-<a href="withdraw.html" class="btn2">Withdraw Funds</a>
-<a href="wallet.html" class="btn2">View Wallet</a>
-<button id="refresh" class="btn2" type="button">Refresh</button>
-</div>
+<section class="hero"><h1 style="margin:0 0 8px">Agent Dashboard</h1><p id="roleDescription" style="margin:0;opacity:.92">Loading your Agent account…</p><span id="status" class="status">Checking account…</span></section>
+<div class="actions"><a href="withdraw.html" class="btn2">Withdraw Funds</a><a href="wallet.html" class="btn2">View Wallet</a><button id="refresh" class="btn2" type="button">Refresh</button></div>
 <section class="grid">
 <div class="card stat"><div class="muted">Wallet Balance</div><strong id="balance">—</strong></div>
 <div class="card stat"><div class="muted">Verified Commissions</div><strong id="commissionTotal">—</strong></div>
 <div class="card stat"><div class="muted">Pending Activities</div><strong id="pending">—</strong></div>
 <div class="card stat"><div class="muted">Total Activities</div><strong id="total">—</strong></div>
 </section>
-<section class="card">
-<h2>Agent Information</h2>
+<section class="card"><h2>Agent Information</h2>
 <div class="row"><span class="muted">Agent Record ID</span><strong id="agentId">—</strong></div>
 <div class="row"><span class="muted">Agent Role</span><strong id="roleName">—</strong></div>
 <div class="row"><span class="muted">Commission per Verified Activity</span><strong id="roleCommission">—</strong></div>
@@ -57,63 +31,71 @@ body{background:#f7f7fb;color:#171722}
 <div class="row"><span class="muted">Program Fee</span><strong id="roleFee">—</strong></div>
 <div class="row"><span class="muted">Agent Since</span><strong id="startedAt">—</strong></div>
 </section>
-<section class="card">
-<h2>Agent Activities</h2>
-<p class="muted">Your assigned/recorded Agent activities appear here.</p>
-<div id="activities"><div class="muted">Loading…</div></div>
-</section>
+<section class="card"><h2>Agent Activities</h2><p class="muted">Complete assigned activities and submit your proof here. Commissions are only earned after admin verification.</p><div id="activities"><div class="muted">Loading…</div></div></section>
 </main>
 <script>
 const SUPABASE_URL="https://bcogfxghqrffrnfetqbo.supabase.co";
 const SUPABASE_KEY="sb_publishable_cX6B4WgoF6bwz1Br5kIj4g_p4RsBRJP";
 let token=localStorage.getItem("taskhub_access_token");
+let currentUserId="";
 const $=id=>document.getElementById(id);
 function money(v){return "₦"+Number(v||0).toLocaleString("en-NG",{maximumFractionDigits:2})}
-function esc(v){return String(v??"").replace(/[&<>"']/g,m=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#039;"}[m]))}
-function notice(msg,type="error"){$("notice").innerHTML=`<div class="${type==="ok"?"ok":"error"}">${esc(msg)}</div>`}
+function esc(v){return String(v??"").replace(/[&<>"']/g,m=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;", "'":"&#039;"}[m]))}
+function notice(msg,type="error"){$("notice").innerHTML=`<div class="${type==='ok'?'ok':'error'}">${esc(msg)}</div>`}
 function clearNotice(){$("notice").innerHTML=""}
-async function req(path,opts={}){
- const r=await fetch(SUPABASE_URL+path,{...opts,headers:{apikey:SUPABASE_KEY,Authorization:"Bearer "+token,"Content-Type":"application/json",...(opts.headers||{})}});
- if(!r.ok){let d={};try{d=await r.json()}catch{};throw new Error(d.message||d.details||d.hint||d.error_description||`HTTP ${r.status}`)} 
- return r.status===204?null:r.json()
+async function req(path,opts={}){const r=await fetch(SUPABASE_URL+path,{...opts,headers:{apikey:SUPABASE_KEY,Authorization:"Bearer "+token,"Content-Type":"application/json",...(opts.headers||{})}});if(!r.ok){let d={};try{d=await r.json()}catch{};throw new Error(d.message||d.details||d.hint||d.error_description||`HTTP ${r.status}`)}return r.status===204?null:r.json()}
+function statusLabel(s){return String(s||"pending").toLowerCase()}
+function renderActivity(a){
+ const s=statusLabel(a.status), id=String(a.id);
+ let extra="";
+ if(s==="pending"||s==="rejected"){
+   extra=`<div class="proofBox"><strong>${s==='rejected'?'Resubmit Proof':'Enter Proof'}</strong><div class="muted small">Explain what you completed and include any useful usernames, links, screenshots references, or other evidence required by the instructions.</div><textarea id="proof-${esc(id)}" placeholder="Enter your proof here..."></textarea><button class="submitBtn" type="button" onclick="submitProof('${esc(id)}')">${s==='rejected'?'Resubmit Proof':'Submit Proof'}</button></div>`;
+ } else if(s==="submitted") {
+   extra=`<div class="proofBox"><strong>Proof submitted</strong><div class="muted">Your proof has been sent to the admin for review.</div>${a.submitted_at?`<div class="small muted" style="margin-top:5px">Submitted: ${esc(new Date(a.submitted_at).toLocaleString('en-NG'))}</div>`:''}</div>`;
+ } else if(s==="verified") {
+   extra=`<div class="commission">Commission earned: ${money(a.commission)}</div>${a.verified_at?`<div class="small muted">Verified: ${esc(new Date(a.verified_at).toLocaleString('en-NG'))}</div>`:''}`;
+ }
+ if(s==="rejected"&&a.admin_note) extra+=`<div class="error" style="margin-top:10px"><strong>Admin feedback:</strong><br>${esc(a.admin_note)}</div>`;
+ return `<div class="activity"><strong>${esc(a.activity_type||'Agent Activity')}</strong><div class="muted" style="margin:6px 0">${esc(a.description||'No instructions provided.')}</div><span class="badge">${esc(a.status||'pending')}</span>${a.commission?`<div class="small muted" style="margin-top:7px">Activity commission: ${money(a.commission)}</div>`:''}${extra}</div>`;
+}
+async function submitProof(id){
+ const box=$("proof-"+id); const proof=box?box.value.trim():"";
+ if(!proof){notice("Please enter your proof before submitting.");return}
+ const btn=box.parentElement.querySelector("button");btn.disabled=true;btn.textContent="Submitting…";clearNotice();
+ try{
+   await req("/rest/v1/taskhub_agent_activity?id=eq."+encodeURIComponent(id)+"&agent_id=eq."+encodeURIComponent(currentUserId),{method:"PATCH",body:JSON.stringify({proof_text:proof,submitted_at:new Date().toISOString(),status:"submitted"})});
+   notice("Proof submitted successfully. It is now waiting for admin verification.","ok");await load();
+ }catch(e){btn.disabled=false;btn.textContent="Submit Proof";notice(e.message||"Unable to submit proof.")}
 }
 async function load(){
- clearNotice(); $("refresh").disabled=true; $("status").textContent="Checking account…";
+ clearNotice();$("refresh").disabled=true;$("status").textContent="Checking account…";
  try{
-  if(!token) throw new Error("No active login session. Please log in again.");
-  const user=await req("/auth/v1/user");
-  if(!user?.id) throw new Error("Supabase could not verify the signed-in user.");
-  localStorage.setItem("taskhub_user_id",user.id);
+  if(!token)throw new Error("No active login session. Please log in again.");
+  const user=await req("/auth/v1/user");if(!user?.id)throw new Error("Supabase could not verify the signed-in user.");currentUserId=user.id;localStorage.setItem("taskhub_user_id",user.id);
   const agents=await req("/rest/v1/taskhub_agents?select=id,status,role_id,started_at,user_id&user_id=eq."+encodeURIComponent(user.id)+"&status=eq.active&order=created_at.desc&limit=1");
-  if(!agents.length) throw new Error("No active Agent account was found for this signed-in account.");
+  if(!agents.length)throw new Error("No active Agent account was found for this signed-in account.");
   const agent=agents[0];
   const [roles,profiles,activities,transactions]=await Promise.all([
    req("/rest/v1/taskhub_agent_roles?select=id,name,fee,commission,description,minimum_withdrawal&id=eq."+encodeURIComponent(agent.role_id)+"&limit=1"),
    req("/rest/v1/profiles?select=balance,full_name,username&id=eq."+encodeURIComponent(user.id)+"&limit=1"),
-   req("/rest/v1/taskhub_agent_activity?select=id,activity_type,referred_user_id,description,commission,status,created_at,verified_at&agent_id=eq."+encodeURIComponent(agent.user_id)+"&order=created_at.desc"),
+   req("/rest/v1/taskhub_agent_activity?select=id,activity_type,referred_user_id,description,commission,status,created_at,submitted_at,verified_at,proof_text,admin_note&agent_id=eq."+encodeURIComponent(agent.user_id)+"&order=created_at.desc"),
    req("/rest/v1/wallet_transactions?select=id,amount,description,reference_id,created_at&user_id=eq."+encodeURIComponent(user.id)+"&type=eq.agent_commission&order=created_at.desc")
   ]);
-  if(!roles.length) throw new Error("Agent account was found, but its Agent role could not be found.");
-  const role=roles[0], profile=profiles[0];
-  $("status").textContent="Active";
-  $("roleDescription").textContent=role.description||"Manage your Agent activities and commissions.";
-  $("agentId").textContent=agent.id;
-  $("roleName").textContent=role.name||"Agent";
-  $("roleCommission").textContent=money(role.commission);
-  $("minimumWithdrawal").textContent=money(role.minimum_withdrawal);
-  $("roleFee").textContent=money(role.fee);
-  $("startedAt").textContent=agent.started_at?new Date(agent.started_at).toLocaleDateString("en-NG",{day:"numeric",month:"short",year:"numeric"}):"—";
+  if(!roles.length)throw new Error("Agent account was found, but its Agent role could not be found.");
+  const role=roles[0],profile=profiles[0],acts=Array.isArray(activities)?activities:[],tx=Array.isArray(transactions)?transactions:[];
+  $("status").textContent="Active";$("roleDescription").textContent=role.description||"Manage your Agent activities and commissions.";
+  $("agentId").textContent=agent.id;$("roleName").textContent=role.name||"Agent";$("roleCommission").textContent=money(role.commission);$("minimumWithdrawal").textContent=money(role.minimum_withdrawal);$("roleFee").textContent=money(role.fee);$("startedAt").textContent=agent.started_at?new Date(agent.started_at).toLocaleDateString("en-NG",{day:"numeric",month:"short",year:"numeric"}):"—";
+  // Wallet balance remains the user's real profile balance. It is never replaced by commission totals.
   $("balance").textContent=profile?money(profile.balance):"Profile missing";
-  const tx=Array.isArray(transactions)?transactions:[];
-  const acts=Array.isArray(activities)?activities:[];
-  $("commissionTotal").textContent=money(tx.reduce((s,x)=>s+Number(x.amount||0),0));
-  $("pending").textContent=acts.filter(x=>String(x.status).toLowerCase()==="pending").length;
+  // Verified commissions are only agent_commission wallet transactions, i.e. commissions already credited after verification.
+  $("commissionTotal").textContent=money(tx.reduce((sum,x)=>sum+Number(x.amount||0),0));
+  $("pending").textContent=acts.filter(x=>["pending","rejected"].includes(statusLabel(x.status))).length;
   $("total").textContent=acts.length;
-  $("activities").innerHTML=acts.length?acts.map(a=>`<div class="activity"><strong>${esc(a.activity_type||"Agent Activity")}</strong><div class="muted" style="margin:6px 0">${esc(a.description||"No instructions provided.")}</div><span class="badge">${esc(a.status||"pending")}</span>${String(a.status).toLowerCase()==="verified"?`<div style="margin-top:7px;font-weight:700">Commission: ${money(a.commission)}</div>`:""}</div>`).join(""):"<div class='muted'>No Agent activities have been assigned/recorded yet.</div>";
+  $("activities").innerHTML=acts.length?acts.map(renderActivity).join(""):"<div class='muted'>No Agent activities have been assigned/recorded yet.</div>";
  }catch(e){console.error(e);$("status").textContent="Unable to load";notice(e.message||"Unable to load Agent Dashboard.")}
  finally{$("refresh").disabled=false}
 }
-$("refresh").addEventListener("click",load); load();
+$("refresh").addEventListener("click",load);load();
 </script>
 </body>
 </html>
