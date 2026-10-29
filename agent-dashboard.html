@@ -90,7 +90,7 @@ async function load(){
   const [roles,profiles,activities,transactions]=await Promise.all([
    req("/rest/v1/taskhub_agent_roles?select=id,name,fee,commission,description,minimum_withdrawal&id=eq."+encodeURIComponent(agent.role_id)+"&limit=1"),
    req("/rest/v1/profiles?select=balance,full_name,username&id=eq."+encodeURIComponent(user.id)+"&limit=1"),
-   req("/rest/v1/taskhub_agent_activity?select=id,activity_type,referred_user_id,description,commission,status,created_at,verified_at&agent_id=eq."+encodeURIComponent(agent.id)+"&order=created_at.desc"),
+   req("/rest/v1/taskhub_agent_activity?select=id,activity_type,referred_user_id,description,commission,status,created_at,verified_at&agent_id=eq."+encodeURIComponent(agent.user_id)+"&order=created_at.desc"),
    req("/rest/v1/wallet_transactions?select=id,amount,description,reference_id,created_at&user_id=eq."+encodeURIComponent(user.id)+"&type=eq.agent_commission&order=created_at.desc")
   ]);
   if(!roles.length) throw new Error("Agent account was found, but its Agent role could not be found.");
