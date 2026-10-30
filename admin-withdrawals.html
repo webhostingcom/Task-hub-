@@ -316,12 +316,13 @@ async function apiRequest(path, options = {}) {
 }
 
 async function checkAdmin() {
-  const savedSession = localStorage.getItem("taskhub_session");
+  const token = localStorage.getItem("taskhub_access_token");
 
-  if (!savedSession) {
-    throw new Error("Please log in again.");
+  if (!token) {
+    alert("Please login again.");
+    window.location.href = "login.html";
+    return;
   }
-
   let session;
 
   try {
