@@ -1,900 +1,160 @@
-<!DOCTYPE html><html lang="en">
+<!DOCTYPE html>
+<html lang="en">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">  <title>Task Hub | Referrals</title>  <style>
-    * {
-      box-sizing: border-box;
-      margin: 0;
-      padding: 0;
-    }
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Task Hub | Referrals</title>
+  <link rel="stylesheet" href="style.css">
 
-    body {
-      font-family: Arial, sans-serif;
-      background: #f6f7fb;
-      color: #222;
-      min-height: 100vh;
-    }
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+</head>
 
-    .header {
-      background: #111;
-      color: white;
-      padding: 16px 20px;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-    }
+<body>
 
-    .header h1 {
-      font-size: 20px;
-    }
+<div class="container">
 
-    .back-link {
-      color: white;
-      text-decoration: none;
-      font-size: 14px;
-    }
+  <h1>Referral Program</h1>
 
-    .container {
-      width: 92%;
-      max-width: 760px;
-      margin: 30px auto;
-    }
+  <div class="card">
+    <h2>Earn ₦1,500</h2>
+    <p>Invite someone to Task Hub. When they complete their first approved task, you earn ₦1,500.</p>
 
-    .card {
-      background: white;
-      border-radius: 14px;
-      padding: 22px;
-      margin-bottom: 20px;
-      box-shadow: 0 5px 20px rgba(0, 0, 0, 0.06);
-    }
+    <label>Your Referral Link</label>
 
-    .card h2 {
-      font-size: 21px;
-      margin-bottom: 8px;
-    }
+    <div style="display:flex;gap:8px;margin-top:8px;">
+      <input
+        id="referralLink"
+        type="text"
+        readonly
+        style="flex:1;"
+      >
 
-    .subtitle {
-      color: #777;
-      font-size: 14px;
-      line-height: 1.5;
-      margin-bottom: 20px;
-    }
-
-    .referral-box {
-      background: #f4f4ff;
-      border: 1px solid #dedfff;
-      border-radius: 10px;
-      padding: 16px;
-      margin-bottom: 18px;
-    }
-
-    .referral-label {
-      font-size: 12px;
-      color: #777;
-      margin-bottom: 7px;
-    }
-
-    .referral-code {
-      font-size: 22px;
-      font-weight: 800;
-      color: #5b5cf0;
-      word-break: break-word;
-    }
-
-    .referral-link {
-      width: 100%;
-      padding: 11px;
-      border: 1px solid #ddd;
-      border-radius: 8px;
-      background: #fafafa;
-      font-size: 13px;
-      margin-top: 10px;
-    }
-
-    .copy-btn {
-      width: 100%;
-      border: none;
-      border-radius: 9px;
-      background: #5b5cf0;
-      color: white;
-      padding: 12px;
-      margin-top: 10px;
-      font-weight: 700;
-      cursor: pointer;
-    }
-
-    .copy-btn:hover {
-      background: #4748d8;
-    }
-
-    .stats {
-      display: grid;
-      grid-template-columns: repeat(2, 1fr);
-      gap: 12px;
-      margin-bottom: 20px;
-    }
-
-    .stat {
-      background: #fafafa;
-      border-radius: 10px;
-      padding: 16px;
-      text-align: center;
-    }
-
-    .stat-value {
-      font-size: 24px;
-      font-weight: 800;
-      color: #5b5cf0;
-      margin-bottom: 5px;
-    }
-
-    .stat-label {
-      color: #777;
-      font-size: 12px;
-    }
-
-    .referral-item {
-      padding: 15px 0;
-      border-bottom: 1px solid #eee;
-    }
-
-    .referral-item:last-child {
-      border-bottom: none;
-    }
-
-    .referral-name {
-      font-weight: 700;
-      margin-bottom: 5px;
-    }
-
-    .referral-date {
-      color: #888;
-      font-size: 12px;
-    }
-
-    .referral-reward {
-      margin-top: 6px;
-      color: #16823b;
-      font-size: 13px;
-      font-weight: 700;
-    }
-
-    .empty {
-      text-align: center;
-      color: #888;
-      padding: 25px 0;
-      font-size: 14px;
-    }
-
-    .message {
-      display: none;
-      margin-top: 12px;
-      padding: 10px;
-      border-radius: 8px;
-      font-size: 13px;
-    }
-
-    .message.success {
-      display: block;
-      background: #e9f8ee;
-      color: #176b35;
-    }
-
-    .message.error {
-      display: block;
-      background: #ffecec;
-      color: #a51d1d;
-    }
-
-    @media (max-width: 500px) {
-      .stats {
-        grid-template-columns: 1fr;
-      }
-    }
-  </style></head><body>  <header class="header">
-    <h1>Task Hub</h1>
-    <a href="dashboard.html" class="back-link">← Dashboard</a>
-  </header>  <main class="container"><section class="card">
-
-  <h2>Refer & Earn</h2>
-
-  <p class="subtitle">
-    Invite people to Task Hub using your referral link.
-    When an eligible referred user completes their first
-    approved task, the referral reward is credited according
-    to the Task Hub referral rules.
-  </p>
-
-
-  <div class="referral-box">
-
-    <div class="referral-label">
-      Your Referral Code
+      <button onclick="copyReferralLink()">Copy</button>
     </div>
 
-    <div
-      class="referral-code"
-      id="referralCode"
-    >
+    <p id="copyMessage"></p>
+  </div>
+
+  <div class="card">
+    <h2>Your Referrals</h2>
+
+    <p>
+      Referrals: <strong id="referralCount">0</strong>
+    </p>
+
+    <p>
+      Earnings: <strong id="referralEarnings">₦0</strong>
+    </p>
+
+    <div id="referralList">
       Loading...
     </div>
-
-    <input
-      type="text"
-      id="referralLink"
-      class="referral-link"
-      readonly
-    >
-
-    <button
-      type="button"
-      class="copy-btn"
-      id="copyButton"
-    >
-      Copy Referral Link
-    </button>
-
-    <div
-      id="message"
-      class="message"
-    ></div>
-
   </div>
 
-</section>
+</div>
 
+<script>
+const SUPABASE_URL = "https://bcogfxghqrffrnfetqbo.supabase.co";
+const SUPABASE_KEY = "sb_publishable_cX6B4WgoF6bwz1Br5kIj4g_p4RsBRJP";
 
-<section class="card">
+const supabaseClient = supabase.createClient(
+  SUPABASE_URL,
+  SUPABASE_KEY
+);
 
-  <div class="stats">
+async function loadReferrals() {
 
-    <div class="stat">
-      <div
-        class="stat-value"
-        id="referralCount"
-      >
-        0
+  const {
+    data: { user }
+  } = await supabaseClient.auth.getUser();
+
+  if (!user) {
+    location.href = "login.html";
+    return;
+  }
+
+  const { data: profile, error } =
+    await supabaseClient
+      .from("profiles")
+      .select("referral_code")
+      .eq("id", user.id)
+      .single();
+
+  if (error || !profile || !profile.referral_code) {
+    document.getElementById("referralLink").value =
+      "Referral link unavailable";
+    return;
+  }
+
+  const link =
+    `${location.origin}${location.pathname.replace(
+      "referrals.html",
+      "register.html"
+    )}?ref=${encodeURIComponent(profile.referral_code)}`;
+
+  document.getElementById("referralLink").value = link;
+
+  const { data: referrals, error: referralError } =
+    await supabaseClient.rpc("get_my_referrals");
+
+  if (referralError) {
+    document.getElementById("referralList").innerHTML =
+      "Unable to load referrals.";
+    return;
+  }
+
+  const list = referrals || [];
+
+  document.getElementById("referralCount").textContent = list.length;
+
+  const earnings = list.reduce(
+    (total, item) => total + Number(item.reward_amount || 1500),
+    0
+  );
+
+  document.getElementById("referralEarnings").textContent =
+    "₦" + earnings.toLocaleString();
+
+  if (!list.length) {
+    document.getElementById("referralList").innerHTML =
+      "<p>No referrals yet.</p>";
+    return;
+  }
+
+  document.getElementById("referralList").innerHTML =
+    list.map(item => `
+      <div class="card">
+        <strong>${escapeHtml(
+          item.username || item.full_name || "User"
+        )}</strong>
+        <br>
+        Reward: ₦${Number(
+          item.reward_amount || 1500
+        ).toLocaleString()}
       </div>
-
-      <div class="stat-label">
-        Total Referrals
-      </div>
-    </div>
-
-
-    <div class="stat">
-      <div
-        class="stat-value"
-        id="referralEarnings"
-      >
-        ₦0
-      </div>
-
-      <div class="stat-label">
-        Referral Earnings
-      </div>
-    </div>
-
-  </div>
-
-</section>
-
-
-<section class="card">
-
-  <h2>Your Referrals</h2>
-
-  <p class="subtitle">
-    People who joined through your referral code.
-  </p>
-
-  <div id="referrals">
-
-    <div class="empty">
-      Loading referrals...
-    </div>
-
-  </div>
-
-</section>
-
-  </main>  <script>
-
-    // ==========================================
-    // SUPABASE
-    // ==========================================
-
-    const SUPABASE_URL =
-      "https://bcogfxghqrffrnfetqbo.supabase.co";
-
-    const SUPABASE_KEY =
-      "sb_publishable_cX6B4WgoF6bwz1Br5kIj4g_p4RsBRJP";
-
-
-    const accessToken =
-      localStorage.getItem(
-        "taskhub_access_token"
-      );
-
-    const userId =
-      localStorage.getItem(
-        "taskhub_user_id"
-      );
-
-
-    // ==========================================
-    // AUTH
-    // ==========================================
-
-    if (!accessToken || !userId) {
-      window.location.href = "login.html";
-    }
-
-
-    // ==========================================
-    // ELEMENTS
-    // ==========================================
-
-    const referralCodeElement =
-      document.getElementById(
-        "referralCode"
-      );
-
-    const referralLinkElement =
-      document.getElementById(
-        "referralLink"
-      );
-
-    const copyButton =
-      document.getElementById(
-        "copyButton"
-      );
-
-    const referralCountElement =
-      document.getElementById(
-        "referralCount"
-      );
-
-    const referralEarningsElement =
-      document.getElementById(
-        "referralEarnings"
-      );
-
-    const referralsElement =
-      document.getElementById(
-        "referrals"
-      );
-
-    const messageElement =
-      document.getElementById(
-        "message"
-      );
-
-
-    // ==========================================
-    // HEADERS
-    // ==========================================
-
-    function getHeaders() {
-
-      return {
-        apikey: SUPABASE_KEY,
-        Authorization:
-          `Bearer ${accessToken}`,
-        "Content-Type":
-          "application/json"
-      };
-
-    }
-
-
-    // ==========================================
-    // SESSION EXPIRATION
-    // ==========================================
-
-    function handleExpiredSession() {
-
-      localStorage.removeItem(
-        "taskhub_access_token"
-      );
-
-      localStorage.removeItem(
-        "taskhub_refresh_token"
-      );
-
-      localStorage.removeItem(
-        "taskhub_user_id"
-      );
-
-      localStorage.removeItem(
-        "taskhub_email"
-      );
-
-      window.location.href =
-        "login.html";
-
-    }
-
-
-    // ==========================================
-    // HTML ESCAPE
-    // ==========================================
-
-    function escapeHtml(value) {
-
-      return String(
-        value ?? ""
-      )
-        .replace(
-          /&/g,
-          "&amp;"
-        )
-        .replace(
-          /</g,
-          "&lt;"
-        )
-        .replace(
-          />/g,
-          "&gt;"
-        )
-        .replace(
-          /"/g,
-          "&quot;"
-        )
-        .replace(
-          /'/g,
-          "&#039;"
-        );
-
-    }
-
-
-    // ==========================================
-    // MONEY FORMAT
-    // ==========================================
-
-    function formatMoney(amount) {
-
-      return Number(
-        amount || 0
-      ).toLocaleString(
-        "en-NG",
-        {
-          minimumFractionDigits: 0,
-          maximumFractionDigits: 2
-        }
-      );
-
-    }
-
-
-    // ==========================================
-    // MESSAGE
-    // ==========================================
-
-    function showMessage(
-      text,
-      type
-    ) {
-
-      messageElement.className =
-        `message ${type}`;
-
-      messageElement.textContent =
-        text;
-
-    }
-
-
-    // ==========================================
-    // LOAD PROFILE / REFERRAL CODE
-    // ==========================================
-
-    async function loadProfile() {
-
-      try {
-
-        const response =
-          await fetch(
-            `${SUPABASE_URL}/rest/v1/profiles` +
-            `?select=referral_code` +
-            `&id=eq.${encodeURIComponent(userId)}` +
-            `&limit=1`,
-            {
-              headers:
-                getHeaders()
-            }
-          );
-
-
-        if (
-          response.status === 401 ||
-          response.status === 403
-        ) {
-
-          handleExpiredSession();
-
-          return;
-
-        }
-
-
-        if (!response.ok) {
-
-          throw new Error(
-            "Unable to load referral code."
-          );
-
-        }
-
-
-        const profiles =
-          await response.json();
-
-
-        if (
-          !Array.isArray(profiles) ||
-          profiles.length === 0
-        ) {
-
-          throw new Error(
-            "Profile not found."
-          );
-
-        }
-
-
-        const code =
-          profiles[0].referral_code;
-
-
-        if (!code) {
-
-          throw new Error(
-            "Referral code not found."
-          );
-
-        }
-
-
-        referralCodeElement.textContent =
-          code;
-
-
-        const baseUrl =
-          window.location.origin +
-          window.location.pathname
-            .split("/")
-            .slice(
-              0,
-              -1
-            )
-            .join("/") +
-          "/";
-
-
-        referralLinkElement.value =
-          `${baseUrl}register.html?ref=${encodeURIComponent(code)}`;
-
-
-      } catch (error) {
-
-        console.error(
-          "Referral code error:",
-          error
-        );
-
-        referralCodeElement.textContent =
-          "Unavailable";
-
-        referralLinkElement.value =
-          "";
-
-      }
-
-    }
-
-
-    // ==========================================
-    // LOAD REFERRALS
-    // ==========================================
-
-    async function loadReferrals() {
-
-      try {
-
-        const response =
-          await fetch(
-            `${SUPABASE_URL}/rest/v1/rpc/get_my_referrals`,
-            {
-              method: "POST",
-              headers:
-                getHeaders(),
-              body: JSON.stringify({})
-            }
-          );
-
-
-        if (
-          response.status === 401 ||
-          response.status === 403
-        ) {
-
-          handleExpiredSession();
-
-          return;
-
-        }
-
-
-        const text =
-          await response.text();
-
-
-        let data = null;
-
-
-        try {
-
-          data =
-            text
-              ? JSON.parse(text)
-              : null;
-
-        } catch {
-
-          data =
-            text;
-
-        }
-
-
-        if (!response.ok) {
-
-          throw new Error(
-            data?.message ||
-            data?.hint ||
-            "Unable to load referrals."
-          );
-
-        }
-
-
-        const referrals =
-          Array.isArray(data)
-            ? data
-            : [];
-
-
-        referralCountElement.textContent =
-          referrals.length;
-
-
-        let totalRewards = 0;
-
-
-        referrals.forEach(
-          referral => {
-
-            totalRewards +=
-              Number(
-                referral.amount ||
-                referral.reward ||
-                referral.referral_reward ||
-                0
-              );
-
-          }
-        );
-
-
-        referralEarningsElement.textContent =
-          `₦${formatMoney(totalRewards)}`;
-
-
-        if (
-          referrals.length === 0
-        ) {
-
-          referralsElement.innerHTML =
-            `<div class="empty">
-              You don't have any referrals yet.
-            </div>`;
-
-          return;
-
-        }
-
-
-        referralsElement.innerHTML =
-          "";
-
-
-        referrals.forEach(
-          referral => {
-
-            const item =
-              document.createElement(
-                "div"
-              );
-
-            item.className =
-              "referral-item";
-
-
-            const name =
-              referral.username ||
-              referral.full_name ||
-              referral.referred_username ||
-              referral.referred_name ||
-              "Task Hub User";
-
-
-            const dateValue =
-              referral.created_at ||
-              referral.joined_at ||
-              referral.referred_at;
-
-
-            let dateText =
-              "";
-
-
-            if (dateValue) {
-
-              const date =
-                new Date(
-                  dateValue
-                );
-
-
-              if (!Number.isNaN(
-                date.getTime()
-              )) {
-
-                dateText =
-                  date.toLocaleDateString(
-                    "en-NG",
-                    {
-                      dateStyle: "medium"
-                    }
-                  );
-
-              }
-
-            }
-
-
-            const reward =
-              Number(
-                referral.amount ||
-                referral.reward ||
-                referral.referral_reward ||
-                0
-              );
-
-
-            item.innerHTML = `
-              <div class="referral-name">
-                ${escapeHtml(name)}
-              </div>
-
-              ${
-                dateText
-                  ? `
-                    <div class="referral-date">
-                      Joined ${escapeHtml(dateText)}
-                    </div>
-                  `
-                  : ""
-              }
-
-              ${
-                reward > 0
-                  ? `
-                    <div class="referral-reward">
-                      Reward: ₦${formatMoney(reward)}
-                    </div>
-                  `
-                  : `
-                    <div class="referral-date">
-                      Referral reward pending eligibility.
-                    </div>
-                  `
-              }
-            `;
-
-
-            referralsElement.appendChild(
-              item
-            );
-
-          }
-        );
-
-
-      } catch (error) {
-
-        console.error(
-          "Referral loading error:",
-          error
-        );
-
-
-        referralsElement.innerHTML =
-          `<div class="empty">
-            Unable to load referrals right now.
-          </div>`;
-
-      }
-
-    }
-
-
-    // ==========================================
-    // COPY REFERRAL LINK
-    // ==========================================
-
-    copyButton.addEventListener(
-      "click",
-      async () => {
-
-        const link =
-          referralLinkElement.value;
-
-
-        if (!link) {
-
-          showMessage(
-            "Referral link is not available yet.",
-            "error"
-          );
-
-          return;
-
-        }
-
-
-        try {
-
-          await navigator.clipboard.writeText(
-            link
-          );
-
-
-          showMessage(
-            "Referral link copied!",
-            "success"
-          );
-
-
-        } catch {
-
-          referralLinkElement.select();
-
-          document.execCommand(
-            "copy"
-          );
-
-
-          showMessage(
-            "Referral link copied!",
-            "success"
-          );
-
-        }
-
-      }
-    );
-
-
-    // ==========================================
-    // INITIAL LOAD
-    // ==========================================
-
-    loadProfile();
-
-    loadReferrals();
-
-  </script></body>
+    `).join("");
+}
+
+function copyReferralLink() {
+  const input = document.getElementById("referralLink");
+
+  navigator.clipboard.writeText(input.value);
+
+  document.getElementById("copyMessage").textContent =
+    "Referral link copied!";
+}
+
+function escapeHtml(value) {
+  return String(value)
+    .replaceAll("&", "&amp;")
+    .replaceAll("<", "&lt;")
+    .replaceAll(">", "&gt;")
+    .replaceAll('"', "&quot;")
+    .replaceAll("'", "&#039;");
+}
+
+loadReferrals();
+</script>
+
+</body>
 </html>

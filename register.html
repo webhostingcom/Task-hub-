@@ -300,6 +300,13 @@
 
     <script src="script.js"></script>
 
+<script>
+const referralCode = new URLSearchParams(window.location.search).get("ref");
+
+if (referralCode) {
+    document.getElementById("referralCode").value = referralCode;
+}
+</script>
 
 </body>
 </html>

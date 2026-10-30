@@ -473,6 +473,29 @@ async function registerUser(event) {
             .trim()
             .toUpperCase() || null;
 
+// --------------------------------------
+// FIND REFERRER USER ID
+// --------------------------------------
+
+let referredBy = null;
+
+if (referralCode) {
+
+    const referrer =
+        await supabaseRequest(
+            "/rest/v1/rpc/get_referrer_by_code",
+            {
+                method: "POST",
+                body: JSON.stringify({
+                    p_referral_code: referralCode
+                })
+            }
+        );
+
+    if (referrer.ok && referrer.data) {
+        referredBy = referrer.data;
+    }
+}
 
         // --------------------------------------
         // CREATE AUTH ACCOUNT
@@ -605,7 +628,7 @@ async function registerUser(event) {
                         referral_code:
                             createReferralCode(username),
                         referred_by:
-                            referralCode
+                            referredBy
                     })
                 }
             );
