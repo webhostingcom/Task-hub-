@@ -319,27 +319,16 @@ async function checkAdmin() {
   const token = localStorage.getItem("taskhub_access_token");
 
   if (!token) {
-    alert("Please login again.");
-    window.location.href = "login.html";
-    return;
-  }
-  let session;
-
-  try {
-    session = JSON.parse(savedSession);
-  } catch {
-    throw new Error("Invalid login session. Please log in again.");
+    throw new Error("Please log in again.");
   }
 
-  accessToken = session.access_token;
-
-  if (!accessToken) {
-    throw new Error("Your login session has expired.");
-  }
+  accessToken = token;
 
   const userResponse = await fetch(
     SUPABASE_URL + "/auth/v1/user",
-    { headers: headers() }
+    {
+      headers: headers()
+    }
   );
 
   if (!userResponse.ok) {
