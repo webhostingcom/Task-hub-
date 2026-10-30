@@ -1,0 +1,591 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Task Hub | Manage Withdrawals</title>
+  <link rel="stylesheet" href="style.css">
+
+  <style>
+    body {
+      background: #f4f6fb;
+      color: #172033;
+      font-family: Arial, sans-serif;
+    }
+
+    .withdrawal-container {
+      max-width: 1100px;
+      margin: 30px auto;
+      padding: 15px;
+    }
+
+    .page-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 12px;
+      flex-wrap: wrap;
+      margin-bottom: 25px;
+    }
+
+    .back-button {
+      background: #172033;
+      color: white;
+      padding: 11px 17px;
+      border-radius: 8px;
+      text-decoration: none;
+    }
+
+    .stats {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+      gap: 14px;
+      margin-bottom: 25px;
+    }
+
+    .stat-card {
+      background: white;
+      padding: 20px;
+      border-radius: 12px;
+      box-shadow: 0 3px 12px #00000008;
+    }
+
+    .stat-card h2 {
+      margin: 8px 0 0;
+      font-size: 25px;
+    }
+
+    .section-card {
+      background: white;
+      padding: 20px;
+      border-radius: 13px;
+      margin-bottom: 25px;
+      box-shadow: 0 3px 12px #00000008;
+    }
+
+    .withdrawal-card {
+      border: 1px solid #e7eaf0;
+      border-radius: 10px;
+      padding: 17px;
+      margin-top: 14px;
+    }
+
+    .withdrawal-top {
+      display: flex;
+      justify-content: space-between;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+
+    .amount {
+      font-size: 23px;
+      font-weight: bold;
+      color: #176b43;
+    }
+
+    .details {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(190px, 1fr));
+      gap: 12px;
+      margin: 17px 0;
+    }
+
+    .detail {
+      background: #f7f8fb;
+      padding: 11px;
+      border-radius: 8px;
+      overflow-wrap: anywhere;
+    }
+
+    .detail small {
+      display: block;
+      color: #687386;
+      margin-bottom: 5px;
+    }
+
+    .status {
+      display: inline-block;
+      padding: 6px 11px;
+      border-radius: 20px;
+      font-size: 12px;
+      font-weight: bold;
+      text-transform: capitalize;
+      background: #fff2d8;
+      color: #936000;
+    }
+
+    .status.approved {
+      background: #e2f6e9;
+      color: #18723c;
+    }
+
+    .status.rejected {
+      background: #ffe5e5;
+      color: #b42318;
+    }
+
+    .status.paid {
+      background: #dceaff;
+      color: #185abd;
+    }
+
+    .actions {
+      display: flex;
+      gap: 9px;
+      flex-wrap: wrap;
+      margin-top: 12px;
+    }
+
+    .action-button {
+      border: none;
+      padding: 11px 16px;
+      border-radius: 7px;
+      color: white;
+      cursor: pointer;
+      font-weight: bold;
+    }
+
+    .approve {
+      background: #16834a;
+    }
+
+    .reject {
+      background: #d93636;
+    }
+
+    .paid-button {
+      background: #245ec7;
+    }
+
+    .action-button:disabled {
+      opacity: .5;
+      cursor: not-allowed;
+    }
+
+    .empty {
+      text-align: center;
+      padding: 25px;
+      color: #7b8493;
+    }
+
+    #message {
+      padding: 12px;
+      border-radius: 8px;
+      margin-bottom: 15px;
+      display: none;
+    }
+
+    #message.error {
+      display: block;
+      background: #ffe5e5;
+      color: #a51e1e;
+    }
+
+    #message.success {
+      display: block;
+      background: #e2f6e9;
+      color: #18723c;
+    }
+
+    .loading {
+      text-align: center;
+      padding: 20px;
+    }
+  </style>
+</head>
+
+<body>
+
+<div class="withdrawal-container">
+
+  <div class="page-header">
+    <div>
+      <h1>Withdrawal Management</h1>
+      <p>Review requests and manage manual payouts.</p>
+    </div>
+
+    <a href="admin.html" class="back-button">← Back to Admin</a>
+  </div>
+
+  <div id="message"></div>
+
+  <div class="stats">
+    <div class="stat-card">
+      <p>Pending Requests</p>
+      <h2 id="pendingCount">0</h2>
+    </div>
+
+    <div class="stat-card">
+      <p>Approved — Awaiting Payment</p>
+      <h2 id="approvedCount">0</h2>
+    </div>
+
+    <div class="stat-card">
+      <p>Paid Withdrawals</p>
+      <h2 id="paidCount">0</h2>
+    </div>
+  </div>
+
+  <div class="section-card">
+    <h2>Pending Withdrawal Requests</h2>
+    <div id="pendingList" class="loading">Loading requests...</div>
+  </div>
+
+  <div class="section-card">
+    <h2>Approved — Awaiting Manual Payment</h2>
+    <p>Transfer the money manually before marking a request as paid.</p>
+    <div id="approvedList" class="loading">Loading requests...</div>
+  </div>
+
+  <div class="section-card">
+    <h2>Paid Withdrawals</h2>
+    <div id="paidList" class="loading">Loading records...</div>
+  </div>
+
+</div>
+
+<script>
+const SUPABASE_URL = "https://bcogfxghqrffrnfetqbo.supabase.co";
+const SUPABASE_KEY = "sb_publishable_cX6B4WgoF6bwz1Br5kIj4g_p4RsBRJP";
+
+let accessToken = "";
+
+const headers = () => ({
+  "apikey": SUPABASE_KEY,
+  "Authorization": "Bearer " + accessToken,
+  "Content-Type": "application/json"
+});
+
+function showMessage(message, type = "error") {
+  const box = document.getElementById("message");
+  box.textContent = message;
+  box.className = type;
+
+  window.scrollTo({ top: 0, behavior: "smooth" });
+}
+
+function escapeHTML(value) {
+  return String(value ?? "").replace(/[&<>"']/g, char => ({
+    "&": "&amp;",
+    "<": "&lt;",
+    ">": "&gt;",
+    '"': "&quot;",
+    "'": "&#039;"
+  })[char]);
+}
+
+function money(value) {
+  return "₦" + Number(value || 0).toLocaleString("en-NG", {
+    minimumFractionDigits: 2,
+    maximumFractionDigits: 2
+  });
+}
+
+async function apiRequest(path, options = {}) {
+  const response = await fetch(
+    SUPABASE_URL + "/rest/v1/" + path,
+    {
+      ...options,
+      headers: {
+        ...headers(),
+        ...(options.headers || {})
+      }
+    }
+  );
+
+  const text = await response.text();
+
+  let result = null;
+
+  try {
+    result = text ? JSON.parse(text) : null;
+  } catch {
+    result = text;
+  }
+
+  if (!response.ok) {
+    throw new Error(
+      result?.message ||
+      result?.hint ||
+      result?.details ||
+      "Request failed."
+    );
+  }
+
+  return result;
+}
+
+async function checkAdmin() {
+  const savedSession = localStorage.getItem("taskhub_session");
+
+  if (!savedSession) {
+    throw new Error("Please log in again.");
+  }
+
+  let session;
+
+  try {
+    session = JSON.parse(savedSession);
+  } catch {
+    throw new Error("Invalid login session. Please log in again.");
+  }
+
+  accessToken = session.access_token;
+
+  if (!accessToken) {
+    throw new Error("Your login session has expired.");
+  }
+
+  const userResponse = await fetch(
+    SUPABASE_URL + "/auth/v1/user",
+    { headers: headers() }
+  );
+
+  if (!userResponse.ok) {
+    throw new Error("Session expired. Please log in again.");
+  }
+
+  const user = await userResponse.json();
+
+  const adminCheck = await apiRequest(
+    "taskhub_admins?user_id=eq." +
+    encodeURIComponent(user.id) +
+    "&select=user_id"
+  );
+
+  if (!adminCheck || adminCheck.length === 0) {
+    throw new Error("Administrator access required.");
+  }
+}
+
+function createCard(row, mode) {
+  const profile = row.profiles || {};
+  const username = profile.username || "Unknown user";
+  const fullName = profile.full_name || "Not provided";
+
+  const date = row.created_at
+    ? new Date(row.created_at).toLocaleString()
+    : "Unknown";
+
+  let buttons = "";
+
+  if (mode === "pending") {
+    buttons = `
+      <div class="actions">
+        <button class="action-button approve"
+          onclick="reviewRequest(${Number(row.id)}, 'approved')">
+          Approve
+        </button>
+
+        <button class="action-button reject"
+          onclick="reviewRequest(${Number(row.id)}, 'rejected')">
+          Reject
+        </button>
+      </div>
+    `;
+  }
+
+  if (mode === "approved") {
+    buttons = `
+      <div class="actions">
+        <button class="action-button paid-button"
+          onclick="markAsPaid(${Number(row.id)})">
+          Mark as Paid
+        </button>
+      </div>
+    `;
+  }
+
+  return `
+    <div class="withdrawal-card">
+
+      <div class="withdrawal-top">
+        <div>
+          <strong>${escapeHTML(username)}</strong>
+          <p>${escapeHTML(fullName)}</p>
+        </div>
+
+        <div>
+          <span class="amount">${money(row.amount)}</span>
+          <br>
+          <span class="status ${escapeHTML(row.status)}">
+            ${escapeHTML(row.status)}
+          </span>
+        </div>
+      </div>
+
+      <div class="details">
+
+        <div class="detail">
+          <small>Withdrawal ID</small>
+          <strong>#${escapeHTML(row.id)}</strong>
+        </div>
+
+        <div class="detail">
+          <small>Bank</small>
+          <strong>${escapeHTML(row.bank_name)}</strong>
+        </div>
+
+        <div class="detail">
+          <small>Account Name</small>
+          <strong>${escapeHTML(row.account_name)}</strong>
+        </div>
+
+        <div class="detail">
+          <small>Account Number</small>
+          <strong>${escapeHTML(row.account_number)}</strong>
+        </div>
+
+        <div class="detail">
+          <small>Requested</small>
+          <strong>${escapeHTML(date)}</strong>
+        </div>
+
+        <div class="detail">
+          <small>Admin Note</small>
+          <strong>${escapeHTML(row.admin_note || "None")}</strong>
+        </div>
+
+      </div>
+
+      ${buttons}
+
+    </div>
+  `;
+}
+
+async function loadWithdrawals() {
+  try {
+    const rows = await apiRequest(
+      "withdrawal_requests?select=*,profiles(username,full_name)&order=created_at.desc"
+    );
+
+    const pending = rows.filter(row => row.status === "pending");
+    const approved = rows.filter(row => row.status === "approved");
+    const paid = rows.filter(row => row.status === "paid");
+
+    document.getElementById("pendingCount").textContent = pending.length;
+    document.getElementById("approvedCount").textContent = approved.length;
+    document.getElementById("paidCount").textContent = paid.length;
+
+    document.getElementById("pendingList").innerHTML =
+      pending.length
+        ? pending.map(row => createCard(row, "pending")).join("")
+        : '<div class="empty">No pending withdrawal requests.</div>';
+
+    document.getElementById("approvedList").innerHTML =
+      approved.length
+        ? approved.map(row => createCard(row, "approved")).join("")
+        : '<div class="empty">No approved withdrawals awaiting payment.</div>';
+
+    document.getElementById("paidList").innerHTML =
+      paid.length
+        ? paid.map(row => createCard(row, "paid")).join("")
+        : '<div class="empty">No paid withdrawals yet.</div>';
+
+  } catch (error) {
+    showMessage(error.message);
+  }
+}
+
+async function reviewRequest(id, decision) {
+  let note = "";
+
+  if (decision === "rejected") {
+    note = prompt("Enter the reason for rejecting this withdrawal:");
+
+    if (note === null) return;
+
+    if (!note.trim()) {
+      alert("A rejection reason is required.");
+      return;
+    }
+  } else {
+    if (!confirm(
+      "Approve this withdrawal? The user's wallet balance will be deducted."
+    )) return;
+  }
+
+  try {
+    const result = await apiRequest(
+      "rpc/review_withdrawal",
+      {
+        method: "POST",
+        body: JSON.stringify({
+          p_withdrawal_id: id,
+          p_decision: decision,
+          p_admin_note: note
+        })
+      }
+    );
+
+    if (!result?.success) {
+      throw new Error("The withdrawal review was unsuccessful.");
+    }
+
+    showMessage(
+      decision === "approved"
+        ? "Withdrawal approved. Remember to transfer the money manually."
+        : "Withdrawal rejected.",
+      "success"
+    );
+
+    await loadWithdrawals();
+
+  } catch (error) {
+    showMessage(error.message);
+  }
+}
+
+async function markAsPaid(id) {
+  if (!confirm(
+    "Have you completed the bank transfer? Only confirm if the money has actually been sent."
+  )) return;
+
+  try {
+    const result = await apiRequest(
+      "rpc/admin_mark_withdrawal_paid",
+      {
+        method: "POST",
+        body: JSON.stringify({
+          p_withdrawal_id: id
+        })
+      }
+    );
+
+    if (!result?.success) {
+      throw new Error("Could not mark this withdrawal as paid.");
+    }
+
+    showMessage("Withdrawal marked as paid.", "success");
+
+    await loadWithdrawals();
+
+  } catch (error) {
+    showMessage(error.message);
+  }
+}
+
+async function initializePage() {
+  try {
+    await checkAdmin();
+    await loadWithdrawals();
+  } catch (error) {
+    showMessage(error.message);
+
+    if (
+      error.message.toLowerCase().includes("log in") ||
+      error.message.toLowerCase().includes("session")
+    ) {
+      setTimeout(() => {
+        window.location.href = "login.html";
+      }, 1800);
+    }
+  }
+}
+
+initializePage();
+</script>
+
+</body>
+</html>
