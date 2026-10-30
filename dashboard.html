@@ -127,10 +127,15 @@
         }
 
         .dashboard-grid {
-            display: grid;
-            grid-template-columns: 2fr 1fr;
-            gap: 22px;
-        }
+    display: grid;
+    grid-template-columns: minmax(0, 2fr) minmax(0, 1fr);
+    gap: 22px;
+}
+
+.dashboard-grid > div,
+.dashboard-grid > aside {
+    min-width: 0;
+}
 
         .dashboard-card {
             background: #ffffff;
@@ -287,34 +292,58 @@
         }
 
         .activity-item {
-            display: flex;
-            justify-content: space-between;
-            align-items: flex-start;
-            gap: 14px;
-            padding: 15px 0;
-            border-bottom: 1px solid #e7e8ef;
-        }
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    gap: 14px;
+    padding: 15px 0;
+    border-bottom: 1px solid #e7e8ef;
+    width: 100%;
+    max-width: 100%;
+    min-width: 0;
+}
 
-        .activity-item:last-child {
-            border-bottom: none;
-        }
+.activity-item:last-child {
+    border-bottom: none;
+}
 
-        .activity-title {
-            color: #171827;
-            font-weight: 700;
-            margin-bottom: 5px;
-        }
+/* Allow the description to shrink instead of expanding the page */
+.activity-item > div:first-child {
+    flex: 1 1 auto;
+    min-width: 0;
+    max-width: 100%;
+}
 
-        .activity-date {
-            color: #73758a;
-            font-size: 12px;
-            line-height: 1.5;
-        }
+.activity-title {
+    color: #171827;
+    font-weight: 700;
+    margin-bottom: 5px;
+    min-width: 0;
+    width: 100%;
+    max-width: 100%;
+    overflow-wrap: anywhere;
+    word-break: break-all;
+}
 
-        .activity-amount {
-            font-weight: 800;
-            white-space: nowrap;
-        }
+#recentActivity {
+    width: 100%;
+    max-width: 100%;
+    min-width: 0;
+    overflow: hidden;
+}
+
+.activity-date {
+    color: #73758a;
+    font-size: 12px;
+    line-height: 1.5;
+    overflow-wrap: anywhere;
+}
+
+.activity-amount {
+    font-weight: 800;
+    white-space: nowrap;
+    flex: 0 0 auto;
+}
 
         .amount-positive {
             color: #15945f;
