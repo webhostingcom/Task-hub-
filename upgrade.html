@@ -3,85 +3,48 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
   <title>Task Hub | Upgrade</title>
+
   <link rel="stylesheet" href="style.css">
 
   <style>
     .upgrade-page {
       min-height: 100vh;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      padding: 25px 18px;
       background: #f7f7fb;
+      padding: 35px 18px 60px;
     }
 
-    .upgrade-card {
+    .upgrade-container {
       width: 100%;
-      max-width: 470px;
-      background: #fff;
-      border-radius: 16px;
-      padding: 30px;
-      box-shadow: 0 10px 35px rgba(0, 0, 0, 0.08);
+      max-width: 620px;
+      margin: 0 auto;
     }
 
-    .upgrade-card h1 {
+    .upgrade-header {
+      text-align: center;
+      margin-bottom: 25px;
+    }
+
+    .upgrade-header h1 {
       margin: 0 0 8px;
       color: #17172b;
-      font-size: 28px;
+      font-size: 30px;
     }
 
-    .subtitle {
-      margin: 0 0 25px;
+    .upgrade-header p {
+      margin: 0;
       color: #686879;
       line-height: 1.5;
     }
 
-    .plan-summary {
-      padding: 20px;
-      margin-bottom: 22px;
-      border-radius: 12px;
-      background: #f1f1ff;
-    }
-
-    .plan-name {
-      margin: 0 0 8px;
-      color: #3334a4;
-      font-size: 23px;
-      font-weight: 800;
-    }
-
-    .plan-price {
-      margin: 0;
-      color: #17172b;
-      font-size: 30px;
-      font-weight: 800;
-    }
-
-    .plan-details {
-      margin-top: 12px;
-      color: #626274;
-      font-size: 14px;
-      line-height: 1.6;
-    }
-
-    .reward-box {
-      margin: 20px 0;
-      padding: 14px;
-      border-radius: 9px;
-      background: #f7f7f9;
-      text-align: center;
-      color: #333344;
-      font-weight: 700;
-    }
-
     .message {
       display: none;
-      margin-bottom: 18px;
-      padding: 13px 14px;
-      border-radius: 9px;
+      padding: 14px 16px;
+      border-radius: 10px;
+      margin-bottom: 20px;
+      line-height: 1.5;
       font-size: 14px;
-      line-height: 1.45;
     }
 
     .message.error {
@@ -96,35 +59,112 @@
       color: #176b38;
     }
 
-    .pay-btn {
+    .plan-card {
+      background: #fff;
+      border: 1px solid #e4e4ec;
+      border-radius: 16px;
+      padding: 25px;
+      box-shadow: 0 8px 28px rgba(0, 0, 0, 0.06);
+    }
+
+    .plan-card h2 {
+      margin: 0 0 6px;
+      color: #17172b;
+      font-size: 25px;
+    }
+
+    .plan-description {
+      margin: 0 0 22px;
+      color: #707080;
+      line-height: 1.5;
+    }
+
+    .price-box {
+      padding: 20px;
+      border-radius: 12px;
+      background: #f1f1ff;
+      text-align: center;
+      margin-bottom: 20px;
+    }
+
+    .price {
+      font-size: 34px;
+      font-weight: 800;
+      color: #17172b;
+    }
+
+    .price-label {
+      margin-top: 5px;
+      color: #777787;
+      font-size: 13px;
+    }
+
+    .reward-box {
+      padding: 15px;
+      margin-bottom: 20px;
+      border-radius: 10px;
+      background: #f7f7f9;
+      text-align: center;
+      color: #333344;
+      font-weight: 700;
+    }
+
+    .details {
+      margin: 0 0 25px;
+      padding: 0;
+      list-style: none;
+    }
+
+    .details li {
+      padding: 11px 0;
+      border-bottom: 1px solid #eeeeF2;
+      color: #555565;
+      font-size: 14px;
+    }
+
+    .details li:last-child {
+      border-bottom: 0;
+    }
+
+    .continue-btn {
+      display: block;
       width: 100%;
+      box-sizing: border-box;
       border: 0;
       border-radius: 9px;
       padding: 14px;
       background: #5b5cf0;
       color: #fff;
+      text-align: center;
+      text-decoration: none;
       font-size: 15px;
       font-weight: 700;
       cursor: pointer;
     }
 
-    .pay-btn:hover {
+    .continue-btn:hover {
       background: #4748d8;
     }
 
-    .pay-btn:disabled {
+    .continue-btn:disabled {
       opacity: 0.65;
       cursor: not-allowed;
     }
 
     .back-link {
       display: block;
-      margin-top: 18px;
+      margin-top: 20px;
       text-align: center;
       color: #5b5cf0;
       text-decoration: none;
       font-weight: 700;
       font-size: 14px;
+    }
+
+    .loading {
+      text-align: center;
+      padding: 35px 15px;
+      color: #686879;
     }
   </style>
 </head>
@@ -132,37 +172,34 @@
 <body>
 
   <main class="upgrade-page">
-    <section class="upgrade-card">
 
-      <h1>Upgrade Plan</h1>
+    <div class="upgrade-container">
 
-      <p class="subtitle">
-        Review your selected plan before continuing to secure
-        Paystack checkout.
-      </p>
+      <header class="upgrade-header">
+        <h1>Upgrade Membership</h1>
+
+        <p>
+          Review your selected membership plan before
+          continuing.
+        </p>
+      </header>
 
       <div id="message" class="message"></div>
 
-      <div id="planSummary" class="plan-summary">
-        Loading plan...
+      <div id="planContainer" class="plan-card">
+
+        <div class="loading">
+          Loading selected plan...
+        </div>
+
       </div>
 
-      <div id="rewardBox" class="reward-box" style="display:none;"></div>
-
-      <button
-        type="button"
-        id="payButton"
-        class="pay-btn"
-        disabled
-      >
-        Continue to Payment
-      </button>
-
       <a href="plans.html" class="back-link">
-        Back to Plans
+        ← Back to Membership Plans
       </a>
 
-    </section>
+    </div>
+
   </main>
 
   <script>
@@ -172,25 +209,18 @@
     const SUPABASE_KEY =
       "sb_publishable_cX6B4WgoF6bwz1Br5kIj4g_p4RsBRJP";
 
-    const planSummary =
-      document.getElementById("planSummary");
+    const planContainer =
+      document.getElementById("planContainer");
 
-    const rewardBox =
-      document.getElementById("rewardBox");
-
-    const payButton =
-      document.getElementById("payButton");
-
-    const message =
+    const messageBox =
       document.getElementById("message");
 
-    const params =
+    const urlParams =
       new URLSearchParams(window.location.search);
 
     const planId =
-      params.get("plan_id");
+      urlParams.get("plan_id");
 
-    let selectedPlan = null;
 
     function getToken() {
       return localStorage.getItem(
@@ -198,25 +228,43 @@
       );
     }
 
+
     function clearSession() {
-      localStorage.removeItem("taskhub_access_token");
-      localStorage.removeItem("taskhub_refresh_token");
-      localStorage.removeItem("taskhub_user_id");
-      localStorage.removeItem("taskhub_email");
+      localStorage.removeItem(
+        "taskhub_access_token"
+      );
+
+      localStorage.removeItem(
+        "taskhub_refresh_token"
+      );
+
+      localStorage.removeItem(
+        "taskhub_user_id"
+      );
+
+      localStorage.removeItem(
+        "taskhub_email"
+      );
 
       window.location.href = "login.html";
     }
 
+
     function showMessage(text, type) {
-      message.textContent = text;
-      message.className =
+      messageBox.textContent = text;
+
+      messageBox.className =
         "message " + type;
     }
 
+
     function formatNaira(amount) {
       return "₦" +
-        Number(amount || 0).toLocaleString("en-NG");
+        Number(amount || 0).toLocaleString(
+          "en-NG"
+        );
     }
+
 
     function escapeHtml(value) {
       return String(value ?? "")
@@ -227,7 +275,9 @@
         .replace(/'/g, "&#039;");
     }
 
-    async function getPlan() {
+
+    async function loadSelectedPlan() {
+
       const token = getToken();
 
       if (!token) {
@@ -235,34 +285,50 @@
         return;
       }
 
+
       if (!planId) {
+
         showMessage(
-          "No plan was selected. Please return to the plans page.",
+          "No membership plan was selected. Please return to the plans page.",
           "error"
         );
 
-        planSummary.textContent =
-          "No plan selected.";
+        planContainer.innerHTML = `
+          <div class="loading">
+            No plan selected.
+          </div>
+        `;
 
         return;
       }
 
+
       try {
+
+        /*
+         * IMPORTANT:
+         * The database column is task_reward,
+         * not reward.
+         */
+
         const response = await fetch(
           SUPABASE_URL +
           "/rest/v1/taskhub_plans" +
-          "?select=id,name,price,reward,duration_days" +
+          "?select=id,name,price,task_reward,duration_days" +
           "&id=eq." +
           encodeURIComponent(planId) +
           "&limit=1",
           {
             method: "GET",
+
             headers: {
               "apikey": SUPABASE_KEY,
-              "Authorization": "Bearer " + token
+              "Authorization":
+                "Bearer " + token
             }
           }
         );
+
 
         if (
           response.status === 401 ||
@@ -272,178 +338,245 @@
           return;
         }
 
+
+        const data =
+          await response.json().catch(
+            () => ({})
+          );
+
+
         if (!response.ok) {
+
+          console.error(
+            "Plan loading error:",
+            data
+          );
+
           throw new Error(
+            data.message ||
+            data.details ||
+            data.hint ||
             "Unable to load the selected plan."
           );
         }
 
-        const plans = await response.json();
 
         if (
-          !Array.isArray(plans) ||
-          plans.length === 0
+          !Array.isArray(data) ||
+          data.length === 0
         ) {
+
           throw new Error(
-            "The selected plan could not be found."
+            "The selected membership plan could not be found."
           );
         }
 
-        selectedPlan = plans[0];
+
+        const plan = data[0];
+
+
+        /*
+         * Only paid membership plans should
+         * reach the upgrade page.
+         */
 
         if (
-          Number(selectedPlan.price || 0) <= 0
+          Number(plan.price || 0) <= 0
         ) {
+
           showMessage(
-            "This plan does not require payment.",
+            "This is the Free plan and does not require payment.",
             "error"
           );
 
-          planSummary.innerHTML = `
-            <p class="plan-name">
-              ${escapeHtml(selectedPlan.name)}
+          planContainer.innerHTML = `
+            <h2>
+              ${escapeHtml(plan.name)}
+            </h2>
+
+            <p class="plan-description">
+              This membership plan does not require payment.
             </p>
-            <p class="plan-price">
-              ${formatNaira(selectedPlan.price)}
-            </p>
+
+            <div class="price-box">
+              <div class="price">
+                ${formatNaira(plan.price)}
+              </div>
+
+              <div class="price-label">
+                No payment required
+              </div>
+            </div>
+
+            <a
+              href="dashboard.html"
+              class="continue-btn"
+            >
+              Return to Dashboard
+            </a>
           `;
 
           return;
         }
 
-        planSummary.innerHTML = `
-          <p class="plan-name">
-            ${escapeHtml(selectedPlan.name)}
+
+        /*
+         * Display the selected Pro/Premium plan.
+         */
+
+        planContainer.innerHTML = `
+
+          <h2>
+            ${escapeHtml(plan.name)}
+          </h2>
+
+          <p class="plan-description">
+            Upgrade your Task Hub membership to
+            ${escapeHtml(plan.name)}.
           </p>
 
-          <p class="plan-price">
-            ${formatNaira(selectedPlan.price)}
-          </p>
 
-          <div class="plan-details">
-            Plan duration:
-            ${selectedPlan.duration_days
-              ? escapeHtml(selectedPlan.duration_days) + " days"
-              : "No expiration"}
+          <div class="price-box">
+
+            <div class="price">
+              ${formatNaira(plan.price)}
+            </div>
+
+            <div class="price-label">
+              Membership payment
+            </div>
+
           </div>
+
+
+          <div class="reward-box">
+
+            ${formatNaira(plan.task_reward)}
+
+            reward per approved eligible task
+
+          </div>
+
+
+          <ul class="details">
+
+            <li>
+              ✓ Membership:
+              <strong>
+                ${escapeHtml(plan.name)}
+              </strong>
+            </li>
+
+            <li>
+              ✓ Task reward:
+              <strong>
+                ${formatNaira(plan.task_reward)}
+              </strong>
+            </li>
+
+            <li>
+              ✓ Duration:
+              <strong>
+                ${
+                  plan.duration_days
+                    ? escapeHtml(
+                        plan.duration_days
+                      ) + " days"
+                    : "No expiration"
+                }
+              </strong>
+            </li>
+
+            <li>
+              ✓ Access to eligible Task Hub tasks
+            </li>
+
+            <li>
+              ✓ Wallet and withdrawal access
+            </li>
+
+          </ul>
+
+
+          <button
+            type="button"
+            id="continueButton"
+            class="continue-btn"
+          >
+            Continue
+          </button>
+
         `;
 
-        rewardBox.textContent =
-          formatNaira(selectedPlan.reward) +
-          " reward per approved eligible task";
 
-        rewardBox.style.display = "block";
+        const continueButton =
+          document.getElementById(
+            "continueButton"
+          );
 
-        payButton.disabled = false;
+
+        continueButton.addEventListener(
+          "click",
+          function () {
+
+            /*
+             * Manual deposit flow:
+             * send the selected plan to the
+             * payment/deposit page.
+             */
+
+            window.location.href =
+              "payment-success.html?plan_id=" +
+              encodeURIComponent(plan.id) +
+              "&source=membership";
+
+          }
+        );
+
 
       } catch (error) {
-        console.error(error);
+
+        console.error(
+          "Unable to load selected plan:",
+          error
+        );
+
 
         showMessage(
           error.message ||
-          "Unable to load this plan.",
+          "Unable to load the selected plan.",
           "error"
         );
 
-        planSummary.textContent =
-          "Unable to load plan.";
+
+        planContainer.innerHTML = `
+
+          <div class="loading">
+
+            Unable to load this membership plan.
+
+            <br><br>
+
+            <a
+              href="plans.html"
+              style="
+                color:#5b5cf0;
+                font-weight:700;
+                text-decoration:none;
+              "
+            >
+              Return to Plans
+            </a>
+
+          </div>
+
+        `;
       }
     }
 
-    payButton.addEventListener(
-      "click",
-      async function () {
 
-        if (!selectedPlan) {
-          return;
-        }
+    loadSelectedPlan();
 
-        const token = getToken();
-
-        if (!token) {
-          window.location.href = "login.html";
-          return;
-        }
-
-        payButton.disabled = true;
-        payButton.textContent =
-          "Preparing Payment...";
-
-        showMessage(
-          "Connecting to secure payment checkout...",
-          "success"
-        );
-
-        try {
-          const response = await fetch(
-            SUPABASE_URL +
-            "/functions/v1/initialize-plan-payment",
-            {
-              method: "POST",
-              headers: {
-                "Content-Type": "application/json",
-                "apikey": SUPABASE_KEY,
-                "Authorization":
-                  "Bearer " + token
-              },
-              body: JSON.stringify({
-                plan_id: Number(selectedPlan.id)
-              })
-            }
-          );
-
-          if (
-            response.status === 401 ||
-            response.status === 403
-          ) {
-            clearSession();
-            return;
-          }
-
-          const data =
-            await response.json().catch(() => ({}));
-
-          if (!response.ok) {
-            throw new Error(
-              data.message ||
-              data.error ||
-              "Unable to initialize payment."
-            );
-          }
-
-          const checkoutUrl =
-            data.authorization_url ||
-            data.data?.authorization_url;
-
-          if (!checkoutUrl) {
-            throw new Error(
-              "Payment checkout URL was not returned."
-            );
-          }
-
-          window.location.href =
-            checkoutUrl;
-
-        } catch (error) {
-          console.error(
-            "Plan payment error:",
-            error
-          );
-
-          showMessage(
-            error.message ||
-            "Unable to start payment. Please try again.",
-            "error"
-          );
-
-          payButton.disabled = false;
-          payButton.textContent =
-            "Continue to Payment";
-        }
-      }
-    );
-
-    getPlan();
   </script>
 
 </body>
