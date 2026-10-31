@@ -5,143 +5,138 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Task Hub | Referrals</title>
   <link rel="stylesheet" href="style.css">
-
-  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 </head>
-
 <body>
-
 <div class="container">
-
   <h1>Referral Program</h1>
-
   <div class="card">
     <h2>Earn ₦1,500</h2>
     <p>Invite someone to Task Hub. When they complete their first approved task, you earn ₦1,500.</p>
-
     <label>Your Referral Link</label>
-
     <div style="display:flex;gap:8px;margin-top:8px;">
-      <input
-        id="referralLink"
-        type="text"
-        readonly
-        style="flex:1;"
-      >
-
+      <input id="referralLink" type="text" readonly style="flex:1;">
       <button onclick="copyReferralLink()">Copy</button>
     </div>
-
     <p id="copyMessage"></p>
   </div>
-
   <div class="card">
     <h2>Your Referrals</h2>
-
-    <p>
-      Referrals: <strong id="referralCount">0</strong>
-    </p>
-
-    <p>
-      Earnings: <strong id="referralEarnings">₦0</strong>
-    </p>
-
-    <div id="referralList">
-      Loading...
-    </div>
+    <p>Referrals: <strong id="referralCount">0</strong></p>
+    <p>Earnings: <strong id="referralEarnings">₦0</strong></p>
+    <div id="referralList">Loading...</div>
   </div>
-
 </div>
-
 <script>
 const SUPABASE_URL = "https://bcogfxghqrffrnfetqbo.supabase.co";
 const SUPABASE_KEY = "sb_publishable_cX6B4WgoF6bwz1Br5kIj4g_p4RsBRJP";
+const accessToken = localStorage.getItem("taskhub_access_token");
 
-const supabaseClient = supabase.createClient(
-  SUPABASE_URL,
-  SUPABASE_KEY
-);
+function authHeaders() {
+  return {
+    "apikey": SUPABASE_KEY,
+    "Authorization": `Bearer ${accessToken}`,
+    "Content-Type": "application/json"
+  };
+}
+
+async function apiRequest(path, options = {}) {
+  const response = await fetch(`${SUPABASE_URL}${path}`, {
+    ...options,
+    headers: { ...authHeaders(), ...(options.headers || {}) }
+  });
+  const body = await response.text();
+  let data = null;
+  try { data = body ? JSON.parse(body) : null; } catch (_) { data = body; }
+  if (!response.ok) {
+    const message = data && (data.message || data.error_description || data.details || data.hint);
+    throw new Error(message || `Request failed (${response.status})`);
+  }
+  return data;
+}
 
 async function loadReferrals() {
-
-  const {
-    data: { user }
-  } = await supabaseClient.auth.getUser();
-
-  if (!user) {
+  if (!accessToken) {
     location.href = "login.html";
     return;
   }
 
-  const { data: profile, error } =
-    await supabaseClient
-      .from("profiles")
-      .select("referral_code")
-      .eq("id", user.id)
-      .single();
+  try {
+    const user = await apiRequest("/auth/v1/user");
+    if (!user || !user.id) {
+      localStorage.removeItem("taskhub_access_token");
+      localStorage.removeItem("taskhub_refresh_token");
+      location.href = "login.html";
+      return;
+    }
 
-  if (error || !profile || !profile.referral_code) {
-    document.getElementById("referralLink").value =
-      "Referral link unavailable";
-    return;
-  }
+    const profiles = await apiRequest(
+      `/rest/v1/profiles?select=referral_code&id=eq.${encodeURIComponent(user.id)}`
+    );
+    const profile = profiles && profiles[0];
 
-  const link =
-    `${location.origin}${location.pathname.replace(
-      "referrals.html",
-      "register.html"
-    )}?ref=${encodeURIComponent(profile.referral_code)}`;
+    if (!profile || !profile.referral_code) {
+      document.getElementById("referralLink").value = "Referral link unavailable";
+      document.getElementById("referralList").textContent =
+        "Your referral code has not been created yet. Please contact Task Hub support.";
+      return;
+    }
 
-  document.getElementById("referralLink").value = link;
+    const registerUrl = new URL("register.html", location.href);
+    registerUrl.searchParams.set("ref", profile.referral_code);
+    document.getElementById("referralLink").value = registerUrl.href;
 
-  const { data: referrals, error: referralError } =
-    await supabaseClient.rpc("get_my_referrals");
+    const referrals = await apiRequest("/rest/v1/rpc/get_my_referrals", {
+      method: "POST",
+      body: "{}"
+    });
+    const list = Array.isArray(referrals) ? referrals : [];
+    document.getElementById("referralCount").textContent = list.length;
 
-  if (referralError) {
-    document.getElementById("referralList").innerHTML =
-      "Unable to load referrals.";
-    return;
-  }
+    const earnings = list.reduce(
+      (total, item) => total + Number(item.reward_amount ?? item.amount ?? 1500), 0
+    );
+    document.getElementById("referralEarnings").textContent =
+      "₦" + earnings.toLocaleString("en-NG");
 
-  const list = referrals || [];
+    if (!list.length) {
+      document.getElementById("referralList").innerHTML = "<p>No referrals yet.</p>";
+      return;
+    }
 
-  document.getElementById("referralCount").textContent = list.length;
-
-  const earnings = list.reduce(
-    (total, item) => total + Number(item.reward_amount || 1500),
-    0
-  );
-
-  document.getElementById("referralEarnings").textContent =
-    "₦" + earnings.toLocaleString();
-
-  if (!list.length) {
-    document.getElementById("referralList").innerHTML =
-      "<p>No referrals yet.</p>";
-    return;
-  }
-
-  document.getElementById("referralList").innerHTML =
-    list.map(item => `
+    document.getElementById("referralList").innerHTML = list.map(item => `
       <div class="card">
-        <strong>${escapeHtml(
-          item.username || item.full_name || "User"
-        )}</strong>
-        <br>
-        Reward: ₦${Number(
-          item.reward_amount || 1500
-        ).toLocaleString()}
+        <strong>${escapeHtml(item.username || item.full_name || "User")}</strong><br>
+        Reward: ₦${Number(item.reward_amount ?? item.amount ?? 1500).toLocaleString("en-NG")}
       </div>
     `).join("");
+  } catch (error) {
+    if (/invalid.*token|jwt|not authenticated/i.test(error.message)) {
+      localStorage.removeItem("taskhub_access_token");
+      localStorage.removeItem("taskhub_refresh_token");
+      location.href = "login.html";
+      return;
+    }
+    document.getElementById("referralList").textContent =
+      "Unable to load referrals: " + error.message;
+  }
 }
 
-function copyReferralLink() {
+async function copyReferralLink() {
   const input = document.getElementById("referralLink");
-
-  navigator.clipboard.writeText(input.value);
-
-  document.getElementById("copyMessage").textContent =
-    "Referral link copied!";
+  const message = document.getElementById("copyMessage");
+  if (!input.value || input.value === "Referral link unavailable") {
+    message.textContent = "No referral link is available yet.";
+    return;
+  }
+  try {
+    await navigator.clipboard.writeText(input.value);
+    message.textContent = "Referral link copied!";
+  } catch (_) {
+    input.select();
+    message.textContent = document.execCommand("copy")
+      ? "Referral link copied!"
+      : "Copy failed. Please copy the link manually.";
+  }
 }
 
 function escapeHtml(value) {
@@ -155,6 +150,5 @@ function escapeHtml(value) {
 
 loadReferrals();
 </script>
-
 </body>
 </html>
