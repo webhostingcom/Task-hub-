@@ -350,7 +350,7 @@ async function loadCurrentPlan() {
     }
 
     const planResponse = await supabaseRequest(
-      `/rest/v1/taskhub_plans?id=eq.${encodeURIComponent(validSubscription.plan_id)}&select=id,name,reward&limit=1`
+      `/rest/v1/taskhub_plans?id=eq.${encodeURIComponent(validSubscription.plan_id)}&select=id,name,task_reward&limit=1`
     );
 
     if (planResponse.status === 401) {
@@ -370,7 +370,7 @@ async function loadCurrentPlan() {
 
     currentPlan = {
       name: String(plans[0].name || "Free"),
-      reward: Number(plans[0].reward || 0)
+      reward: Number(plans[0].task_reward || 0)
     };
 
     planName.textContent = currentPlan.name + " Plan";
